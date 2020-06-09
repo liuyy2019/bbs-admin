@@ -1,25 +1,23 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Switch,Route } from 'react-router-dom'
+import MyLayout from "./components/layout/myLayout";
+import {privateRoutes} from "./routes/routeConfig"
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <Switch>
+          <MyLayout>
+              {/*2、配置私有路由组件 */}
+              {
+                  privateRoutes.map((item,index)=>{
+                      return (
+                          <Route key={index} path={item.pathname} component={item.component}></Route>
+                      )
+                  })
+              }
+          </MyLayout>
+      </Switch>
+
   );
 }
 
