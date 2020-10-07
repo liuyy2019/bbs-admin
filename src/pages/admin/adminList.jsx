@@ -1,3 +1,6 @@
+/**
+ * 管理员信息模块
+ */
 import React from 'react'
 import {deleteAdmin, getListAdmins,getCodeByType} from "../../api";
 import {
@@ -25,15 +28,20 @@ class AdminList extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            data:[],
+            dataList:[],/* 数据列表信息 */
             pageNum: 1,
             pageSize: 5,
             visible: false,/* 新建右测栏 */
             isLoading: false,
             type: 'add',
-            values:{},
-            adminLevel: [],/*管理员级别*/
-            adminStatus: [],/*账户状态*/
+            forms: {
+                formValues: {},
+                list: {
+                    adminLevel: [],/*管理员级别*/
+                    adminStatus: [],/*账户状态*/
+                }
+            },
+            values: {},/* 搜索内容封装的对象*/
         }
     }
 
@@ -42,21 +50,23 @@ class AdminList extends React.Component {
         this.setState({isLoading:true});
         getListAdmins({admin:{},page:pageNum,size:pageSize},result => {
             this.setState({
-                data: result,
+                dataList: result,
                 isLoading: false,
             })
         })
     }
-    componentWillMount(){
+    componentDidMount(){
+        const {list} = this.state.forms
         this.initValues();
         getCodeByType({codeType:"ADMIN_LEVEL"},result => {
-            this.setState({
-                adminLevel: result
-            })
-        })
-        getCodeByType({codeType:"ADMIN_STATUS"},result => {
-            this.setState({
-                adminStatus: result
+            list.adminLevel = result
+            getCodeByType({codeType:"ADMIN_STATUS"},result => {
+                list.adminStatus = result
+                this.setState({
+                    forms: {
+                        list
+                    }
+                })
             })
         })
     }
@@ -64,33 +74,36 @@ class AdminList extends React.Component {
     /* 搜索框表单提交 */
     onFinish = values => {
         this.setState({values});
-        console.log(values)
         const {pageNum,pageSize} = this.state
         getListAdmins({admin:values,page:pageNum,size:pageSize},result => {
             this.setState({
-                data: result
+                dataList: result
             })
         })
     };
     showDrawer = (values,type) => {
+        const {forms} = this.state
+        forms.formValues = values
         this.setState({
             visible: true,
             type: type,
-            values: values
+            forms
         });
-        console.log(this.state)
     };
 
     onClose = () => {
         this.setState({
             visible: false,
         });
-        getListAdmins({admin:{},page:1,size:100},result => {
-            this.setState({
-                data: result
-            })
-        })
     };
+
+    onChange = (values) => {
+        const {forms} = this.state
+        forms.formValues = values
+        this.setState({
+            forms
+        })
+    }
 
     /* 删除管理员*/
     deleteAdmin = (record) => {
@@ -102,7 +115,7 @@ class AdminList extends React.Component {
                         message.success('删除成功');
                         getListAdmins({admin:{},page:1,size:100},result => {
                             this.setState({
-                                data: result
+                                dataList: result
                             })
                         })
                     }
@@ -141,6 +154,7 @@ class AdminList extends React.Component {
     }
 
     render(){
+        const forms = this.state.forms
         return(
             <div style={{background:'#f0f2f5',height:'100%'}}>
                 <Card size="small" style={{height:'20%'}}>
@@ -162,7 +176,7 @@ class AdminList extends React.Component {
                                     <Form.Item name="status" label="状态">
                                         <Select placeholder="请选择账号状态">
                                             {
-                                                this.state.adminStatus.map(item => {
+                                                forms.list.adminStatus.map(item => {
                                                     return <option value={item.codeName}>{item.codeName} - {item.description}</option>
                                                 })
                                             }
@@ -173,7 +187,7 @@ class AdminList extends React.Component {
                                     <Form.Item name="level" label="级别">
                                         <Select placeholder="请选择管理员级别">
                                             {
-                                                this.state.adminLevel.map(item => {
+                                                forms.list.adminLevel.map(item => {
                                                     return <option value={item.codeName}>{item.codeName} - {item.description}</option>
                                                 })
                                             }
@@ -194,7 +208,7 @@ class AdminList extends React.Component {
                 </Card>
                 <Card title="管理员列表" extra={<Button type="primary" onClick={() => this.showDrawer({},'add')}>新建</Button>}size="small" style={{marginTop:'15px',height:'76%'}}>
                     <Table rowKey="adminId" loading={this.state.isLoading}
-                           dataSource={this.state.data} scroll={{ y: 230 }} size="middle" pagination={false}>
+                           dataSource={this.state.dataList} scroll={{ y: 230 }} size="middle" pagination={false}>
                         <Table.Column title= '序号' width= {50} align= 'center'fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '账号' width= {100} align= 'center' dataIndex= 'name' ellipsis={true}/>
                         <Table.Column title= '密码' width= {150} align= 'center' dataIndex= 'password' style={styles.titleStyles} render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}/>
@@ -206,18 +220,17 @@ class AdminList extends React.Component {
                         onClose={this.onClose}
                         visible={this.state.visible}
                         type={this.state.type}
-                        values={this.state.values}
+                        onChange={this.onChange}
                         initValues={this.initValues}
-                        adminLevel={this.state.adminLevel}
-                        adminStatus={this.state.adminStatus}
+                        forms={forms}
                     />
-                    {/*<div style={{position:"absolute",right:"10px",bottom:'20px'}}>
+                    <div style={{position:"absolute",right:"10px",bottom:'20px'}}>
                         <Pagination
                             showSizeChanger
                             defaultCurrent={3}
                             total={500}
                         />
-                    </div>*/}
+                    </div>
                 </Card>
             </div>
         );

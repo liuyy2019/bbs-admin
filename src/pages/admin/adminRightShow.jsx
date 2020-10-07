@@ -8,24 +8,10 @@ const { Option } = Select;
 class adminRightShow extends React.Component {
     formRef = React.createRef();
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            value: {},
-            id: 0,
-        };
-    }
-    componentWillReceiveProps(props,nextProps){
-        this.setState({
-            value: props.values,
-            id:props.values.id
-        })
-    }
-
     onSubmit = ()=>{
         // 1、通过该方式与表单进行交互，获取表单值
         const data =this.formRef.current.getFieldsValue();
-        data.adminId = this.props.values.adminId;
+        data.adminId = this.props.forms.formValues.adminId;
         console.log(data)
         if (this.props.type === 'edit'){
             updateAdmin(data,(result)=>{
@@ -35,8 +21,6 @@ class adminRightShow extends React.Component {
                     this.props.initValues();
                 }
             })
-        } else if (this.props.type === 'search') {
-            console.log('search')
         } else if (this.props.type === 'add') {
              // 将表单值插入到数据库中
             addAdmin(data,(result)=>{
@@ -53,15 +37,20 @@ class adminRightShow extends React.Component {
         this.props.onClose();
         /*this.props.history.replace('/admin/announcement');*/
     }
+    onValuesChange = (changedValues, allValues) => {
+        // console.log(changedValues, allValues)
+        this.props.onChange(allValues)
+    }
+
     render() {
-        const {onClose,visible,adminLevel,adminStatus,type} = this.props
+        const {onClose,visible,forms,type} = this.props
         return (
             <div>
                 <Drawer
                     title={`${type==='edit'?'编辑':'查看'}管理员信息`}
                     placement="right"
                     width={520}
-                    // closable={false}
+                    closable={false}
                     destroyOnClose={"true"}
                     onClose={onClose}
                     visible={visible}
@@ -76,7 +65,11 @@ class adminRightShow extends React.Component {
                         </div>
                     }
                 >
-                    <Form layout="vertical" hideRequiredMark ref={this.formRef} onFinish={this.onFinish} initialValues={this.state.value}>
+                    <Form layout="vertical" ref={this.formRef}
+                          onFinish={this.onFinish}
+                          initialValues={forms.formValues}
+                          onValuesChange={this.onValuesChange}
+                    >
                         <Row gutter={16}>
                             <Col span={12}>
                                 <Form.Item name="name" label="账户"
@@ -100,7 +93,7 @@ class adminRightShow extends React.Component {
                                 >
                                     <Select placeholder="请选择账户状态" disabled={type==="search"?true:false}>
                                         {
-                                            adminStatus.map(item => {
+                                            forms.list.adminStatus.map(item => {
                                                 return <option value={item.codeName}>{item.codeName} - {item.description}</option>
                                             })
                                         }
@@ -113,7 +106,7 @@ class adminRightShow extends React.Component {
                                 >
                                     <Select placeholder="请选择管理类别" disabled={type==="search"?true:false}>
                                         {
-                                            adminLevel.map(item => {
+                                            forms.list.adminLevel.map(item => {
                                                 return <option value={item.codeName}>{item.codeName} - {item.description}</option>
                                             })
                                         }
