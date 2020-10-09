@@ -1,58 +1,47 @@
-/* 公告的新增、修改、查看组件 */
+/* 用户关注的新增、修改、查看组件 */
 import React from 'react'
-import {Drawer, Form, Button, Col, Row, Input, Select, message} from 'antd';
-import {addAdmin,updateAttention} from '../../api/index'
+import {Drawer, Form, Button, Col, Row, Input, Select,DatePicker} from 'antd';
+import moment from 'moment'
+import 'moment/locale/zh-cn';
+import locale from 'antd/es/locale/zh_CN';
+import {deepClone} from "../../api/untils";
 
 const { Option } = Select;
-
+const dateFormat = 'YYYY-MM-DD HH:mm:ss'
 class AttentionRightShow extends React.Component {
     formRef = React.createRef();
 
     constructor(props) {
         super(props);
         this.state = {
-            value: {},
             id: 0,
         };
     }
-    componentWillReceiveProps(props,nextProps){
-        this.setState({
-            value: props.values,
-            id:props.values.id
-        })
-    }
+
 
     onSubmit = ()=>{
-        // 1、通过该方式与表单进行交互，获取表单值
-        const data =this.formRef.current.getFieldsValue();
-        data.id = this.props.values.id;
         if (this.props.type === 'edit'){
-            updateAttention(data,(result)=>{
-                if (result.status === 200){
-                    message.success('关注信息修改成功');
-                    this.props.initValues();
-                }
-            })
-        } else if (this.props.type === 'search') {
-
-        } else if (this.props.type === 'add') {
-            // 将表单值插入到数据库中
-            addAdmin(data,(result)=>{
-                console.log(result)
-                if (result === true){
-                    message.success('管理员新建成功');
-                    this.props.initValues();
-                }
-            })
+            this.props.updateAttention()
         }
-        // 3、清空表单值
-        this.formRef.current.resetFields();
-        // 4、调用父组件的onClose方法
+        // 、调用父组件的onClose方法
         this.props.onClose();
         /*this.props.history.replace('/admin/announcement');*/
     }
+
+    onValuesChange = (changedValues, allValues) =>{
+        console.log(changedValues, allValues)
+        // 注意点：
+        const obj = {
+            ...allValues,
+            createtime: (allValues.createtime)? moment(allValues.createtime).format('YYYY-MM-DD HH:mm:ss'):null
+        }
+        console.log(obj)
+
+        this.props.onFormChange(obj)
+    }
+
     render() {
-        const {onClose,visible,attentionStatus,type} = this.props
+        const {onClose,visible,type,forms} = this.props
         return (
             <div>
                 <Drawer
@@ -65,7 +54,7 @@ class AttentionRightShow extends React.Component {
                     visible={visible}
                     footer={
                         <div style={{textAlign: 'right',}}>
-                            <Button onClick={onClose} style={{ marginRight: 8 }}>
+                            <Button onClick={this.props.onClose} style={{ marginRight: 8 }}>
                                 取消
                             </Button>
                             <Button onClick={this.onSubmit} htmlType="submit" type="primary">
@@ -74,7 +63,10 @@ class AttentionRightShow extends React.Component {
                         </div>
                     }
                 >
-                    <Form layout="vertical" hideRequiredMark ref={this.formRef} onFinish={this.onFinish} initialValues={this.state.value}>
+                    <Form layout="vertical" hideRequiredMark ref={this.formRef} onFinish={this.onFinish}
+                          onValuesChange={this.onValuesChange}
+                          initialValues={forms.formValue}
+                    >
                         <Row gutter={16}>
                             <Col span={12}>
                                 <Form.Item name="username" label="用户名"
@@ -125,10 +117,14 @@ class AttentionRightShow extends React.Component {
                         </Row>
                         <Row gutter={16}>
                             <Col span={12}>
-                                <Form.Item name="createtime" label="关注时间"
-                                           rules={[{ required: true, message: '请输入关注时间' }]}
+                                <Form.Item
+                                    name="createtime"
+                                    label="关注时间"
+                                    rules={[{ required: true, message: '请输入关注时间' }]}
                                 >
-                                    <Input placeholder="请输入关注时间" disabled={true}/>
+                                    {/*<Input placeholder="请输入关注时间" disabled={type==="search"?true:false}/>*/}
+                                    {/*<DatePicker locale={locale} showTime format={dateFormat} defaultValue={value.createtime ? moment(value.createtime,dateFormat) : undefined} placeholder="请输入关注时间" style={{width:"100%"}} disabled={type==="search"?true:false}/>*/}
+                                    <DatePicker locale={locale} format={dateFormat} placeholder="请输入关注时间" style={{width:"100%"}} disabled={type==="search"?true:false}/>
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
@@ -137,8 +133,8 @@ class AttentionRightShow extends React.Component {
                                 >
                                     <Select placeholder="请选择关注状态" disabled={type==="search"?true:false}>
                                         {
-                                            attentionStatus.map(item => {
-                                                return <Option value={item.codeName}>{item.codeName} - {item.description}</Option>
+                                            forms.list.attentionStatus.map((item,index) => {
+                                                return <Option key={index} value={item.codeName}>{item.codeName} - {item.description}</Option>
                                             })
                                         }
                                     </Select>

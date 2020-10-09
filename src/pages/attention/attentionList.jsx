@@ -1,61 +1,109 @@
 /* 用户关注信息组件 */
 import React from 'react';
 import {Table, Card, Breadcrumb, Form, Tooltip, Row, Col, Input, Button, Tag, Modal, message, Select,} from 'antd';
-import {deleteAttentionById, getAllAttentions, getCodeByType, getListAdmins, getListAttentions} from "../../api";
+import {
+    deleteAttentionById,
+    getAllAttentions,
+    getCodeByType,
+    getListAttentions,
+    getListAttentionsByName,
+    updateAttention
+} from "../../api";
 import {Link} from "react-router-dom";
 import AttentionRightShow from "./attentionRightShow";
 import AttentionTimeline from "./attentionTimeline";
+import moment from 'moment'
+import 'moment/locale/zh-cn';
+import locale from 'antd/es/locale/zh_CN';
 
+const dateFormat = 'YYYY-MM-DD HH:mm:ss'
 
 class AttentionList extends React.Component{
     formRef = React.createRef();
     constructor(props){
         super(props);
         this.state = {
-            data:[],
+            dataList:[],/* 列表输入*/
             pageNum: 1,
             pageSize: 100,
             visible: false,/* 新建右测栏 */
             type: 'add',
-            values:{},
-            attentionStatus: [],/*关注用户状态*/
+            values:{}, /* 查询条件组装的对象*/
+            forms: {
+                list: {
+                    attentionStatus: [],/*关注用户状态*/
+                },
+                formValue: {}, /* 单条记录表单对象*/
+                timeLineData: [],/* 时间轴数据对象数组*/
+            },
             visibleTimeline: false,
         }
     }
 
+    // 调用接口，设置初始化值
     initValues =() => {
         getAllAttentions((data)=>{
             this.setState({
-                data: data,
+                dataList: data,
             })
         },error => {
             console.log("error "+error)
         });
     };
-    componentWillMount(){
+    componentDidMount(){
         this.initValues();
+        // 获取枚举代码类型
+        const forms = this.state.forms
         getCodeByType({codeType:"ATTENTION_STATUS"},result => {
+            forms.list.attentionStatus = result
             this.setState({
-                attentionStatus: result
+                forms
             })
         })
     }
 
+    // 展示抽屉弹层，参数为：列表记录和操作类型
     showDrawer = (values,type) => {
+        const {forms} = this.state
+        console.log({values})
+        forms.formValue = {
+            ...values,
+            createtime: moment(values.createtime,dateFormat)
+        }
+        console.log(forms.formValue)
         this.setState({
             visible: true,
             type: type,
-            values: values
+            forms
         });
-        console.log(this.state)
     };
 
+
+
     showTimeline = (values) => {
-        this.setState({
-            values: values,
-            visibleTimeline: true
+        const {forms} = this.state
+        forms.formValue = values
+        getListAttentionsByName({username:values.username},result => {
+            forms["timeLineData"] = result
+            this.setState({
+                forms,
+                visibleTimeline: true
+            })
         })
     }
+
+    // 更新关注信息
+    updateAttention = () => {
+        const {formValue} = this.state.forms
+        updateAttention(formValue,(result)=>{
+            if (result.status === 200){
+                message.success('关注信息修改成功');
+                this.initValues();
+            }
+        })
+    }
+
+    // 关闭抽屉弹层
     onClose = () => {
         this.setState({
             visible: false,
@@ -83,20 +131,30 @@ class AttentionList extends React.Component{
         });
     }
 
+    // 搜索查询提交调用的方法，获取符合条件的数据List
     onFinish = values => {
         this.setState({values});
         const {pageNum,pageSize} = this.state
-        console.log(values)
         getListAttentions({attention:values,page:pageNum,size:pageSize},result => {
-            console.log(result)
             this.setState({
-                data: result
+                dataList: result
             })
         })
     };
 
+    // 抽屉弹层表单项改变触发函数
+    onFormChange = values => {
+        console.log("value",values)
+        const {forms} = this.state
+        forms.formValue = values
+        this.setState({
+            forms
+        })
+    }
+
     render(){
 
+        const {forms,dataList} = this.state
         const columns = [
             {   title: '序号',
                 width: 50,
@@ -138,7 +196,7 @@ class AttentionList extends React.Component{
             { title: '关注用户手机号', width:150, dataIndex: 'phone', key: 'phone',align:'center' },
             { title: '关注时间',width:130,  dataIndex: 'createtime', key: 'createtime',align:'center',
                 render: (text,record) => {
-                    return <a onClick={() => this.showTimeline(record)}>{text}</a>
+                    return (<span onClick={() => this.showTimeline(record)}>{text}</span>)
                 }
             },
             { title: '状态', width:100, dataIndex: 'status', key: 'status',align:'center',
@@ -192,8 +250,8 @@ class AttentionList extends React.Component{
                                     <Form.Item name="status" label="状态">
                                         <Select placeholder="请选择账号状态">
                                             {
-                                                this.state.attentionStatus.map(item => {
-                                                    return <option value={item.codeName}>{item.codeName} - {item.description}</option>
+                                                forms.list.attentionStatus.map((item,index) => {
+                                                    return <Select.Option key={index} value={item.codeName}>{item.codeName} - {item.description}</Select.Option>
                                                 })
                                             }
                                         </Select>
@@ -214,20 +272,23 @@ class AttentionList extends React.Component{
                 <Card size="small" style={{marginTop:'15px',height:'76%'}}>
                     <Table
                         columns={columns}
-                        dataSource={this.state.data}
-                        scroll={{ y: 230 }}
+                        dataSource={dataList}
+                        scroll={{ y: 310 }}
                         size="middle"
+                        key="attention"
                     />
                     <AttentionRightShow
                         onClose={this.onClose}
                         visible={this.state.visible}
                         type={this.state.type}
-                        values={this.state.values}
                         initValues={this.initValues}
-                        attentionStatus={this.state.attentionStatus}
+                        forms={forms}
+                        onFormChange={this.onFormChange}
+                        updateAttention={this.updateAttention}
                     />
                     <AttentionTimeline
-                        values={this.state.values}
+                        formValue={forms.formValue}
+                        timeLineData={forms.timeLineData}
                         visibleTimeline={this.state.visibleTimeline}
                         onCloseTimeline={this.onCloseTimeline}
                     />
