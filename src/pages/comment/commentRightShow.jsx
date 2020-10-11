@@ -1,9 +1,11 @@
-/* 评论列表管理的右侧抽屉页 */
+/* 1、评论列表管理的右侧抽屉页 */
 import React from 'react'
-import {Drawer, Form, Button, Col, Row, Input, Select, Divider, message} from 'antd';
-import {addAdmin,updateComment} from '../../api/index'
+import {Drawer, Form, Button, Col, Row, Input, Select,DatePicker} from 'antd';
 
+import locale from 'antd/es/locale/zh_CN';
 const { Option } = Select;
+const dateFormat = 'YYYY-MM-DD HH:mm:ss'
+
 
 class CommentRightShow extends React.Component {
     formRef = React.createRef();
@@ -15,27 +17,16 @@ class CommentRightShow extends React.Component {
             id: 0,
         };
     }
-    componentWillReceiveProps(props,nextProps){
-        this.setState({
-            value: props.values,
-            id:props.values.id
-        })
-    }
 
     onSubmit = ()=>{
+        const {type,updateComment} = this.props
         // 1、通过该方式与表单进行交互，获取表单值
         const data =this.formRef.current.getFieldsValue();
-        data.id = this.props.values.id;
-        console.log(data)
-        if (this.props.type === 'edit'){
-            updateComment(data,(result)=>{
-                console.log(result)
-                if (result === true){
-                    message.success('评论信息修改成功');
-                    this.props.initValues();
-                }
-            })
-        } else if (this.props.type === 'search') {
+
+        // 2、调用相应的接口方法
+        if (type === 'edit'){
+            updateComment()
+        } else if (type === 'search') {
             console.log('search')
         }
         // 3、清空表单值
@@ -43,12 +34,18 @@ class CommentRightShow extends React.Component {
         // 4、调用父组件的onClose方法
         this.props.onClose();
     }
+
+    onValuesChange = (changedValues, allValues) => {
+        console.log(changedValues, allValues)
+        this.props.onFormChange(allValues)
+    }
     render() {
-        const {onClose,visible,type,status} = this.props
+        const {onClose,visible,type,form} = this.props
+        const disabledFlag = type==="search"
         return (
             <div>
                 <Drawer
-                    title="评论操作"
+                    title={`${disabledFlag?"查看":"编辑"}评论记录`}
                     placement="right"
                     width={520}
                     destroyOnClose={"true"}
@@ -65,20 +62,23 @@ class CommentRightShow extends React.Component {
                         </div>
                     }
                 >
-                    <Form layout="vertical" hideRequiredMark ref={this.formRef} onFinish={this.onFinish} initialValues={this.state.value}>
+                    <Form layout="vertical" ref={this.formRef} onFinish={this.onFinish}
+                          onValuesChange={this.onValuesChange} initialValues={form.formValue}
+                    >
                         <Row gutter={16}>
                             <Col span={12}>
                                 <Form.Item name="name" label="评论人"
                                            rules={[{ required: true, message: '请输入评论人' }]}
                                 >
-                                    <Input placeholder="请输入评论人" disabled={type==="search"?true:false}/>
+                                    <Input placeholder="请输入评论人" disabled={disabledFlag}/>
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
                                 <Form.Item name="createtime" label="评论时间"
                                            rules={[{ required: true, message: '请输入评论时间' }]}
                                 >
-                                    <Input placeholder="请输入评论时间" disabled={type==="search"?true:false}/>
+                                    {/*<Input placeholder="请输入评论时间" disabled={disabledFlag}/>*/}
+                                    <DatePicker locale={locale} format={dateFormat} placeholder="请输入关注时间" style={{width:"100%"}} disabled={disabledFlag}/>
                                 </Form.Item>
                             </Col>
                         </Row>
@@ -87,16 +87,16 @@ class CommentRightShow extends React.Component {
                                 <Form.Item name="reports" label="评论举报次数"
                                            rules={[{ required: true, message: '请输入帖子标题' }]}
                                 >
-                                    <Input placeholder="请输入帖子标题" disabled={type==="search"?true:false}/>
+                                    <Input placeholder="请输入帖子标题" disabled={disabledFlag}/>
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
                                 <Form.Item name="status" label="评论状态"
                                            rules={[{ required: true, message: '请选择评论状态' }]}
                                 >
-                                    <Select placeholder="请选择评论状态">
+                                    <Select placeholder="请选择评论状态" disabled={disabledFlag}>
                                         {
-                                            status.map(item => {
+                                            form.lists.STATUS.map(item => {
                                                 return <Option value={item.codeName} key={item.id}>{item.codeName} - {item.description}</Option>
                                             })
                                         }
@@ -109,14 +109,14 @@ class CommentRightShow extends React.Component {
                                 <Form.Item name="amount" label="评论点赞数"
                                            rules={[{ required: true, message: '请输入帖子标题' }]}
                                 >
-                                    <Input placeholder="请输入帖子标题" disabled={type==="search"?true:false}/>
+                                    <Input placeholder="请输入帖子标题" disabled={disabledFlag}/>
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
                                 <Form.Item name="invitationTitle" label="帖子标题"
                                            rules={[{ required: true, message: '请输入帖子标题' }]}
                                 >
-                                    <Input placeholder="请输入帖子标题" disabled={type==="search"?true:false}/>
+                                    <Input placeholder="请输入帖子标题" disabled={disabledFlag}/>
                                 </Form.Item>
                             </Col>
                         </Row>
@@ -125,21 +125,16 @@ class CommentRightShow extends React.Component {
                                 <Form.Item name="invitationName" label="帖子发布人"
                                            rules={[{ required: true, message: '请选择评论状态' }]}
                                 >
-                                    <Input placeholder="请输入帖子标题" disabled={type==="search"?true:false}/>
+                                    <Input placeholder="请输入帖子标题" disabled={disabledFlag}/>
                                 </Form.Item>
                             </Col>
                         </Row>
                         <Row gutter={16}>
                             <Col span={24}>
                                 <Form.Item name="content" label="评论内容"
-                                           rules={[
-                                               {
-                                                   required: true,
-                                                   message: '请输入描述信息',
-                                               },
-                                           ]}
+                                           rules={[{required: true, message: '请输入描述信息',}]}
                                 >
-                                    <Input.TextArea rows={4} placeholder="请输入公告内容" disabled={type==="search"?true:false}/>
+                                    <Input.TextArea rows={4} placeholder="请输入公告内容" style={{resize: "none"}} disabled={disabledFlag}/>
                                 </Form.Item>
                             </Col>
                         </Row>
@@ -151,3 +146,9 @@ class CommentRightShow extends React.Component {
 }
 
 export default CommentRightShow
+
+/**
+ * 1、style={{resize: "none"}} 可以固定高度：Input.TextArea
+ *
+ */
+

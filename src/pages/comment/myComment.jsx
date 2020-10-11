@@ -1,32 +1,46 @@
+/**
+ * 1、评论信息列表
+ */
 import React from 'react'
-import {deleteComment, getCodeByType, getListComments} from "../../api";
+import {deleteComment, getCodeByType, getListComments, updateComment} from "../../api";
 import {Link} from "react-router-dom";
-import {Button, Card, Col, Input, Row, Tooltip, Breadcrumb, Form, Table, Tag, Modal, message, Select} from "antd";
+import {Button, Card, Col, Input, Row, Tooltip, Breadcrumb,Pagination, Form, Table, Tag, Modal, message, Select} from "antd";
 import CommentRightShow from './commentRightShow'
+import moment from 'moment'
+import 'moment/locale/zh-cn';
 
+const { Option } = Select;
+const dateFormat = 'YYYY-MM-DD HH:mm:ss'
 
-const {Option} = Select;
 class MyComment extends React.Component {
     formRef = React.createRef();
     constructor(props){
         super(props);
         this.state = {
-            data:[],
+            dataList:[],
             pageNum: 1,
             pageSize: 100,
             visible: false,
             isLoading:false,
             type: '',
-            values: {},
-            status: [],/*帖子和评论状态*/
+            searchValues: {},
+            form: {
+                lists: {
+                    STATUS: [],/*帖子和评论状态*/
+                },
+                formValue: {},/* 单条记录组成的对象*/
+            }
         }
+        this.updateComment = this.updateComment.bind(this)
     }
 
-    componentWillMount(){
+    componentDidMount(){
+        const {form} = this.state
         this.init();
         getCodeByType({codeType:"STATUS"},result => {
+            form.lists.STATUS = result
             this.setState({
-                status: result
+                form
             })
         })
     }
@@ -35,34 +49,45 @@ class MyComment extends React.Component {
         const {pageNum,pageSize} = this.state;
         this.setState({isLoading:true});
         getListComments({comment:{},page:pageNum,size:pageSize},result => {
-            console.log(result)
             this.setState({
-                data: result,
+                dataList: result,
                 isLoading:false,
             })
         })
     };
 
+    onFormChange = (values) => {
+        const {form} = this.state
+        form.formValue = values
+        this.setState({
+            form
+        })
+    }
     /* 搜索框表单提交 */
     onFinish = values => {
-        this.setState({values});
+        this.setState({searchValues: values});
         const {pageNum,pageSize} = this.state
         getListComments({comment:values,page:pageNum,size:pageSize},result => {
-            console.log(result)
             this.setState({
-                data: result
+                dataList: result
             })
         })
     };
 
     /* 右侧显示详情页（查看/修改）*/
     showDrawer = (values,type) => {
+        const {form} = this.state
+        // 1、将接口中的日期字符串转化成moment对象
+        form.formValue = {
+            ...values,
+            createtime: moment(values.createtime,dateFormat)
+        }
         this.setState({
             visible: true,
             type: type,
-            values: values
+            form
         });
-        console.log(this.state)
+
     };
 
     /* 关闭右侧抽屉显示页 */
@@ -70,9 +95,22 @@ class MyComment extends React.Component {
         this.setState({
             visible: false,
         });
-        this.init()
     };
 
+    /* 更新评论信息 */
+    updateComment(){
+        const {formValue} = this.state.form
+        const data = {
+            ...formValue,
+            createtime: formValue.createtime.format(dateFormat)
+        }
+        updateComment(data,(result)=>{
+            if (result === true){
+                message.success('评论信息修改成功');
+                this.init();
+            }
+        })
+    }
     /* 删除评论信息 */
     deleteComment = (record) => {
         Modal.confirm({
@@ -101,11 +139,6 @@ class MyComment extends React.Component {
 
     /* 状态返回值对应 */
     statusRender = (text) => {
-        /*let myStatus = this.state.status.find(item => {
-            return item.codeName === text
-        });
-
-        return <Tag color="geekblue" key={text}>{myStatus["codeName"]}</Tag>;*/
         if (text==="0") {
             return <Tag color="geekblue" key={text}>0 - 审核中</Tag>;
         } else if (text==="1") {
@@ -128,6 +161,7 @@ class MyComment extends React.Component {
     }
 
     render(){
+        const {form,dataList,isLoading,visible,type} = this.state
         return(
             <div style={{background:'#f0f2f5',height:'100%'}}>
                 <Card size="small" style={{height:'20%'}}>
@@ -154,7 +188,7 @@ class MyComment extends React.Component {
                                     <Form.Item name="status" label="状态">
                                         <Select placeholder="请选择账号状态">
                                             {
-                                                this.state.status.map(item => {
+                                                form.lists.STATUS.map(item => {
                                                     return <Option value={item.codeName} key={item.id}>{item.codeName} - {item.description}</Option>
                                                 })
                                             }
@@ -174,8 +208,8 @@ class MyComment extends React.Component {
                     </div>
                 </Card>
                 <Card size="small" style={{marginTop:'15px',height:'76%'}}>
-                    <Table rowKey="id" loading={this.state.isLoading}
-                           dataSource={this.state.data} scroll={{ y: 230,x: 1000  }} size="middle">
+                    <Table rowKey="id" loading={isLoading} pagination={false}
+                           dataSource={dataList} scroll={{ y: 310 }} size="middle">
                         <Table.Column title= '序号' width= {50} align= 'center' fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '评论人' width= {100} align= 'center' dataIndex= 'name' render={
                             (text,record)=>{
@@ -197,19 +231,19 @@ class MyComment extends React.Component {
                     </Table>
                     <CommentRightShow
                         onClose={this.onClose}
-                        visible={this.state.visible}
-                        type={this.state.type}
-                        values={this.state.values}
-                        status={this.state.status}
-                        initValues={this.init}
+                        visible={visible}
+                        type={type}
+                        form={form}
+                        onFormChange={this.onFormChange}
+                        updateComment={this.updateComment}
                     />
-                    {/*<div style={{position:"absolute",right:"10px",bottom:'20px'}}>
+                    <div style={{position:"absolute",right:"10px",bottom:'20px'}}>
                         <Pagination
                             showSizeChanger
                             defaultCurrent={3}
                             total={500}
                         />
-                    </div>*/}
+                    </div>
                 </Card>
             </div>
         );
@@ -230,3 +264,10 @@ const styles = {
         cursor:'pointer'
     }
 }
+/**
+ * 1、DatePicker接收的moment对象，接口返回的是字符串
+ *    需要在回显和接口提交时进行转换
+ * 2、转换的时机：
+ *       1、提交更新数据时
+ *       2、触发表单的onValuesChange时间时
+ */
