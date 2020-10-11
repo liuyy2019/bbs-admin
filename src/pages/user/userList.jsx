@@ -151,9 +151,9 @@ class UserList extends React.Component{
                         rowKey='userId'
                         scroll={{ y: 230 }}
                         size="middle"
-                        pagination={true}
+                        pagination={false}
                     />
-                    {/*<div style={{position:"absolute",right:"10px",bottom:'10px'}}>
+                    <div style={{position:"absolute",right:"10px",bottom:'10px'}}>
                         <Pagination
                             showSizeChanger
                             onChange={this.onChangeHandle}
@@ -161,7 +161,7 @@ class UserList extends React.Component{
                             total={50}
                             pageSize={5}
                         />
-                    </div>*/}
+                    </div>
                 </Card>
             </div>
         );

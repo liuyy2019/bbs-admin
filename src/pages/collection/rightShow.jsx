@@ -2,7 +2,7 @@
 import React from 'react'
 import {Drawer, Form, Button, Col, Row, Input, Select, message, DatePicker, Tag} from 'antd';
 import {updateCollection} from '../../api/index'
-import {getToken} from "../../util/util";
+import {getToken} from "../../util/userLoginUtil";
 
 const { Option } = Select;
 

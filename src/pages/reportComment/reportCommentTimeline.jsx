@@ -1,7 +1,6 @@
-/* 公告的新增、修改、查看组件 */
+/* 1、评论举报组件的时间轴组件 */
 import React from 'react'
 import { Drawer, Button,Timeline} from 'antd';
-import {getListAttentionsByName} from '../../api/index'
 
 
 
@@ -15,19 +14,8 @@ class ReportCommentTimeline extends React.Component {
     }
 
 
-
-   /* componentWillReceiveProps(props,nextProps){
-        let {username} = props.values;
-        getListAttentionsByName({username:username},result => {
-            this.setState({
-                data:result
-            })
-        })
-    }*/
-
-
     render() {
-        const {onCloseTimeline,visibleTimeline,TimelineValues} = this.props
+        const {onClose,visibleTimeline,timelineValues} = this.props
         return (
             <div>
                 <Drawer
@@ -35,11 +23,11 @@ class ReportCommentTimeline extends React.Component {
                     placement="right"
                     width={520}
                     destroyOnClose={"true"}
-                    onClose={onCloseTimeline}
+                    onClose={() => onClose("timeLine")}
                     visible={visibleTimeline}
                     footer={
                         <div style={{ textAlign: 'right',}}>
-                            <Button onClick={onCloseTimeline} style={{ marginRight: 8 }}>
+                            <Button onClick={() => onClose("timeLine")} style={{ marginRight: 8 }}>
                                 关闭
                             </Button>
                         </div>
@@ -47,11 +35,11 @@ class ReportCommentTimeline extends React.Component {
                 >
                     <Timeline mode="alternate">
                         {
-                            TimelineValues.map(item => {
+                            timelineValues.map((item,index) => {
                                 if (item.status === '0'){
-                                    return <Timeline.Item color="red" label="已取消关注">{item.createTime} - {`${item.reportName}取消举报`}</Timeline.Item>;
+                                    return <Timeline.Item key={index} color="red" label="已取消关注">{item.createTime} - {`${item.reportName}取消举报`}</Timeline.Item>;
                                 }
-                                return <Timeline.Item >{item.createTime} - {`${item.reportName}举报`}</Timeline.Item>
+                                return <Timeline.Item key={index}>{item.createTime} - {`${item.reportName}举报`}</Timeline.Item>
                             })
                         }
                     </Timeline>

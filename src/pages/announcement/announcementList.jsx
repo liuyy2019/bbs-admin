@@ -16,6 +16,7 @@ import {
     Select
 } from "antd";
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import util from '../../util/util'
 import RightShow from './rightShow'
 
 
@@ -175,7 +176,7 @@ class AnnouncementList extends React.Component {
                            dataSource={this.state.data} scroll={{ y: 230 }} size="middle" >
                         <Table.Column title= '序号' width= {50} align= 'center' fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '公告标题' width= {100} align= 'center' dataIndex= 'title' ellipsis={true}/>
-                        <Table.Column title= '公告内容' width= {150} align= 'center' dataIndex= 'content' style={styles.titleStyles} render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}/>
+                        <Table.Column title= '公告内容' width= {150} align= 'center' dataIndex= 'content' render={(text) => util.longContentHandle(text)}/>
                         <Table.Column title= '发布时间' width= {150} align= 'center' dataIndex= 'createTime' />
                         <Table.Column title= '公告状态' width= {100} align= 'center' dataIndex= 'status' render={this.statusRender}/>
                         <Table.Column title= '发布人' width= {100} align= 'center' dataIndex= 'issuer'/>
@@ -202,4 +203,11 @@ const styles = {
     removeBtn: {
         marginLeft: 8,
     },
+    styleFont: {
+        maxWidth: 150,
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
+        textOverflow:'ellipsis',
+        cursor:'pointer'
+    }
 }

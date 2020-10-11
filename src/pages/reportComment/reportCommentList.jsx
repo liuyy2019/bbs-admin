@@ -1,35 +1,41 @@
-/* 评论举报列表组件 */
+/* 1、评论举报列表组件 */
 import React from 'react'
 import {
     deleteEnumType,
     getCodeByType,
     getListReportComments,
-    getListReportCommentsById,
+    getListReportCommentsById, updateReportComment,
 } from "../../api";
 import {Link} from "react-router-dom";
 import {Button, Card, Col, Input, Row, Tooltip, Breadcrumb, Form, Table, Modal,Tag, Select, message} from "antd";
 import ReportCommentRightShow from "./reportCommentRightShow";
 import ReportCommentTimeline from "./reportCommentTimeline";
 import {ExclamationCircleOutlined} from "@ant-design/icons";
+import moment from 'moment'
 
 
-
+const dateFormat = 'YYYY-MM-DD HH:mm:ss'
 class ReportCommentList extends React.Component {
     formRef = React.createRef();
     constructor(props){
         super(props);
         this.state = {
-            data:[],
+            dataList:[],
             pageNum: 1,
             pageSize: 100,
             visible: false,
             isLoading:false,
             type: '',
-            values: {},
+            searchValue: {},
             commentId: this.props.location.state.commentId,
             visibleTimeline: false,/*默认不显示时间轴*/
-            TimelineValues:[],/*时间轴数据*/
-            status: [],/*评论、帖子状态标识*/
+            form: {
+              selectLists: {
+                  STATUS: [], /*评论、帖子状态标识*/
+              },/* 下拉框列表数据*/
+              formValue: {}, /* 单条表单记录 */
+              timelineValues:[],/*时间轴数据*/
+            },
         }
     }
 
@@ -39,64 +45,72 @@ class ReportCommentList extends React.Component {
         getListReportComments({reportComment:{commentId:commentId},page:pageNum,size:pageSize},result => {
             console.log(result)
             this.setState({
-                data: result,
+                dataList: result,
                 isLoading:false,
             })
         })
     }
     componentWillMount(){
+        const {form} = this.state
         this.initValues();
         getCodeByType({codeType:"REPORT_STATUS"},result => {
+            form.selectLists.STATUS = result
             this.setState({
-                status: result
+                form
             })
         })
     }
 
     /* 搜索框表单提交 */
     onFinish = values => {
-        this.setState({values});
-        console.log(values)
+        this.setState({searchValue:values});
         const {pageNum,pageSize} = this.state
         getListReportComments({reportComment:values,page:pageNum,size:pageSize},result => {
-            console.log(result)
             this.setState({
-                data: result
+                dataList: result
             })
         })
     };
 
     /* 显示右侧浮层 */
     showDrawer = (values,type) => {
+        const {form} = this.state
+        form.formValue = {
+            ...values,
+            createTime: moment(values.createTime,dateFormat)
+        }
         this.setState({
             visible: true,
             type: type,
-            values: values
+            form
         });
-        console.log(this.state)
     };
+
+    // 展示时间轴信息
     showTimeline =(record)=>{
-        this.setState({
-            visibleTimeline: true,
-        });
+        const {form} = this.state
         getListReportCommentsById({commentId: record.commentId},result => {
+            form.timelineValues = result
             this.setState({
-                TimelineValues: result
+                visibleTimeline: true,
+                form
             })
         })
     };
 
     /* 关闭右侧浮层 */
-    onClose = () => {
-        this.setState({
-            visible: false,
-        });
-        this.initValues();
-    };
-    onCloseTimeline = () => {
-        this.setState({
-            visibleTimeline: false,
-        });
+    onClose = (type) => {
+        switch (type) {
+            case "timeLine" :
+                this.setState({
+                    visibleTimeline: false,
+                });
+                break;
+            default :
+                this.setState({
+                    visible: false,
+                });
+        }
     };
 
     deleteReportComment = (record) => {
@@ -150,6 +164,7 @@ class ReportCommentList extends React.Component {
     }
 
     render(){
+        const {form,dataList,isLoading,visibleTimeline,type,visible} = this.state
         return(
             <div style={{background:'#f0f2f5',height:'100%'}}>
                 <Card size="small" style={{height:'20%'}}>
@@ -171,8 +186,8 @@ class ReportCommentList extends React.Component {
                                     <Form.Item name="status" label="状态">
                                         <Select placeholder="请选择账号状态">
                                             {
-                                                this.state.status.map(item => {
-                                                    return <option value={item.codeName}>{item.codeName} - {item.description}</option>
+                                                form.selectLists.STATUS.map(item => {
+                                                    return <Select.Option key={item.codeName} value={item.codeName}>{item.codeName} - {item.description}</Select.Option>
                                                 })
                                             }
                                         </Select>
@@ -186,9 +201,7 @@ class ReportCommentList extends React.Component {
                                 <Col span={6}>
                                     <div style={{float:'right'}}>
                                         <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">Search</Button>
-                                        <Button type={"primary"} onClick={() => {this.formRef.current.resetFields();}}>
-                                            Clear
-                                        </Button>
+                                        <Button type={"primary"} onClick={() => {this.formRef.current.resetFields();}}>清除</Button>
                                     </div>
                                 </Col>
                             </Row>
@@ -196,15 +209,15 @@ class ReportCommentList extends React.Component {
                     </div>
                 </Card>
                 <Card size="small" style={{marginTop:'15px',height:'76%'}}>
-                    <Table rowKey="id" loading={this.state.isLoading}
-                           dataSource={this.state.data} scroll={{ y: 255,x: 1000  }} size="middle" pagination={true}>
+                    <Table rowKey="id" loading={isLoading}
+                           dataSource={dataList} scroll={{ y: 310,x: 1000  }} size="middle" pagination={true}>
                         <Table.Column title= '序号' width= {50} align= 'center' fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '评论人' width= {100} align= 'center' dataIndex= 'commentName' render={
                             (text,record)=>{
                                 return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.commentId}}}><Tag color="geekblue" key={text}>{text}</Tag></Link>
                             }
                         }/>
-                        <Table.Column title= '举报时间' width= {150} align= 'center' dataIndex= 'createTime' style={styles.style} render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}/>
+                        <Table.Column title= '举报时间' width= {150} align= 'center' dataIndex= 'createTime' style={styles.styleFont} render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}/>
                         <Table.Column title= '举报原因' width= {150} align= 'center' dataIndex= 'reportReason' onCell={() => this.styleFont()} render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>} />
                         <Table.Column title= '举报人' width= {100} align= 'center' dataIndex= 'reportName' render={
                             (text,record)=>{
@@ -212,7 +225,7 @@ class ReportCommentList extends React.Component {
                             }
                         }/>
                         <Table.Column title= '状态' width= {100} align= 'center' dataIndex= 'status' render={this.statusRender}/>
-                        <Table.Column title= '时间轴' width= {150} align= 'center' dataIndex= 'updateTime'
+                        <Table.Column title= '时间轴' width= {150} align= 'center' dataIndex= 'updateTime' style={styles.styleFont}
                               render={
                                   (text,record) => <a onClick={() => this.showTimeline(record)}>时间轴</a>
                               }
@@ -221,16 +234,15 @@ class ReportCommentList extends React.Component {
                     </Table>
                     <ReportCommentRightShow
                         onClose={this.onClose}
-                        visible={this.state.visible}
-                        type={this.state.type}
-                        values={this.state.values}
+                        visible={visible}
+                        type={type}
                         initValues={this.initValues}
-                        status={this.state.status}
+                        form={form}
                     />
                     <ReportCommentTimeline
-                        onCloseTimeline={this.onCloseTimeline}
-                        visibleTimeline={this.state.visibleTimeline}
-                        TimelineValues={this.state.TimelineValues}
+                        onClose={this.onClose}
+                        visibleTimeline={visibleTimeline}
+                        timelineValues={form.timelineValues}
                     />
                     {/*<div style={{position:"absolute",right:"10px",bottom:'20px'}}>
                         <Pagination
@@ -250,5 +262,12 @@ export default ReportCommentList
 const styles = {
     removeBtn: {
         marginLeft: 8,
+    },
+    styleFont: {
+        maxWidth: 150,
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
+        textOverflow:'ellipsis',
+        cursor:'pointer'
     }
 }

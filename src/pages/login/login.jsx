@@ -3,7 +3,7 @@ import { Form, Input, Button, Checkbox,message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import './index.css'
 import {adminLogin} from '../../api/index'
-import {setToken} from "../../util/util";
+import {setToken} from "../../util/userLoginUtil";
 import nameJpg from './images/name.jpg'
 import passJpg from './images/password.png'
 

@@ -5,7 +5,7 @@ import {UserOutlined, LaptopOutlined,DownOutlined, NotificationOutlined,} from '
 import './index.css';
 import {privateRoutes} from "../../routes/routeConfig";
 import MyMenu from '../../components/myMenu/myMenu'
-import {getToken} from "../../util/util";
+import {getToken} from "../../util/userLoginUtil";
 
 
 // 过滤出顶级导航

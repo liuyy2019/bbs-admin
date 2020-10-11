@@ -1,6 +1,6 @@
 import React from 'react'
 import {Menu,Modal,Form,Input,Switch,message} from "antd";
-import {removeToken,getToken} from "../../util/util";
+import {removeToken,getToken} from "../../util/userLoginUtil";
 import { withRouter } from 'react-router-dom'
 import {updateAdmin} from'../../api/index'
 

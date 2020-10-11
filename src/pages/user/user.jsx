@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {Form,Input,Select,Button,Card,message,Modal} from 'antd'
+import {Form,Input,Select,Button,Card,message,Modal,DatePicker} from 'antd'
 import {addUser, getListUsers,updateUser} from "../../api";
 
 const Item = Form.Item;
@@ -10,7 +10,7 @@ class User extends Component {
     constructor(props){
         super(props);
         this.state = {
-            type:props.location.query.type,
+            type:props.location.query.type || 'add',
             user:props.location.query.record,
             name:props.location.query.name,
             userId:props.location.query.userId,
@@ -110,7 +110,7 @@ class User extends Component {
                     </Item>
                     <Item label="出生日期" name="birthday">
                         <Input placeholder='请输入密码' disabled={type==="查看"?true:false}></Input>
-                        {/*<DatePicker format='YYYY-MM-DD'/>*/}
+                        {/*<DatePicker format='YYYY-MM-DD' style={{width: "100%"}}/>*/}
                     </Item>
                     <Item
                         label='手机号'

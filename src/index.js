@@ -6,7 +6,7 @@ import { ConfigProvider } from 'antd'
 import zhCN from 'antd/es/locale/zh_CN'
 import {BrowserRouter as Router,Route,Switch ,Redirect ,Link} from 'react-router-dom'
 import {commonRoutes} from './routes/routeConfig'
-import {isLogin} from "./util/util";
+import {isLogin} from "./util/userLoginUtil";
 
 ReactDOM.render(
     <ConfigProvider locale={zhCN}>
