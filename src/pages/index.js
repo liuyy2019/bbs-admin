@@ -21,7 +21,7 @@ import ReportCommentList from './reportComment/reportCommentList'
 import CheckUserList from './checkUser/checkUserList'
 import CheckInvitationList from './checkInvitation/checkInvitationList'
 import CheckCommentList from './checkComment/checkCommentList'
-import ParamList from './param/paramList'
+import ParamList from './paramManager/paramList'
 import EnumParamList from './enumParam/enumParamList'
 import EnumTypeList from './enumType/enumTypeList'
 

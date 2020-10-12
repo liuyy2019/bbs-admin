@@ -23,14 +23,3 @@ export const sendEmail = (callback)=>ajax('/v1/email/submit',{},"GET").then(resu
     console.log('error', err)
 });
 
-
-/**
- * 创建 一个深拷贝的克隆object
- * @param {*} jsonData object
- * @returns
- */
-export const deepClone = (jsonData)=>{
-    if (!jsonData) return jsonData
-
-    return JSON.parse(JSON.stringify(jsonData))
-};
