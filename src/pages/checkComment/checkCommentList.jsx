@@ -1,9 +1,13 @@
+/**
+ * 1、审核举报评论模块
+ */
 import React from 'react'
-import {deleteComment, getCodeByType, getListComments} from "../../api";
+import {deleteComment, getCodeByType, getListComments, updateComment} from "../../api";
 import {Link} from "react-router-dom";
-import {Button, Card, Col, Input, Row, Tooltip, Breadcrumb, Form, Table, Tag, Modal, message, Select} from "antd";
+import {Button, Card, Col, Pagination,Input, Row, Tooltip, Breadcrumb, Form, Table, Tag, Modal, message, Select} from "antd";
 import CheckCommentRightShow from './checkCommentRightShow'
 import {ExclamationCircleOutlined} from "@ant-design/icons";
+import util from "../../util/util";
 
 
 const {Option} = Select;
@@ -12,22 +16,29 @@ class CheckCommentList extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            data:[],
+            dataList:[],
             pageNum: 1,
             pageSize: 100,
             visible: false,
             isLoading: false,
-            type: '',
+            type: 'detail',
             values: {},
-            status: [],
+            form: {
+                selectLists: {
+                   STATUS: []
+                },
+                formValue: {}
+            },
         }
     }
 
     componentWillMount(){
+        const {form} = this.state
         this.init();
         getCodeByType({codeType:"STATUS"},result => {
+            form.selectLists.STATUS = result
             this.setState({
-                status: result
+                form
             })
         })
     }
@@ -36,9 +47,8 @@ class CheckCommentList extends React.Component {
         const {pageNum,pageSize} = this.state;
         this.setState({isLoading:true});
         getListComments({comment:{},page:pageNum,size:pageSize},result => {
-            console.log(result)
             this.setState({
-                data: result,
+                dataList: result,
                 isLoading: false,
             })
         })
@@ -49,21 +59,21 @@ class CheckCommentList extends React.Component {
         this.setState({values});
         const {pageNum,pageSize} = this.state
         getListComments({comment:values,page:pageNum,size:pageSize},result => {
-            console.log(result)
             this.setState({
-                data: result
+                dataList: result
             })
         })
     };
 
     /* 右侧显示详情页（查看/修改）*/
     showDrawer = (values,type) => {
+        const {form} = this.state
+        form.formValue = values
         this.setState({
             visible: true,
             type: type,
-            values: values
+            form
         });
-        console.log(this.state)
     };
 
     /* 关闭右侧抽屉显示页 */
@@ -71,7 +81,6 @@ class CheckCommentList extends React.Component {
         this.setState({
             visible: false,
         });
-        this.init()
     };
 
     /* 删除评论信息 */
@@ -92,11 +101,32 @@ class CheckCommentList extends React.Component {
         });
     };
 
+    /* 更新信息*/
+    updateComment = () => {
+        const {formValue} = this.state.form
+        updateComment(formValue,(result)=>{
+            if (result === true){
+                message.success('修改成功');
+                this.init();
+                this.onClose()
+            }
+        })
+    }
+
+    /* 表单更新同步更新到formValue中*/
+    formChange = (values) => {
+        const {form} = this.state
+        form.formValue = values
+        this.setState({
+            form
+        })
+    }
+
     /* 列表操作选项 */
     operatorRender = (value, record,index) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'search')} style={styles.removeBtn}>查看</a>
+                <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
                 <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
                 <a onClick={() => this.deleteComment(record)} style={styles.removeBtn}>删除</a>
             </div>
@@ -115,10 +145,13 @@ class CheckCommentList extends React.Component {
     };
 
     render(){
+        const {form,dataList,type,visible,isLoading} = this.state
+        let title = [util.titlePrefix[type], '评论举报审核信息'].join('')
+        const disabledFlag = type === 'detail'
         return(
             <div style={{background:'#f0f2f5',height:'100%'}}>
                 <Card size="small" style={{height:'20%'}}>
-                    <Breadcrumb >
+                    <Breadcrumb>
                         <Breadcrumb.Item>审核中心</Breadcrumb.Item>
                         <Breadcrumb.Item>评论举报审核</Breadcrumb.Item>
                     </Breadcrumb>
@@ -138,11 +171,11 @@ class CheckCommentList extends React.Component {
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
-                                    <Form.Item name="status" label="状态">
-                                        <Select placeholder="请选择状态">
+                                    <Form.Item name="status" label="状态" required>
+                                        <Select placeholder="请选择状态" allowClear>
                                             {
-                                                this.state.status.map(item => {
-                                                    return <Option value={item.codeName} key={item.id}>{item.codeName} - {item.description}</Option>
+                                                form.selectLists.STATUS.map((item,index) => {
+                                                    return <Option key={index} value={item.codeName} key={item.id}>{item.codeName} - {item.description}</Option>
                                                 })
                                             }
                                         </Select>
@@ -150,9 +183,9 @@ class CheckCommentList extends React.Component {
                                 </Col>
                                 <Col span={6}>
                                     <div style={{float:'right'}}>
-                                        <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">Search</Button>
+                                        <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">搜索</Button>
                                         <Button type={"primary"} onClick={() => {this.formRef.current.resetFields();}}>
-                                            Clear
+                                            清除
                                         </Button>
                                     </div>
                                 </Col>
@@ -161,8 +194,8 @@ class CheckCommentList extends React.Component {
                     </div>
                 </Card>
                 <Card size="small" style={{marginTop:'15px',height:'76%'}}>
-                    <Table rowKey="id" loading={this.state.isLoading}
-                           dataSource={this.state.data} scroll={{ y: 230,x: 1000  }} size="middle">
+                    <Table rowKey="id" loading={isLoading} pagination={false}
+                           dataSource={dataList} scroll={{ y: 230}} size="middle">
                         <Table.Column title= '序号' width= {50} align= 'center' fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '评论人' width= {100} align= 'center' dataIndex= 'name' render={
                             (text,record)=>{
@@ -181,18 +214,21 @@ class CheckCommentList extends React.Component {
                     </Table>
                     <CheckCommentRightShow
                         onClose={this.onClose}
-                        visible={this.state.visible}
-                        type={this.state.type}
-                        values={this.state.values}
-                        status={this.state.status}
+                        visible={visible}
+                        disabledFlag={disabledFlag}
+                        title={title}
+                        type={type}
+                        forms={form}
+                        updateComment={this.updateComment}
+                        formChange={this.formChange}
                     />
-                    {/*<div style={{position:"absolute",right:"10px",bottom:'20px'}}>
+                    <div style={{position:"absolute",right:"10px",bottom:'20px'}}>
                         <Pagination
                             showSizeChanger
                             defaultCurrent={3}
                             total={500}
                         />
-                    </div>*/}
+                    </div>
                 </Card>
             </div>
         );
@@ -213,3 +249,9 @@ const styles = {
         cursor:'pointer'
     }
 }
+
+
+/**
+ * 总结：
+ *      1、类组件修改为函数组件
+ */
