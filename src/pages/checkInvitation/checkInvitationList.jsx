@@ -1,34 +1,45 @@
+/**
+ * 1、审核帖子模块
+ */
 import React from 'react';
-import {Table, Card, Breadcrumb, Tooltip, Form, Tag, Row, Col, Input, Button, Select, Modal, message} from 'antd';
+import {Table, Card, Breadcrumb, Form, Tag, Row, Col, Input, Button, Select, Modal, message} from 'antd';
 import {
     deleteInvitationById,
     getUserById,
     getAllTypes,
     getCodeByType,
-    getListInvitations, getListUsers,
-    getParamByCodeId
+    getListInvitations,
+    getParamByCodeId, updateInvitation
 } from '../../api/index'
 import {Link} from "react-router-dom";
 import CheckInvitationRightShow from "./checkInvitationRightShow";
 import {ExclamationCircleOutlined} from "@ant-design/icons";
+import util from "../../util/util";
+import {emailSend} from "../../api/untils";
 
 
 const {Option} = Select
+
 /* 帖子列表组件 */
 class CheckInvitationList extends React.Component{
     formRef = React.createRef();
     constructor(props){
         super(props);
         this.state = {
-            data:[],
+            dataList:[],
             isLoading: false,
             pageNum: 1,
             pageSize: 5,
             visible: false,
             type: '',
-            values: {},
-            checkStatus: [],
-            typeList: [],/* 帖子类别信息 */
+            searchValues: {},
+            value: {
+                selectLists: {
+                    InvitationType: [],/* 帖子类别信息 */
+                    checkStatus: [],/**/
+                },
+                formValue: {}, /* 单条表单记录*/
+            },
             email: {},
             qqNumber: ''
         }
@@ -39,34 +50,37 @@ class CheckInvitationList extends React.Component{
         this.setState({isLoading:true});
         const {pageNum,pageSize} = this.state
         getListInvitations({invitation:{reports:15},page:pageNum,size:pageSize},result => {
-            console.log(result)
             this.setState({
-                data: result,
+                dataList: result,
                 isLoading: false,
             })
         });
     };
 
     componentWillMount(){
+        const {value} = this.state
         this.initValues();
+
         getCodeByType({codeType:"STATUS"},result => {
-            this.setState({
-                checkStatus: result
-            })
+            value.selectLists.checkStatus = result
         })
         getAllTypes(result => {
-            this.setState({
-                typeList: result
-            })
+            value.selectLists.InvitationType = result
+        })
+
+        this.setState({
+            value
         })
     }
 
     /* 显示右侧浮层 */
     showDrawer = (values,type) => {
+        const {value} = this.state
+        value.formValue = values
         this.setState({
             visible: true,
             type: type,
-            values: values
+            value
         });
         getParamByCodeId("INVITATION_CHECK_MESSAGE",result => {
             this.setState({
@@ -85,19 +99,44 @@ class CheckInvitationList extends React.Component{
         this.setState({
             visible: false,
         });
-        this.initValues();
     };
+
+    /* 更新记录*/
+    updateInvitation = () => {
+        const {value,qqNumber,email} = this.state
+        updateInvitation(value.formValue,(result)=>{
+            // 如果状态设置为屏蔽，则发送短信消息
+            if (value.formValue.status === '2') {
+                let qq = qqNumber;
+                let {codeName ,description}= email;
+                description = `尊敬的用户您好！帖子：${value.formValue.title}，${description}`;
+                emailSend({qq:qq,subject:codeName,content:description},result => {})
+            }
+            if (result === true){
+                message.success('帖子举报信息修改成功！');
+                this.initValues()
+                this.onClose()
+            }
+        })
+    }
+
+    /* 更新表单信息*/
+    onFormChange = (values) => {
+        const {value} = this.state
+        value.formValue = values
+        this.setState({
+            value
+        })
+    }
 
     /* 搜索框表单提交 */
     onFinish = values => {
         values.reports = 15;
-        this.setState({values});
-        console.log(values)
+        this.setState({searchValues:values});
         const {pageNum,pageSize} = this.state
         getListInvitations({invitation:values,page:pageNum,size:pageSize},result => {
-            console.log(result)
             this.setState({
-                data: result
+                dataList: result
             })
         })
     };
@@ -124,10 +163,13 @@ class CheckInvitationList extends React.Component{
             },
         });
 
-
     }
 
+
+
     render(){
+        const {dataList,isLoading,value,type,visible} = this.state
+        let title = [util.titlePrefix[type], '帖子举报审核信息'].join('')
         /* 表格的列 */
         const columns = [
             {   title: '序号', width: 50, align: 'center',
@@ -139,19 +181,8 @@ class CheckInvitationList extends React.Component{
                 }
             },
             { title: '标题', width: 150, dataIndex: 'title', key: 'title',align:'center',
-                onCell: () => {
-                    return {
-                        style: {
-                            maxWidth: 15,
-                            overflow: 'hidden',
-                            whiteSpace: 'nowrap',
-                            textOverflow:'ellipsis',
-                            cursor:'pointer'
-                        }
-                    }
-                },
                 render: (text,record) => {
-                    return <Link to={{ pathname : '/admin/invitation',state:{id:record.id}}}><Tooltip placement="topLeft" title={text}>{text}</Tooltip></Link>;
+                    return <Link to={{ pathname : '/admin/invitation',state:{id:record.id}}}>{util.longContentHandle(text,15)}</Link>;
                 }
             },
             { title: '类别', width: 80, dataIndex: 'type', key: 'type',align:'center',
@@ -184,7 +215,7 @@ class CheckInvitationList extends React.Component{
                 render: (value, record) => {
                     return (
                         <div>
-                            <a onClick={() => this.showDrawer(record,'search')} style={styles.removeBtn}>查看</a>
+                            <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
                             <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
                             <a onClick={() => this.deleteInvitation(record)} style={styles.removeBtn}>删除</a>
                         </div>
@@ -218,7 +249,7 @@ class CheckInvitationList extends React.Component{
                                     <Form.Item name="type" label="类别">
                                         <Select placeholder="请选择类别">
                                             {
-                                                this.state.typeList.map((item,index) => {
+                                                value.selectLists.InvitationType.map((item,index) => {
                                                     return <Option value={item.type} key={index}>{item.type}</Option>
                                                 })
                                             }
@@ -240,23 +271,23 @@ class CheckInvitationList extends React.Component{
                 <Card size="small" style={{marginTop:'15px',height:'76%'}}>
                     <Table
                         columns={columns}
-                        loading={this.state.isLoading}
-                        dataSource={this.state.data}
+                        loading={isLoading}
+                        dataSource={dataList}
                         rowKey="id"
-                        scroll={{ y: 230 }}
+                        scroll={{ y: 310 }}
                         size="middle"
-                        // pagination={false}
+                        pagination={false}
                     />
                     <CheckInvitationRightShow
                         onClose={this.onClose}
-                        visible={this.state.visible}
-                        type={this.state.type}
-                        values={this.state.values}
+                        onFormChange={this.onFormChange}
+                        updateInvitation={this.updateInvitation}
+                        visible={visible}
+                        type={type}
+                        title={title}
+                        value={value}
                         qqNumber={this.state.qqNumber}
                         email={this.state.email}
-                        initValues={this.initValues}
-                        checkStatus={this.state.checkStatus}
-                        typeList={this.state.typeList}
                     />
                 </Card>
             </div>
@@ -272,3 +303,7 @@ const styles = {
         marginLeft: 8,
     },
 }
+
+/**
+ *  1、待完善时间组件
+ */
