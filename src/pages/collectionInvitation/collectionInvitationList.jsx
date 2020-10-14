@@ -1,3 +1,6 @@
+/**
+ * 1、帖子收藏页面
+ */
 import React from 'react';
 import {
     Table,
@@ -15,31 +18,21 @@ import {
     Modal,
     Select,
 } from 'antd';
-import {deleteCollection, getAllAnnouncements, getAllCollections, getAllTypes, getListCollections} from "../../api";
+import {deleteCollection, getAllCollections, getAllTypes, getListCollections, updateCollection} from "../../api";
 import {Link} from "react-router-dom";
 import {ExclamationCircleOutlined} from "@ant-design/icons";
-import RightShow from "./rightShow";
+import CollectInvitationDrawer from "./collectionInvitationDrawer";
+import util from "../../util/util";
+import moment from 'moment'
 
 
-/*
-const columns = [
+/*const columns = [
     {   title: '序号', width: 50, align: 'center',fixed: 'left',
         render:(text,record,index)=>`${index+1}`,
     },
     { title: '收藏者',width: 100, dataIndex: 'collector',ellipsis: true, key: 'collector',align: "center" },
     { title: '帖子标题', width: 150,dataIndex: 'title', key: 'title' ,align:'center',// 文本溢出...显示
-        onCell: () => {
-            return {
-                style: {
-                    maxWidth: 15,
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap',
-                    textOverflow:'ellipsis',
-                    cursor:'pointer'
-                }
-            }
-        },
-        render: (text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>
+        render: (text) => {util.longContentHandle(text)}
     },
     { title: '收藏时间', width: 100,dataIndex: 'createtime', key: 'createtime',align:'center' },
     { title: '帖子类型', width: 100,dataIndex: 'type', key: 'type',align:'center' },
@@ -56,32 +49,39 @@ const columns = [
             );
         },
     },
-];
-*/
+];*/
 
 const {Option} = Select
-class CollectionList extends React.Component{
+const FormItem = Form.Item
+class CollectionInvitationList extends React.Component{
     formRef = React.createRef();
     constructor(props){
         super(props);
         this.state = {
-            data:[],
+            dataList:[],
             pageNum: 1,
             pageSize: 5,
             visible: false,/* 新建右测栏 */
             isLoading: false,
-            type: 'add',
-            values:{},
-            typeList: [],/* 帖子类别信息 */
+            type: 'create',
+            searchValues: {},
+            value:{
+                selectLists: {
+                    typeList: [],/* 帖子类别信息 */
+                },
+                formValue: {}
+            },
         }
     }
 
     /* 组件在将要挂载是调用初始化方法 */
-    componentWillMount(){
+    componentDidMount(){
+        const {value} = this.state
         this.initValues();
         getAllTypes(result => {
+            value.selectLists.typeList = result
             this.setState({
-                typeList: result
+                value
             })
         })
     }
@@ -90,9 +90,8 @@ class CollectionList extends React.Component{
     initValues = () => {
         this.setState({isLoading:true});
         getAllCollections((data)=>{
-            console.log(data);
             this.setState({
-                data: data,
+                dataList: data,
                 isLoading: false
             })
         },error => {
@@ -100,18 +99,42 @@ class CollectionList extends React.Component{
         });
     }
 
+    updateCollection = () => {
+        const {formValue} = this.state.value
+        const param = {
+            ...formValue,
+            createtime: formValue.createtime && formValue.createtime.format(util.dateFormat)
+        }
+        updateCollection(param,(result)=>{
+            if (result === true){
+                message.success('收藏信息更新成功');
+                this.initValues();
+                this.onClose()
+            }
+        })
+    }
+
     /* 搜索框表单提交 */
     onFinish = values => {
-        this.setState({values});
-        console.log(values)
+        this.setState({searchValues:values});
         const {pageNum,pageSize} = this.state
         getListCollections({collection:values,page:pageNum,size:pageSize},result => {
-            console.log(result)
             this.setState({
-                data: result
+                dataList: result
             })
         })
     };
+
+    onFormChange = (values) => {
+        const {value} = this.state
+        value.formValue = {
+            ...values,
+            // createtime: values.createtime && values.createtime.format(util.dateFormat)
+        }
+        this.setState({
+            value
+        })
+    }
 
     /* 删除收藏记录 */
     deleteCollection = (record) =>{
@@ -138,27 +161,29 @@ class CollectionList extends React.Component{
 
     /* 查看/编辑是右测显示遮罩层 */
     showDrawer = (values,type) => {
+        const {value} = this.state
+        value.formValue = {
+            ...values,
+            createtime: values.createtime && moment(values.createtime,util.dateFormat)
+        }
         this.setState({
             visible: true,
             type: type,
-            values: values
+            value
         });
     };
     /* 关闭右测遮罩层*/
     onClose = () => {
         this.setState({
-            visible: false,
-            type: '',
-            values: {}
+            visible: false
         });
-        this.initValues();
     };
 
     /* 列表右测操作按钮 */
     operatorRender = (value, record) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'search')} style={styles.removeBtn}>查看</a>
+                <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
                 <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
                 <a onClick={() => this.deleteCollection(record)} style={styles.removeBtn}>删除</a>
             </div>
@@ -175,12 +200,14 @@ class CollectionList extends React.Component{
     };
 
     render(){
+        const {dataList,isLoading,visible,type,value} = this.state
+        let title = [util.titlePrefix[type], '帖子收藏信息'].join('')
         return(
             <div style={{background:'#f0f2f5',height:'100%'}}>
                 <Card size="small" style={{height:'20%'}}>
                     <Breadcrumb >
                         <Breadcrumb.Item>帖子管理</Breadcrumb.Item>
-                        <Breadcrumb.Item>收藏信息列表</Breadcrumb.Item>
+                        <Breadcrumb.Item>帖子收藏信息列表</Breadcrumb.Item>
                     </Breadcrumb>
                     <div style={{marginTop:'10px'}}>
                         <Form ref={this.formRef} name="advanced_search"
@@ -188,25 +215,25 @@ class CollectionList extends React.Component{
                         >
                             <Row gutter={24}>
                                 <Col span={6}>
-                                    <Form.Item name="collector" label="收藏者">
+                                    <FormItem name="collector" label="收藏者">
                                         <Input placeholder="收藏者" />
-                                    </Form.Item>
+                                    </FormItem>
                                 </Col>
                                 <Col span={6}>
-                                    <Form.Item name="title" label="帖子标题">
+                                    <FormItem name="title" label="帖子标题">
                                         <Input placeholder="帖子标题" />
-                                    </Form.Item>
+                                    </FormItem>
                                 </Col>
                                 <Col span={6}>
-                                    <Form.Item name="type" label="类型">
+                                    <FormItem name="type" label="类型">
                                         <Select placeholder="请选择类别">
                                             {
-                                                this.state.typeList.map((item,index) => {
+                                                value.selectLists.typeList.map((item,index) => {
                                                     return <Option value={item.type} key={index}>{item.type}</Option>
                                                 })
                                             }
                                         </Select>
-                                    </Form.Item>
+                                    </FormItem>
                                 </Col>
                                 <Col span={6}>
                                     <div style={{float:'right'}}>
@@ -221,12 +248,12 @@ class CollectionList extends React.Component{
                     </div>
                 </Card>
                 <Card size="small" style={{marginTop:'15px',height:'76%'}}>
-                    <Table rowKey="id" loading={this.state.isLoading}
-                           dataSource={this.state.data} scroll={{ y: 230,x: 1000  }} size="middle">
+                    <Table rowKey="id" loading={isLoading} pagination={false}
+                           dataSource={dataList} scroll={{ y: 310}} size="middle">
                         <Table.Column title= '序号' width= {50} align= 'center'fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '收藏者' width= {100} align= 'center' dataIndex= 'collector' ellipsis={true} render={
                             (text,record)=>{
-                                return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.userId}}}><Tag color="geekblue" key={text}>{text}</Tag></Link>
+                                return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.userId}}}>{util.longContentHandle(text)}</Link>
                             }
                         }/>
                         <Table.Column title= '帖子标题' width= {150} align= 'center' dataIndex= 'title' style={styles.titleStyles} render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}/>
@@ -240,20 +267,22 @@ class CollectionList extends React.Component{
                         <Table.Column title= '帖子状态' width= {100} align= 'center' dataIndex= 'status' render={this.statusRender}/>
                         <Table.Column title= '操作' width= {200} align= 'center' dataIndex= '' render={this.operatorRender}/>
                     </Table>
-                    <RightShow
+                    <CollectInvitationDrawer
+                        value={value}
+                        title={title}
+                        visible={visible}
+                        type={type}
                         onClose={this.onClose}
-                        visible={this.state.visible}
-                        type={this.state.type}
-                        values={this.state.values}
-                        initValues={this.initValues}
+                        onFormChange={this.onFormChange}
+                        updateCollection={this.updateCollection}
                     />
-                    {/*<div style={{position:"absolute",right:"10px",bottom:'20px'}}>
+                    <div style={{position:"absolute",right:"10px",bottom:'20px'}}>
                         <Pagination
                             showSizeChanger
                             defaultCurrent={3}
                             total={500}
                         />
-                    </div>*/}
+                    </div>
                 </Card>
             </div>
         );
@@ -261,7 +290,7 @@ class CollectionList extends React.Component{
 
 }
 
-export default CollectionList
+export default CollectionInvitationList
 
 const styles = {
     removeBtn: {

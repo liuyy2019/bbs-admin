@@ -7,7 +7,7 @@ import Login from './login/login'
 import InvitationList from './invitation/invitationList'
 import AnswerList from './answer/answerList'
 import AttentionList from './attention/attentionList'
-import CollectionList from './collection/collectionList'
+import CollectionInvitationList from './collectionInvitation/collectionInvitationList'
 import Dashboard from './dashboard/dashboard'
 import NotFound from './notFound/NotFound'
 import MyComment from './comment/myComment'
@@ -32,7 +32,7 @@ export {
     InvitationList,
     AnswerList,
     AttentionList,
-    CollectionList,
+    CollectionInvitationList,
     Dashboard,
     NotFound,
     MyComment,

@@ -9,7 +9,7 @@ import {
     Login,
     InvitationList,
     AnswerList,
-    CollectionList,
+    CollectionInvitationList,
     AttentionList,
     Dashboard,
     AnnouncementList,
@@ -122,7 +122,7 @@ const privateRoutes = [
     },
     {
         pathname:'/admin/collection',
-        component: CollectionList,
+        component: CollectionInvitationList,
         title:'帖子收藏列表',
         isTop : true
     },
