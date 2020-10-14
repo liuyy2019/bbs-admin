@@ -256,14 +256,14 @@ class CollectionInvitationList extends React.Component{
                                 return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.userId}}}>{util.longContentHandle(text)}</Link>
                             }
                         }/>
-                        <Table.Column title= '帖子标题' width= {150} align= 'center' dataIndex= 'title' style={styles.titleStyles} render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}/>
+                        <Table.Column title= '帖子标题' width= {150} align= 'center' dataIndex= 'title' style={styles.titleStyles} render={(text) => util.longContentHandle(text,15)}/>
                         <Table.Column title= '收藏时间' width= {150} align= 'center' dataIndex= 'createtime' />
                         <Table.Column title= '帖子发布者' width= {150} align= 'center' dataIndex= 'issuer' render={
                             (text,record)=>{
                                 return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.issuerId}}}><Tag color="geekblue" key={text}>{text}</Tag></Link>
                             }
                         } />
-                        <Table.Column title= '帖子类型' width= {100} align= 'center' dataIndex= 'type'/>
+                        <Table.Column title= '帖子类型' width= {100} align= 'center' dataIndex= 'type' render={text => util.textTag(text)}/>
                         <Table.Column title= '帖子状态' width= {100} align= 'center' dataIndex= 'status' render={this.statusRender}/>
                         <Table.Column title= '操作' width= {200} align= 'center' dataIndex= '' render={this.operatorRender}/>
                     </Table>

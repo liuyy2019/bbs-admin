@@ -2,7 +2,7 @@
  * 工具方法集合
  */
 import React from 'react';
-import {Tooltip} from 'antd'
+import {Tooltip,Tag} from 'antd'
 export default {
 
     /**
@@ -63,5 +63,48 @@ export default {
                 {current.date()}
             </div>
         );
-    }
+    },
+
+    /**
+     * 十六进制颜色生成：https://www.jianshu.com/p/54fc0fce46cc
+     * 严格模式下不支持arguments.caller和callee：
+     *     https://segmentfault.com/q/1010000016180686
+     * 可以给匿名函数起个名字，如下get：#3856f2
+     */
+    getRandomColor(){
+        return  '#' + (function get(color){
+            return (color +=  '0123456789abcdef'[Math.floor(Math.random()*16)])
+            && (color.length === 6) ?  color : get(color);
+        })('');
+    },
+
+    /**
+     * 设置文本为：进行标记和分类的小标签。自定义颜色
+     * @param text
+     * @returns {*}
+     */
+    textTag(text){
+        return <Tag color={this.getRandomColor()}>{text}</Tag>
+    },
+
+    /**
+     * 文本和list项进行匹配，返回tag标识为文本
+     * @param text
+     * @param selectList
+     * @param id
+     * @param name
+     * @returns {*}
+     */
+    textAndOptionsTag(text,selectList, id='codeName', name='description'){
+        if (selectList.length !== 0) {
+            const result = selectList.find((items) => text == items[id])
+            if (result) {
+                return <Tag color="cyan">{[result[id], result[name]].join(' - ')}</Tag>
+            }
+        }
+        return <Tag color="cyan">{text}</Tag>
+    },
+
+
+
 }

@@ -20,6 +20,8 @@ const CollectInvitationDrawer = (props) => {
             console.log('success:',values)
             if (type === 'edit') {
                 props.updateCollection()
+            } else {
+                props.onClose()
             }
         } catch (errorInfo) {
             console.log('Failed:', errorInfo);
