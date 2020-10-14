@@ -8,6 +8,7 @@ import {Button, Card, Col, Input, Row, Tooltip, Breadcrumb,Pagination, Form, Tab
 import CommentRightShow from './commentRightShow'
 import moment from 'moment'
 import 'moment/locale/zh-cn';
+import util from "../../util/util";
 
 const { Option } = Select;
 const dateFormat = 'YYYY-MM-DD HH:mm:ss'
@@ -137,16 +138,6 @@ class MyComment extends React.Component {
         );
     };
 
-    /* 状态返回值对应 */
-    statusRender = (text) => {
-        if (text==="0") {
-            return <Tag color="geekblue" key={text}>0 - 审核中</Tag>;
-        } else if (text==="1") {
-            return <Tag color="geekblue" key={text}>1 - 正常</Tag>;
-        } else if (text ==="2") {
-            return <Tag color="geekblue" key={text}>2 - 屏蔽</Tag>;
-        }
-    };
 
     contentCell = () => {
         return {
@@ -223,7 +214,7 @@ class MyComment extends React.Component {
                                 return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.issuerId}}}><Tag color="geekblue" key={text}>{text}</Tag></Link>
                             }
                         }/>
-                        <Table.Column title= '状态' width= {80} align= 'center' dataIndex= 'status' render={this.statusRender}/>
+                        <Table.Column title= '状态' width= {80} align= 'center' dataIndex= 'status' render={text => util.textAndOptionsTag(text,form.lists.STATUS)}/>
                         <Table.Column title= '被举报次数' width= {100} align= 'center' dataIndex= 'reports' render={(text) => <Tag color="red" key={text}>{text}</Tag>}/>
                         <Table.Column title= '点赞次数' width= {100} align= 'center' dataIndex= 'amount' render={(text) => <Tag color="red" key={text}>{text}</Tag>}/>
                         <Table.Column title= '评论时间' width= {150} align= 'center' dataIndex= 'createtime' />
