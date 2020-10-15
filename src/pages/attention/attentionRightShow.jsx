@@ -1,22 +1,17 @@
-/* 用户关注的新增、修改、查看组件 */
+/**
+ * 1、关注用户模块右侧抽屉弹层
+ */
 import React from 'react'
 import {Drawer, Form, Button, Col, Row, Input, Select,DatePicker} from 'antd';
 import moment from 'moment'
 import 'moment/locale/zh-cn';
 import locale from 'antd/es/locale/zh_CN';
-import {deepClone} from "../../api/untils";
 
 const { Option } = Select;
 const dateFormat = 'YYYY-MM-DD HH:mm:ss'
 class AttentionRightShow extends React.Component {
     formRef = React.createRef();
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            id: 0,
-        };
-    }
 
 
     onSubmit = ()=>{
@@ -29,13 +24,11 @@ class AttentionRightShow extends React.Component {
     }
 
     onValuesChange = (changedValues, allValues) =>{
-        console.log(changedValues, allValues)
         // 注意点：
         const obj = {
             ...allValues,
             createtime: (allValues.createtime)? moment(allValues.createtime).format('YYYY-MM-DD HH:mm:ss'):null
         }
-        console.log(obj)
 
         this.props.onFormChange(obj)
     }
@@ -63,9 +56,8 @@ class AttentionRightShow extends React.Component {
                         </div>
                     }
                 >
-                    <Form layout="vertical" hideRequiredMark ref={this.formRef} onFinish={this.onFinish}
-                          onValuesChange={this.onValuesChange}
-                          initialValues={forms.formValue}
+                    <Form layout="vertical" hideRequiredMark ref={this.formRef}
+                          onValuesChange={this.onValuesChange} initialValues={forms.formValue}
                     >
                         <Row gutter={16}>
                             <Col span={12}>

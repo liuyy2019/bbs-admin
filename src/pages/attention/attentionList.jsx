@@ -1,6 +1,22 @@
-/* 用户关注信息组件 */
+/**
+ * 1、关注用户模块
+ */
 import React from 'react';
-import {Table, Card, Breadcrumb, Form, Tooltip, Row, Col, Input, Button, Tag, Modal, message, Select,} from 'antd';
+import {
+    Table,
+    Card,
+    Breadcrumb,
+    Form,
+    Row,
+    Col,
+    Input,
+    Button,
+    Tag,
+    Modal,
+    message,
+    Select,
+    Pagination,
+} from 'antd';
 import {
     deleteAttentionById,
     getAllAttentions,
@@ -14,7 +30,7 @@ import AttentionRightShow from "./attentionRightShow";
 import AttentionTimeline from "./attentionTimeline";
 import moment from 'moment'
 import 'moment/locale/zh-cn';
-import locale from 'antd/es/locale/zh_CN';
+import util from "../../util/util";
 
 const dateFormat = 'YYYY-MM-DD HH:mm:ss'
 
@@ -27,7 +43,8 @@ class AttentionList extends React.Component{
             pageNum: 1,
             pageSize: 100,
             visible: false,/* 新建右测栏 */
-            type: 'add',
+            isLoading: false,
+            type: 'detail',
             values:{}, /* 查询条件组装的对象*/
             forms: {
                 list: {
@@ -38,18 +55,76 @@ class AttentionList extends React.Component{
             },
             visibleTimeline: false,
         }
+        this.columns = [
+            {   title: '序号',
+                width: 50,
+                align: 'center',
+                render:(text,record,index)=>`${index+1}`,
+            },
+            { title: '用户名',width:80, dataIndex: 'username', key: 'username',align: "center",
+                render:(text,record,index)=>{
+                    return (
+                        <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.userId}}}>
+                            <Tag color="geekblue" key={text}>{text}</Tag>
+                        </Link>
+                    )
+                }
+            },
+            { title: '关注用户', width:80, dataIndex: 'noticer', key: 'noticer',align:'center',
+                render:(text,record)=>{
+                    return (
+                        <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.noticerId}}}>
+                            <Tag color="geekblue" key={text}>{text}</Tag>
+                        </Link>
+                    )
+                }
+            },
+            { title: '关注用户性别', width: 120,dataIndex: 'sex', key: 'usersex' ,align:'center',
+                onCell: (text) => {util.longContentHandle(text)}
+            },
+            { title: '关注用户手机号', width:150, dataIndex: 'phone', key: 'phone',align:'center' },
+            { title: '关注时间',width:130,  dataIndex: 'createtime', key: 'createtime',align:'center',
+                render: (text,record) => {
+                    return (<span onClick={() => this.showTimeline(record)}>{text}</span>)
+                }
+            },
+            { title: '状态', width:100, dataIndex: 'status', key: 'status',align:'center',
+                render: (text) => {
+                    if (text === "1"){
+                        return <Tag color="geekblue" key={text}>1 - 正常关注</Tag>
+                    } else if (text === "0") {
+                        return <Tag color="geekblue" key={text}>0 - 取消关注</Tag>
+                    }
+                }
+            },
+            {
+                title: '操作', width:150, dataIndex: '', key: 'x',align:'center',
+                render: (value, record) => {
+                    return (
+                        <div>
+                            <a onClick={() => this.showDrawer(record,'search')} style={styles.removeBtn}>查看</a>
+                            <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
+                            <a onClick={() => this.deleteAttention(record)} style={styles.removeBtn}>删除</a>
+                        </div>
+                    );
+                },
+            },
+        ];
     }
 
     // 调用接口，设置初始化值
     initValues =() => {
+        this.setState({isLoading:true})
         getAllAttentions((data)=>{
             this.setState({
                 dataList: data,
+                isLoading: false
             })
         },error => {
             console.log("error "+error)
         });
     };
+
     componentDidMount(){
         this.initValues();
         // 获取枚举代码类型
@@ -65,7 +140,6 @@ class AttentionList extends React.Component{
     // 展示抽屉弹层，参数为：列表记录和操作类型
     showDrawer = (values,type) => {
         const {forms} = this.state
-        console.log({values})
         forms.formValue = {
             ...values,
             createtime: moment(values.createtime,dateFormat)
@@ -144,7 +218,6 @@ class AttentionList extends React.Component{
 
     // 抽屉弹层表单项改变触发函数
     onFormChange = values => {
-        console.log("value",values)
         const {forms} = this.state
         forms.formValue = values
         this.setState({
@@ -154,75 +227,7 @@ class AttentionList extends React.Component{
 
     render(){
 
-        const {forms,dataList} = this.state
-        const columns = [
-            {   title: '序号',
-                width: 50,
-                align: 'center',
-                render:(text,record,index)=>`${index+1}`,
-            },
-            { title: '用户名',width:80, dataIndex: 'username', key: 'username',align: "center",
-                render:(text,record,index)=>{
-                    return (
-                        <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.userId}}}>
-                            <Tag color="geekblue" key={text}>{text}</Tag>
-                        </Link>
-                    )
-                }
-            },
-            { title: '关注用户', width:80, dataIndex: 'noticer', key: 'noticer',align:'center',
-                render:(text,record)=>{
-                    return (
-                        <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.noticerId}}}>
-                            <Tag color="geekblue" key={text}>{text}</Tag>
-                        </Link>
-                    )
-                }
-            },
-            { title: '关注用户性别', width: 120,dataIndex: 'sex', key: 'usersex' ,align:'center',// 文本溢出...显示
-                onCell: () => {
-                    return {
-                        style: {
-                            maxWidth: 15,
-                            overflow: 'hidden',
-                            whiteSpace: 'nowrap',
-                            textOverflow:'ellipsis',
-                            cursor:'pointer',
-                        }
-                    }
-                },
-                render: (text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>
-            },
-            { title: '关注用户手机号', width:150, dataIndex: 'phone', key: 'phone',align:'center' },
-            { title: '关注时间',width:130,  dataIndex: 'createtime', key: 'createtime',align:'center',
-                render: (text,record) => {
-                    return (<span onClick={() => this.showTimeline(record)}>{text}</span>)
-                }
-            },
-            { title: '状态', width:100, dataIndex: 'status', key: 'status',align:'center',
-                render: (text) => {
-                    if (text === "1"){
-                        return <Tag color="geekblue" key={text}>1 - 正常关注</Tag>
-                    } else if (text === "0") {
-                        return <Tag color="geekblue" key={text}>0 - 取消关注</Tag>
-                    }
-                }
-            },
-            {
-                title: '操作', width:150, dataIndex: '', key: 'x',align:'center',
-                render: (value, record) => {
-                    return (
-                        <div>
-                            {/*<Link style={styles.removeBtn} to={{ pathname : '/admin/user',query:{type:'查看',record:record}}}>查看</Link>
-                    <Link style={styles.removeBtn} to={{ pathname : '/admin/user',query:{type:'编辑',record:record}}}>编辑</Link>*/}
-                            <a onClick={() => this.showDrawer(record,'search')} style={styles.removeBtn}>查看</a>
-                            <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                            <a onClick={() => this.deleteAttention(record)} style={styles.removeBtn}>删除</a>
-                        </div>
-                    );
-                },
-            },
-        ];
+        const {forms,dataList,isLoading,type,visible} = this.state
 
         return(
             <div style={{background:'#f0f2f5',height:'100%'}}>
@@ -271,19 +276,21 @@ class AttentionList extends React.Component{
                 </Card>
                 <Card size="small" style={{marginTop:'15px',height:'76%'}}>
                     <Table
-                        columns={columns}
+                        columns={this.columns}
                         dataSource={dataList}
-                        scroll={{ y: 310 }}
+                        loading={isLoading}
+                        pagination={false}
+                        scroll={{ y: 305 }}
                         size="middle"
                         key="attention"
                     />
                     <AttentionRightShow
-                        onClose={this.onClose}
-                        visible={this.state.visible}
-                        type={this.state.type}
+                        visible={visible}
+                        type={type}
                         initValues={this.initValues}
                         forms={forms}
                         onFormChange={this.onFormChange}
+                        onClose={this.onClose}
                         updateAttention={this.updateAttention}
                     />
                     <AttentionTimeline
@@ -292,6 +299,13 @@ class AttentionList extends React.Component{
                         visibleTimeline={this.state.visibleTimeline}
                         onCloseTimeline={this.onCloseTimeline}
                     />
+                    <div style={{position:"absolute",right:"10px",bottom:'20px'}}>
+                        <Pagination
+                            showSizeChanger
+                            defaultCurrent={3}
+                            total={500}
+                        />
+                    </div>
                 </Card>
             </div>
         );
