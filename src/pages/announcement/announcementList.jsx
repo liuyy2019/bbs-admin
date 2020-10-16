@@ -1,5 +1,15 @@
+/**
+ * 1、公告管理模块
+ */
 import React from 'react'
-import {getListAnnouncements, getAllAnnouncements, deleteAnnouncement, getCodeByType} from "../../api";
+import {
+    getListAnnouncements,
+    getAllAnnouncements,
+    deleteAnnouncement,
+    getCodeByType,
+    addAnnouncement,
+    updateAnnouncement
+} from "../../api";
 import {
     Button,
     Card,
@@ -7,52 +17,57 @@ import {
     Input,
     Row,
     message,
-    Tooltip,
     Breadcrumb,
     Form,
     Table,
     Modal,
-    Tag,
-    Select
+    Select, Pagination
 } from "antd";
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import util from '../../util/util'
-import RightShow from './rightShow'
+import RightShow from './announcementDrawer'
+import {getToken} from "../../util/userLoginUtil";
 
 
 const {Option} = Select
 const { confirm } = Modal;
+const FormItem = Form.Item
 class AnnouncementList extends React.Component {
     formRef = React.createRef();
     constructor(props){
         super(props);
         this.state = {
-            data:[],
+            dataList:[],
             pageNum: 1,
             pageSize: 5,
             visible: false,/* 新建右测栏 */
             isLoading: false,
-            type: 'add',
-            values:{},
-            announcementStatus: [],
+            type: 'create',
+            form:{
+                formValue: {},
+                selectLists: {
+                    announcementStatus: [],
+                },
+            },
         };
     }
 
     initValues = () => {
         this.setState({isLoading:true});
         getAllAnnouncements(result => {
-            console.log(result)
             this.setState({
-                data: result,
+                dataList: result,
                 isLoading: false,
             })
         })
     }
     componentWillMount(){
+        const {form} = this.state
         this.initValues();
         getCodeByType({codeType:"ANNOUNCEMENT_STATUS"},result => {
+            form.selectLists.announcementStatus = result
             this.setState({
-                announcementStatus: result
+                form
             })
         })
     }
@@ -60,33 +75,68 @@ class AnnouncementList extends React.Component {
     /* 搜索框表单提交 */
     onFinish = values => {
         this.setState({values});
-        console.log(values);
         getListAnnouncements({announcement:values,page:1,size:100},result => {
-        // getAllAnnouncements(result => {
-            console.log(result)
             this.setState({
-                data: result
+                dataList: result
             })
         })
     };
 
     showDrawer = (values,type) => {
+        const {form} = this.state
+        form.formValue = values
         this.setState({
             visible: true,
-            type: type,
-            values: values
+            type,
+            form
         });
     };
+
+    // 表单项更新触发函数
+    onFormChange = (allValues) => {
+        const {form} = this.state
+        form.formValue = allValues
+        this.setState({
+            form
+        })
+    }
+
+    // 添加公告信息
+    addAnnouncement = () => {
+        const {formValue} = this.state.form
+        const param = {
+            ...formValue,
+            issuer: getToken().name
+        }
+        addAnnouncement(param,(result)=>{
+            if (result === true){
+                message.success('公告新建成功');
+                this.initValues();
+                this.onClose()
+            }
+        })
+    }
+
+    // 更新公告信息
+    updateAnnouncement = () => {
+        const {formValue} = this.state.form
+        updateAnnouncement(formValue,(result)=>{
+            if (result === true){
+                message.success('公告更新成功');
+                this.initValues();
+                this.onClose()
+            }
+        })
+    }
 
     onClose = () => {
         this.setState({
             visible: false,
-            type: '',
-            values: {}
         });
-        this.initValues();
     };
-    deleteUser= (record)=> {
+
+
+    deleteAnnouncement= (record)=> {
         let _this = this
         confirm({
             icon: <ExclamationCircleOutlined />,
@@ -111,21 +161,16 @@ class AnnouncementList extends React.Component {
     operatorRender = (value, record) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'search')} style={styles.removeBtn}>查看</a>
+                <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
                 <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                <a onClick={() => this.deleteUser(record)} style={styles.removeBtn}>删除</a>
+                <a onClick={() => this.deleteAnnouncement(record)} style={styles.removeBtn}>删除</a>
             </div>
         );
     }
-    statusRender = (text) => {
-        if (text === "0"){
-            return <Tag color="geekblue" key={text}>0 - 失效</Tag>
-        } else if (text === "1") {
-            return <Tag color="geekblue" key={text}>1 - 有效</Tag>
-        }
-    }
 
     render(){
+        const {dataList,form,type,visible,isLoading} = this.state
+        const title = [util.titlePrefix[type],'公告信息'].join('')
         return(
             <div style={{background:'#f0f2f5',height:'100%'}}>
                 <Card size="small" style={{height:'20%'}}>
@@ -139,31 +184,31 @@ class AnnouncementList extends React.Component {
                         >
                             <Row gutter={24}>
                                 <Col span={6}>
-                                    <Form.Item name="issuer" label="发布人">
+                                    <FormItem name="issuer" label="发布人">
                                         <Input placeholder="发布人" />
-                                    </Form.Item>
+                                    </FormItem>
                                 </Col>
                                 <Col span={6}>
-                                    <Form.Item name="title" label="公告标题">
+                                    <FormItem name="title" label="公告标题">
                                         <Input placeholder="公告标题" />
-                                    </Form.Item>
+                                    </FormItem>
                                 </Col>
                                 <Col span={6}>
-                                    <Form.Item name="status" label="状态">
+                                    <FormItem name="status" label="状态">
                                         <Select placeholder="请选择状态">
                                             {
-                                                this.state.announcementStatus.map(item => {
+                                                form.selectLists.announcementStatus.map(item => {
                                                     return <Option value={item.codeName} key={item.id}>{item.codeName} - {item.description}</Option>
                                                 })
                                             }
                                         </Select>
-                                    </Form.Item>
+                                    </FormItem>
                                 </Col>
                                 <Col span={6}>
                                     <div style={{float:'right'}}>
-                                        <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">Search</Button>
-                                        <Button type={"primary"} onClick={() => {this.formRef.current.resetFields();}}>
-                                            Clear
+                                        <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">查询</Button>
+                                        <Button type="primary" onClick={() => {this.formRef.current.resetFields();}}>
+                                            清除
                                         </Button>
                                     </div>
                                 </Col>
@@ -171,26 +216,34 @@ class AnnouncementList extends React.Component {
                         </Form>
                     </div>
                 </Card>
-                <Card title="帖子种类列表" extra={<Button type="primary" onClick={()=>this.showDrawer({},'add')}>新建</Button>} size="small" style={{marginTop:'15px',height:'76%'}}>
-                    <Table rowKey="id" loading={this.state.isLoading}
-                           dataSource={this.state.data} scroll={{ y: 230 }} size="middle" >
+                <Card title="公告列表信息" extra={<Button type="primary" onClick={()=>this.showDrawer({},'create')}>新建</Button>} size="small" style={{marginTop:'15px',height:'76%'}}>
+                    <Table rowKey="id" loading={isLoading} pagination={false}
+                           dataSource={dataList} scroll={{ y: 260 }} size="middle" >
                         <Table.Column title= '序号' width= {50} align= 'center' fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '公告标题' width= {100} align= 'center' dataIndex= 'title' ellipsis={true}/>
                         <Table.Column title= '公告内容' width= {150} align= 'center' dataIndex= 'content' render={(text) => util.longContentHandle(text)}/>
                         <Table.Column title= '发布时间' width= {150} align= 'center' dataIndex= 'createTime' />
-                        <Table.Column title= '公告状态' width= {100} align= 'center' dataIndex= 'status' render={this.statusRender}/>
+                        <Table.Column title= '公告状态' width= {100} align= 'center' dataIndex= 'status' render={text => util.textAndOptionsTag(text,form.selectLists.announcementStatus)}/>
                         <Table.Column title= '发布人' width= {100} align= 'center' dataIndex= 'issuer'/>
                         <Table.Column title= '操作' width= {130} align= 'center' dataIndex= '' render={this.operatorRender}/>
                     </Table>
                     <RightShow
+                        values={form}
                         onClose={this.onClose}
-                        visible={this.state.visible}
-                        type={this.state.type}
-                        values={this.state.values}
-                        initValues={this.initValues}
-                        announcementStatus={this.state.announcementStatus}
+                        visible={visible}
+                        type={type}
+                        title={title}
+                        onFormChange={this.onFormChange}
+                        addAnnouncement={this.addAnnouncement}
+                        updateAnnouncement={this.updateAnnouncement}
                     />
-
+                    <div style={{position:"absolute",right:"10px",bottom:'20px'}}>
+                        <Pagination
+                            showSizeChanger
+                            defaultCurrent={3}
+                            total={500}
+                        />
+                    </div>
                 </Card>
             </div>
         );
