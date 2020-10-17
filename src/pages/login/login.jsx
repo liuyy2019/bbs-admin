@@ -16,7 +16,7 @@ class Login extends React.Component {
         console.log(values)
         const {username, password} = values;
         const data = await adminLogin(username,password);
-        if(data.data != "" && data.status === 200){
+        if(data.data !== "" && data.status === 200){
             setToken(data.data);
             // 在可能会出现死循环的地方使用replace来跳转：　　
             this.props.history.replace('/admin/dashboard');

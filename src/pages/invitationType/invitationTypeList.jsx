@@ -1,8 +1,21 @@
+/**
+ * 1、帖子类别页面
+ */
 import React from 'react'
-import {getListTypes, deleteInvitationType, getCodeByType,getAllTypes} from "../../api";
-import {Button, Card, Col, Input, Row, Modal, Tooltip, Breadcrumb, Form, Table, Tag, message, Select} from "antd";
-import TypeRightShow from './typeRightShow'
+import {
+    getListTypes,
+    deleteInvitationType,
+    getCodeByType,
+    getAllTypes,
+    addInvitationType,
+    updateInvitationType
+} from "../../api";
+import {Button, Card, Col, Input, Row, Modal, Breadcrumb,Pagination, Form, Table, message, Select} from "antd";
+import InvitationTypeDrawer from './invitationTypeDrawer'
 import {ExclamationCircleOutlined} from "@ant-design/icons";
+import util from "../../util/util";
+import {getToken} from "../../util/userLoginUtil";
+import moment from 'moment'
 
 
 const {Option} = Select;
@@ -11,15 +24,19 @@ class InvitationTypeList extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            data:[],
+            dataList:[],
             pageNum: 1,
             pageSize: 100,
             visible: false,/* 新建右测栏 */
             isLoading:false,
-            type: 'add',
-            values:{},
-            invitationTypeStatus: [],
-            typeList: [],/* 帖子类别列表*/
+            type: 'create',
+            form:{
+                fromValue: {},
+                selectLists: {
+                    typeList: [],/* 帖子类别列表*/
+                    invitationTypeStatus: []
+                }
+            }
         }
     }
 
@@ -28,9 +45,8 @@ class InvitationTypeList extends React.Component {
         const {pageNum,pageSize} = this.state;
         this.setState({isLoading:true});
         getListTypes({invitationtype:{},page:pageNum,size:pageSize},result => {
-            console.log(result)
             this.setState({
-                data: result,
+                dataList: result,
                 isLoading:false,
             })
         })
@@ -38,46 +54,45 @@ class InvitationTypeList extends React.Component {
     /* 组件将挂载是完成数据的初始化 */
     componentWillMount(){
         this.initValues();
+        const form = this.state.form
         getCodeByType({codeType:"INVITATION_TYPE_STATUS"},result => {
-            this.setState({
-                invitationTypeStatus: result
-            })
-        })
-        getAllTypes(result => {
-            this.setState({
-                typeList: result
+            form.selectLists.invitationTypeStatus = result
+            getAllTypes(result => {
+                form.selectLists.typeList = result
+                this.setState({
+                    form
+                })
             })
         })
     }
 
     /* 搜索框表单提交 */
     onFinish = values => {
-        this.setState({values});
-        console.log(values)
         const {pageNum,pageSize} = this.state
         getListTypes({invitationtype:values,page:pageNum,size:pageSize},result => {
-            console.log(result)
             this.setState({
-                data: result
+                dataList: result
             })
         })
     };
 
     /* 显示右侧遮罩层 */
     showDrawer = (values,type) => {
+        const {form} = this.state
+        form.formValue = {
+            ...values,
+            createTime: moment(values.createTime,util.dateFormat)
+        }
         this.setState({
             visible: true,
-            type: type,
-            values: values
+            type,form
         });
     };
 
     /* 关闭右侧遮罩层 */
     onClose = () => {
         this.setState({
-            visible: false,
-            type: '',
-            values: {}
+            visible: false
         });
     };
 
@@ -104,43 +119,61 @@ class InvitationTypeList extends React.Component {
         });
     };
 
+    // 新增帖子类型
+    addInvitationType = () => {
+        const {formValue} = this.state.form;
+        const param = {
+            ...formValue,
+            createBy: getToken().name,
+            createTime: formValue.createTime.format(util.dateFormat)
+        }
+        addInvitationType(param,(result)=>{
+            if (result === true){
+                message.success('帖子种类新建成功');
+                this.initValues();
+                this.onClose()
+            }
+        })
+    };
+
+    // 更新帖子信息
+    updateInvitationType = () => {
+        const {formValue} = this.state.form;
+        const param = {
+            ...formValue,
+            createTime: formValue.createTime.format(util.dateFormat)
+        }
+        updateInvitationType(param,(result)=>{
+            if (result === true){
+                message.success('帖子种类更新成功');
+                this.initValues();
+                this.onClose()
+            }
+        })
+    }
+
+    onFormChange = values => {
+        const form = this.state.form
+        form.formValue = {
+            ...values,
+        }
+        this.setState({form})
+    }
+
     operatorRender = (value, record) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'search')} style={styles.removeBtn}>查看</a>
+                <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
                 <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
                 <a onClick={() => this.deleteInvitationType(record)} style={styles.removeBtn}>删除</a>
             </div>
         );
-    }
-
-    typeRender = (text) => {
-        return <Tag color="geekblue" key={text}>{text}</Tag>
-    }
-    statusRender = (text) => {
-        if (text === "0"){
-            return <Tag color="geekblue" key={text}>0 - 屏蔽</Tag>
-        } else if (text === "1") {
-            return <Tag color="geekblue" key={text}>1 - 正常</Tag>
-        }
     };
 
-    onChangeHandle = (value) => {
-        // alert(value)
-    };
-    contentCell = () => {
-        return {
-            style: {
-                maxWidth: 150,
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-                textOverflow:'ellipsis',
-                cursor:'pointer'
-            }
-        }
-    }
 
     render(){
+        const {dataList,isLoading,form,visible,type} = this.state;
+        const title = [util.titlePrefix[type],'帖子类别信息'].join('');
         return(
             <div style={{background:'#f0f2f5',height:'100%'}}>
                 <Card size="small" style={{height:'20%'}}>
@@ -162,7 +195,7 @@ class InvitationTypeList extends React.Component {
                                     <Form.Item name="type" label="类别">
                                         <Select placeholder="请选择类别">
                                             {
-                                                this.state.typeList.map((item,index) => {
+                                                form.selectLists.typeList.map((item,index) => {
                                                     return <Option value={item.type} key={index}>{item.type}</Option>
                                                 })
                                             }
@@ -171,9 +204,9 @@ class InvitationTypeList extends React.Component {
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item name="status" label="状态">
-                                        <Select placeholder="请选择状态" onChange={(value)=>this.onChangeHandle(value)}>
+                                        <Select placeholder="请选择状态" >
                                             {
-                                                this.state.invitationTypeStatus.map((item,index) => {
+                                                form.selectLists.invitationTypeStatus.map((item,index) => {
                                                     return <Option value={item.codeName} key={index}>{item.codeName} - {item.description}</Option>
                                                 })
                                             }
@@ -182,43 +215,44 @@ class InvitationTypeList extends React.Component {
                                 </Col>
                                 <Col span={6}>
                                     <div style={{float:'right'}}>
-                                        <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">Search</Button>
-                                        <Button type={"primary"} onClick={() => {this.formRef.current.resetFields();}}>
-                                            Clear
-                                        </Button>
+                                        <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">查询</Button>
+                                        <Button type={"primary"} onClick={() => {this.formRef.current.resetFields();}}>清除</Button>
                                     </div>
                                 </Col>
                             </Row>
                         </Form>
                     </div>
                 </Card>
-                <Card title="帖子种类列表" extra={<Button type="primary" onClick={() => this.showDrawer({},'add')}>新建</Button>} size="small" style={{marginTop:'15px',height:'76%'}}>
-                    <Table rowKey="id" loading={this.state.isLoading}
-                           dataSource={this.state.data} scroll={{ y: 230,x: 1000  }} size="middle" pagination={true}>
+                <Card title="帖子种类列表" size="small" style={{marginTop:'15px',height:'76%'}}
+                      extra={<Button type="primary" onClick={() => this.showDrawer({},'create')}>新建</Button>}
+                >
+                    <Table rowKey="id" loading={isLoading}  size="middle" pagination={false} dataSource={dataList} scroll={{ y: 260}}>
                         <Table.Column title= '序号' width= {50} align= 'center'fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
-                        <Table.Column title= '类别' width= {100} align= 'center' dataIndex= 'type' ellipsis={true} render={this.typeRender}/>
-                        <Table.Column title= '描述' width= {150} align= 'center' dataIndex= 'description'  onCell={this.contentCell} render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}/>
+                        <Table.Column title= '类别' width= {100} align= 'center' dataIndex= 'type' render={text => util.textTag(text,"blue")}/>
+                        <Table.Column title= '描述' width= {150} align= 'center' dataIndex= 'description' render={(text) => util.longContentHandle(text,10)}/>
                         <Table.Column title= '创建时间' width= {140} align= 'center' dataIndex= 'createTime' />
-                        <Table.Column title= '状态' width= {100} align= 'center' dataIndex= 'status' render={this.statusRender}/>
+                        <Table.Column title= '状态' width= {100} align= 'center' dataIndex= 'status' render={text => util.textAndOptionsTag(text,form.selectLists.invitationTypeStatus)}/>
                         <Table.Column title= '创建人' width= {100} align= 'center' dataIndex= 'createBy' />
                         <Table.Column title= '更新时间' width= {140} align= 'center' dataIndex= 'updateTime'/>
                         <Table.Column title= '操作' width= {150} fixed= 'right' align= 'center' dataIndex= '' render={this.operatorRender}/>
                     </Table>
-                    <TypeRightShow
+                    <InvitationTypeDrawer
+                        visible={visible}
+                        type={type}
+                        form={form}
+                        title={title}
                         onClose={this.onClose}
-                        visible={this.state.visible}
-                        type={this.state.type}
-                        values={this.state.values}
-                        initValues={this.initValues}
-                        invitationTypeStatus={this.state.invitationTypeStatus}
+                        addInvitationType={this.addInvitationType}
+                        updateInvitationType={this.updateInvitationType}
+                        onFormChange={this.onFormChange}
                     />
-                    {/*<div style={{position:"absolute",right:"10px",bottom:'20px'}}>
+                    <div style={{position:"absolute",right:"10px",bottom:'15px'}}>
                         <Pagination
                             showSizeChanger
                             defaultCurrent={3}
                             total={500}
                         />
-                    </div>*/}
+                    </div>
                 </Card>
             </div>
         );
