@@ -1,63 +1,52 @@
-/* 该组件是评论举报用的右侧浮层显示 */
+/**
+ * 1、评论举报页面右侧抽屉弹层
+ * 2、第一个将表单项抽离抽离出来的组件
+ */
 import React from 'react'
-import {Drawer, Form, Button, Col, Row, Input, Select, message} from 'antd';
-import {updateReportInvitation} from '../../api/index'
+import {Drawer, Button} from 'antd';
+import GeneratorForm from "../../components/myConponents/GeneratorForm";
+import Forms from './forms'
 
-const { Option } = Select;
 
 class ReportInvitationRightShow extends React.Component {
     formRef = React.createRef();
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            value: {},
-            id: 0,
-        };
-    }
-    componentWillReceiveProps(props,nextProps){
-        this.setState({
-            value: props.values,
-            id:props.values.id
-        })
+    onSubmit = ()=>{
+        const type = this.props.type
+        console.log("ref",this.formRef.current)
+        // this.formRef.current  = this.refs.checkUserDrawer 代表所指对象的实例
+        this.formRef.current.validateAll().then(
+            (values, fieldsValue) => {
+                if (fieldsValue) {
+                    console.log("error",fieldsValue)
+                    return;
+                }
+                console.log("success",values)
+                // 根据type的值进行不同的操作
+                if (type === 'edit'){
+                    this.props.updateReportInvitation()
+                } else if (type === 'detail') {
+                    this.props.onClose();
+                }
+            }
+        )
     }
 
-    onSubmit = ()=>{
-        // 1、通过该方式与表单进行交互，获取表单值
-        const data =this.formRef.current.getFieldsValue();
-        data.id = this.props.values.id;
-        console.log(data)
-        if (this.props.type === 'edit'){
-            updateReportInvitation(data,(result)=>{
-                if (result === true){
-                    message.success('帖子举报信息修改成功！');
-                    this.props.initValues();
-                }
-            })
-        } else if (this.props.type === 'search') {
-            console.log('search')
-        }
-        // 3、清空表单值
-        this.formRef.current.resetFields();
-        // 4、调用父组件的onClose方法
-        this.props.onClose();
-        /*this.props.history.replace('/admin/announcement');*/
-    }
     render() {
-        const {onClose,visible,type} = this.props
+        const {onClose,visible,type,form,title} = this.props
+        const myForm = Forms.getForms.apply(this)
         return (
             <div>
                 <Drawer
-                    title={`${type==='edit'?'编辑':'查看'}帖子举报信息`}
+                    title={title}
                     placement="right"
                     width={520}
-                    // closable={false}
                     destroyOnClose={"true"}
-                    onClose={onClose}
+                    onClose={() => onClose('drawer')}
                     visible={visible}
                     footer={
                         <div style={{textAlign: 'right',}}>
-                            <Button onClick={onClose} style={{ marginRight: 8 }}>
+                            <Button onClick={() => onClose('drawer')} style={{ marginRight: 8 }}>
                                 取消
                             </Button>
                             <Button onClick={this.onSubmit} htmlType="submit" type="primary">
@@ -66,67 +55,13 @@ class ReportInvitationRightShow extends React.Component {
                         </div>
                     }
                 >
-                    <Form layout="vertical" hideRequiredMark ref={this.formRef} onFinish={this.onFinish} initialValues={this.state.value}>
-                        <Row gutter={16}>
-                            <Col span={12}>
-                                <Form.Item name="reportName" label="举报人"
-                                           rules={[{ required: true, message: '请输入举报人' }]}
-                                >
-                                    <Input placeholder="请输入类账户" disabled={true}/>
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item name="issuer" label="发帖人"
-                                           rules={[{ required: true, message: '请输入被举报人' }]}
-                                >
-                                    <Input placeholder="请输入密码" disabled={true}/>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Row gutter={16}>
-                            <Col span={12}>
-                                <Form.Item name="title" label="举报帖子标题"
-                                           rules={[{ required: true, message: '请输入举报人' }]}
-                                >
-                                    <Input placeholder="请输入类账户" disabled={true}/>
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item name="createTime" label="举报时间"
-                                           rules={[{ required: true, message: '请输入被举报人' }]}
-                                >
-                                    <Input placeholder="请输入密码" disabled={true}/>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Row gutter={16}>
-                            <Col span={12}>
-                                <Form.Item name="status" label="状态"
-                                           rules={[{ required: true, message: '请选择账户状态' }]}
-                                >
-                                    <Select placeholder="请选择账户状态" disabled={type==="search"?true:false}>
-                                        <Option value="0">0 - 注销</Option>
-                                        <Option value="1">1 - 正常</Option>
-                                        <Option value="2">2 - 停用</Option>
-                                    </Select>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Row gutter={16}>
-                            <Col span={24}>
-                                <Form.Item name="reportReason" label="举报原因"
-                                           rules={[
-                                               {
-                                                   required: true,
-                                                   message: '请输入举报原因',
-                                               },
-                                           ]}
-                                >
-                                    <Input.TextArea rows={4} placeholder="请输入举报原因" disabled={type==="search"?true:false}/>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                    </Form>
+                    <GeneratorForm
+                        // ref={"reportInvitationDrawer"}
+                        ref={this.formRef}
+                        forms={myForm}
+                        values={form.formValue}
+                        onFormChange={this.props.onFormChange}
+                    />
                 </Drawer>
             </div>
         );
@@ -134,3 +69,11 @@ class ReportInvitationRightShow extends React.Component {
 }
 
 export default ReportInvitationRightShow
+
+/**
+ * 总结：
+ *      1、将表单项单独抽离处理，注意需要改变this的指向
+ *      2、使用rReact.createRef()和 refs：
+ *          this.formRef.current  = this.refs.checkUserDrawer 代表所指对象的实例
+ */
+

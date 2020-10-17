@@ -81,10 +81,12 @@ export default {
     /**
      * 设置文本为：进行标记和分类的小标签。自定义颜色
      * @param text
+     * @param myColor
      * @returns {*}
      */
-    textTag(text){
-        return <Tag color={this.getRandomColor()}>{text}</Tag>
+    textTag(text,myColor){
+        const color = myColor ? myColor : this.getRandomColor()
+        return <Tag color={color}>{text}</Tag>
     },
 
     /**
@@ -93,16 +95,17 @@ export default {
      * @param selectList
      * @param id
      * @param name
+     * @param color
      * @returns {*}
      */
-    textAndOptionsTag(text,selectList, id='codeName', name='description'){
+    textAndOptionsTag(text,selectList,color='cyan', id='codeName', name='description'){
         if (selectList.length !== 0) {
             const result = selectList.find((items) => text == items[id])
             if (result) {
-                return <Tag color="cyan">{[result[id], result[name]].join(' - ')}</Tag>
+                return <Tag color={color}>{[result[id], result[name]].join(' - ')}</Tag>
             }
         }
-        return <Tag color="cyan">{text}</Tag>
+        return <Tag color={color}>{text}</Tag>
     },
 
 

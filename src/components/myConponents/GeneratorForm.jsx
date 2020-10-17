@@ -96,9 +96,9 @@ class GeneratorForm extends React.Component{
             >
                 <Row gutter={[16, 16]}>
                     {
-                        forms.map(formItem => {
+                        forms.map((formItem,index) => {
                             return (
-                                <Col span={formItem.type === 'textarea'? 24: 12}>
+                                <Col key={index} span={formItem.type === 'textarea'? 24: 12}>
                                     {this.getFormItem(formItem)}
                                 </Col>
                             )
