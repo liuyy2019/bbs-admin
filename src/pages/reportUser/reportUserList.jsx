@@ -1,11 +1,14 @@
-/* 用户举报列表组件 */
+/**
+ * 1、用户举报页面
+ */
 import React from 'react'
-import {getListReportUsersById, getListReportUsers} from "../../api";
+import {getListReportUsersById, getListReportUsers, updateReportUser} from "../../api";
 import {Link} from "react-router-dom";
-import {Button, Card, Col, Input, Row, Tooltip, Breadcrumb, Form, Table, Tag, Select, Modal, message} from "antd";
-import ReportUserRightShow from "./reportUserRightShow";
-import ReportUserTimeline from "./reportUserTimeline";
+import {Button, Card, Col, Input, Row, Pagination,Breadcrumb, Form, Table, Select, Modal, message} from "antd";
+import ReportUserDrawer from "./reportUserDrawer";
 import {ExclamationCircleOutlined} from "@ant-design/icons";
+import util from "../../util/util";
+import moment from 'moment'
 
 
 const {Option} = Select;
@@ -14,15 +17,23 @@ class ReportUserList extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            data:[],
+            dataList:[],
             pageNum: 1,
             pageSize: 100,
             visible: false,
             isLoading:false,
-            type: '',
-            values: {},
-            visibleTimeline: false,/*默认不显示时间轴*/
-            TimelineValues:[],/*时间轴数据*/
+            type: 'detail',
+            form: {
+                formValue: {},
+                selectLists: {
+                    STATUS: [
+                        {codeName: '0',description: "注销"},
+                        {codeName: '1',description: "正常"},
+                        {codeName: '2',description: "停用"},
+                    ],
+                },
+                timelineValues:[],/*时间轴数据*/
+            }
         }
     }
 
@@ -30,9 +41,8 @@ class ReportUserList extends React.Component {
         const {pageNum,pageSize} = this.state;
         this.setState({isLoading:true});
         getListReportUsers({reportUser:{},page:pageNum,size:pageSize},result => {
-            console.log(result)
             this.setState({
-                data: result,
+                dataList: result,
                 isLoading:false,
             })
         })
@@ -43,51 +53,46 @@ class ReportUserList extends React.Component {
 
     /* 搜索框表单提交 */
     onFinish = values => {
-        this.setState({values});
-        console.log(values)
         const {pageNum,pageSize} = this.state
         getListReportUsers({reportUser:values,page:pageNum,size:pageSize},result => {
-            console.log(result)
-            this.setState({
-                data: result
-            })
+            this.setState({dataList: result})
         })
     };
 
     /* 显示右侧浮层 */
     showDrawer = (values,type) => {
-        this.setState({
-            visible: true,
-            type: type,
-            values: values
-        });
-        console.log(this.state)
+        const {form} = this.state
+        form.formValue = {
+            ...values,
+            createTime: moment(values.createTime,util.dateFormat)
+        }
+        getListReportUsersById({userId: values.userId},result => {
+            form.timelineValues = result
+            this.setState({visible: true, type, form})
+        })
     };
 
-    showTimeline =(record)=>{
-        this.setState({
-            visibleTimeline: true,
-        });
-        getListReportUsersById({userId: record.userId},result => {
-            this.setState({
-                TimelineValues: result
-            })
-        })
-    }
 
     /* 关闭右侧浮层 */
     onClose = () => {
-        this.setState({
-            visible: false,
-        });
-        this.initValues();
+        this.setState({visible: false});
     };
 
-    onCloseTimeline = () => {
-        this.setState({
-            visibleTimeline: false,
-        });
-    };
+    // 更新信息
+    updateReportUser = () => {
+        const formValue = this.state.form.formValue
+        const param = {
+            ...formValue,
+            createTime: (formValue.createTime).format(util.dateFormat)
+        }
+        updateReportUser(param,(result)=>{
+            if (result.status === 200){
+                message.success('用户举报信息修改成功！');
+                this.initValues();
+                this.onClose()
+            }
+        })
+    }
 
     deleteUser = () => {
         Modal.confirm({
@@ -100,26 +105,25 @@ class ReportUserList extends React.Component {
                 message.success('用户举报信息删除成功');
             },
         });
-    }
+    };
+
     operatorRender = (value, record,index) => {
         return (
             <div>
-                {/*<Link style={styles.removeBtn} to={{ pathname : '/admin/user',query:{type:'查看',record:record}}}>查看</Link>
-                <Link style={styles.removeBtn} to={{ pathname : '/admin/user',query:{type:'编辑',record:record}}}>编辑</Link>*/}
-                <a onClick={() => this.showDrawer(record,'search')} style={styles.removeBtn}>查看</a>
+                <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
                 <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
                 <a onClick={() => this.deleteUser(record)} style={styles.removeBtn}>删除</a>
             </div>
         );
-    }
-    statusRender = (text) => {
-        if (text === "0") {
-            return <Tag color="geekblue" key={text}>0 - 注销</Tag>
-        } else if (text === "1") {
-            return <Tag color="geekblue" key={text}>1 - 正常</Tag>
-        } else if (text === "2") {
-            return <Tag color="geekblue" key={text}>2 - 停用</Tag>
+    };
+
+    // 表单内容改变触发函数
+    onFormChange = (values) => {
+        const {form} = this.state
+        form.formValue = {
+            ...values
         }
+        this.setState({form})
     }
 
     styleFont = () => {
@@ -135,6 +139,8 @@ class ReportUserList extends React.Component {
     }
 
     render(){
+        const {dataList,type,form,visible,isLoading} = this.state
+        const title = [util.titlePrefix[type],'举报用户信息'].join('')
         return(
             <div style={{background:'#f0f2f5',height:'100%'}}>
                 <Card size="small" style={{height:'20%'}}>
@@ -168,10 +174,8 @@ class ReportUserList extends React.Component {
                                 </Col>
                                 <Col span={6}>
                                     <div style={{float:'right'}}>
-                                        <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">Search</Button>
-                                        <Button type={"primary"} onClick={() => {this.formRef.current.resetFields();}}>
-                                            Clear
-                                        </Button>
+                                        <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">查询</Button>
+                                        <Button type={"primary"} onClick={() => {this.formRef.current.resetFields();}}>清除</Button>
                                     </div>
                                 </Col>
                             </Row>
@@ -179,48 +183,40 @@ class ReportUserList extends React.Component {
                     </div>
                 </Card>
                 <Card size="small" style={{marginTop:'15px',height:'76%'}}>
-                    <Table rowKey="id" loading={this.state.isLoading}
-                           dataSource={this.state.data} scroll={{ y: 260,x: 1000  }} size="middle" pagination={true}>
+                    <Table rowKey="id" loading={isLoading} size="middle" pagination={false}
+                           dataSource={dataList} scroll={{ y: 310}} >
                         <Table.Column title= '序号' width= {50} align= 'center' fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '用户名' width= {100} align= 'center' dataIndex= 'userName' render={
                             (text,record,index)=>{
-                                return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.userId}}}><Tag color="geekblue" key={text}>{text}</Tag></Link>
+                                return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.userId}}}>{util.textTag(text,"geekblue")}</Link>
                             }
                         }/>
-                        <Table.Column title= '举报原因' width= {150} align= 'center' dataIndex= 'reportReason' onCell={() => this.styleFont()} render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>} />
+                        <Table.Column title= '举报原因' width= {150} align= 'center' dataIndex= 'reportReason' onCell={() => this.styleFont()} render={(text) => util.longContentHandle(text)} />
                         <Table.Column title= '被举报用户名' width= {100} align= 'center' dataIndex= 'reportName' render={
                             (text,record,index)=>{
-                                return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.userId}}}><Tag color="geekblue" key={text}>{text}</Tag></Link>
+                                return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.userId}}}>{util.textTag(text,"cyan")}</Link>
                             }
                         }/>
-                        <Table.Column title= '状态' width= {100} align= 'center' dataIndex= 'status' render={this.statusRender}/>
-                        <Table.Column title= '举报时间' width= {150} align= 'center' dataIndex= 'createTime' style={styles.style} render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}/>
-                        <Table.Column title= '时间轴' width= {150} align= 'center' dataIndex= 'updateTime'
-                            render={
-                                (text,record) => <a onClick={() => this.showTimeline(record)}>时间轴</a>
-                            }
-                        />
+                        <Table.Column title= '状态' width= {100} align= 'center' dataIndex= 'status' render={text => util.textAndOptionsTag(text,form.selectLists.STATUS,"geekblue")}/>
+                        <Table.Column title= '举报时间' width= {150} align= 'center' dataIndex= 'createTime'/>
                         <Table.Column title= '操作' width= {130} fixed= 'right' align= 'center' dataIndex= '' render={this.operatorRender}/>
                     </Table>
-                    <ReportUserRightShow
+                    <ReportUserDrawer
+                        visible={visible}
+                        type={type}
+                        form={form}
+                        title={title}
+                        updateReportUser={this.updateReportUser}
                         onClose={this.onClose}
-                        visible={this.state.visible}
-                        type={this.state.type}
-                        values={this.state.values}
-                        initValues={this.initValues}
+                        onFormChange={this.onFormChange}
                     />
-                    <ReportUserTimeline
-                        onCloseTimeline={this.onCloseTimeline}
-                        visibleTimeline={this.state.visibleTimeline}
-                        TimelineValues={this.state.TimelineValues}
-                    />
-                    {/*<div style={{position:"absolute",right:"10px",bottom:'20px'}}>
+                    <div style={{position:"absolute",right:"10px",bottom:'15px'}}>
                         <Pagination
                             showSizeChanger
                             defaultCurrent={3}
                             total={500}
                         />
-                    </div>*/}
+                    </div>
                 </Card>
             </div>
         );
