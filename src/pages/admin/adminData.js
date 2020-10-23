@@ -10,9 +10,7 @@ export default {
             {
                 name: "name",
                 label: "账户",
-                type: "input",
                 rules: [{ required: true, message: '请输入类账户' }],
-                placeholder: "请输入类账户",
                 disabled: disabledFlag
             },
             {

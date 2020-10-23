@@ -102,10 +102,10 @@ export default {
         if (selectList.length !== 0) {
             const result = selectList.find((items) => text == items[id])
             if (result) {
-                return <Tag color={color}>{[result[id], result[name]].join(' - ')}</Tag>
+                return <Tag color={color} key={text}>{[result[id], result[name]].join(' - ')}</Tag>
             }
         }
-        return <Tag color={color}>{text}</Tag>
+        return <Tag color={color} key={text}>{text}</Tag>
     },
 
 

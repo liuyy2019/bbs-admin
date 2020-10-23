@@ -5,6 +5,18 @@ import React from 'react'
 import {Input,Select,DatePicker,Form,Row,Col} from 'antd'
 import PropTypes from "prop-types"
 
+const selectConfigs = {
+    placeholder: '请选择...'
+}
+
+const inputConfigs = {
+    placeholder: '请输入...'
+}
+
+const dateConfigs = {
+    style: {width: '100%'},
+    placeholder: '请选择...'
+}
 
 const {Option} = Select
 const FormItem = Form.Item
@@ -42,18 +54,18 @@ class GeneratorForm extends React.Component{
 
     // 生成具体的表单项
     getFormItem = (formItem) => {
-        const {type,disabled,placeholder,options,...rest} = formItem
+        const {type,disabled,options,...rest} = formItem
         let node
 
         switch (type) {
             case 'input':
                 node = (
-                    <Input disabled={disabled} placeholder={placeholder} {...rest}/>
+                    <Input disabled={disabled} {...inputConfigs} {...rest}/>
                 );
                 break;
             case 'select':
                 node = (
-                    <Select disabled={disabled} placeholder={placeholder} {...rest}>
+                    <Select disabled={disabled} {...selectConfigs} {...rest}>
                         {
                             options.map(item => {
                                 return (
@@ -66,16 +78,18 @@ class GeneratorForm extends React.Component{
                 break;
             case 'date':
                 node = (
-                    <DatePicker disabled={disabled} placeholder={placeholder}{...rest} style={{width: '100%'}}/>
+                    <DatePicker disabled={disabled} {...dateConfigs} {...rest}/>
                 );
                 break;
             case 'textarea':
                 node = (
-                    <Input.TextArea rows={4} disabled={disabled}
-                        placeholder={placeholder} {...rest}
-                    />
+                    <Input.TextArea rows={4} disabled={disabled} {...rest}/>
                 );
                 break;
+            default :
+                node = (
+                    <Input disabled={disabled} {...inputConfigs} {...rest}/>
+                )
         }
 
         return (

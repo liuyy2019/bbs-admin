@@ -1,5 +1,6 @@
 /**
- * 管理员详情信息右侧抽屉弹层
+ * 1、管理员详情信息右侧抽屉弹层
+ * 2、使用自封转组件Drawer和Form
  */
 import React from 'react'
 import GeneratorForm from "../../components/myConponents/GeneratorForm";

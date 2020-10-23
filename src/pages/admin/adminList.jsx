@@ -10,11 +10,9 @@ import {
     Input,
     Pagination,
     Row,
-    Tooltip,
     Breadcrumb,
     Form,
     Table,
-    Tag,
     Modal,
     message,
     Select
@@ -23,7 +21,7 @@ import AdminDrawer from './adminDrawer'
 import util from "../../util/util";
 
 const FormItem = Form.Item
-
+const {Option} = Select
 class AdminList extends React.Component {
     formRef = React.createRef();
     constructor(props){
@@ -129,13 +127,16 @@ class AdminList extends React.Component {
         const {type,form} = this.state
         switch (type) {
             case 'create': {
-                this.addAdmin(form.formValues)
-            }
+                this.addAdmin(form.formValues);
                 break;
+            }
             case 'edit': {
-                this.updateAdmin(form.formValues)
-            }
+                this.updateAdmin(form.formValues);
                 break;
+            }
+            default: {
+                console.log(type)
+            }
         }
         this.onClose();
     }
@@ -166,26 +167,8 @@ class AdminList extends React.Component {
                 <a onClick={() => this.deleteAdmin(record)} style={styles.removeBtn}>删除</a>
             </div>
         );
-    }
-    statusRender = (text) => {
-        if (text === "0") {
-            return <Tag color="geekblue" key={text}>0 - 注销</Tag>
-        } else if (text === "1") {
-            return <Tag color="geekblue" key={text}>1 - 正常</Tag>
-        } else if (text === "2") {
-            return <Tag color="geekblue" key={text}>2 - 停用</Tag>
-        }
-    }
+    };
 
-    levelRender = (text) => {
-        if (text === "0") {
-            return <Tag color="geekblue" key={text}>0 - 管理员</Tag>
-        } else if (text === "1") {
-            return <Tag color="geekblue" key={text}>1 - 超级管理员</Tag>
-        } else if (text === "2") {
-            return <Tag color="geekblue" key={text}>2 - 临时超管</Tag>
-        }
-    }
 
     render(){
         const {form,isLoading,dataList,type,visible} = this.state;
@@ -223,7 +206,7 @@ class AdminList extends React.Component {
                                         <Select placeholder="请选择管理员级别">
                                             {
                                                 form.list.adminLevel.map(item => {
-                                                    return <option value={item.codeName}>{item.codeName} - {item.description}</option>
+                                                    return <Option value={item.codeName} key={item.codeName}>{item.codeName} - {item.description}</Option>
                                                 })
                                             }
                                         </Select>
@@ -231,10 +214,8 @@ class AdminList extends React.Component {
                                 </Col>
                                 <Col span={6}>
                                     <div style={{float:'right'}}>
-                                        <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">Search</Button>
-                                        <Button type={"primary"} onClick={() => {this.formRef.current.resetFields();}}>
-                                            Clear
-                                        </Button>
+                                        <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">查询</Button>
+                                        <Button type={"primary"} onClick={() => {this.formRef.current.resetFields()}}>清除</Button>
                                     </div>
                                 </Col>
                             </Row>
@@ -242,13 +223,13 @@ class AdminList extends React.Component {
                     </div>
                 </Card>
                 <Card title="管理员列表" extra={<Button type="primary" onClick={() => this.showDrawer({},'create')}>新建</Button>}size="small" style={{marginTop:'15px',height:'76%'}}>
-                    <Table rowKey="adminId" loading={isLoading}
-                           dataSource={dataList} scroll={{ y: 230 }} size="middle" pagination={false}>
+                    <Table rowKey="adminId" loading={isLoading} size="middle" pagination={false}
+                           dataSource={dataList} scroll={{ y: 230 }} >
                         <Table.Column title= '序号' width= {50} align= 'center'fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '账号' width= {100} align= 'center' dataIndex= 'name' ellipsis={true}/>
-                        <Table.Column title= '密码' width= {150} align= 'center' dataIndex= 'password' style={styles.titleStyles} render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}/>
-                        <Table.Column title= '账号状态' width= {100} align= 'center' dataIndex= 'status' render={this.statusRender}/>
-                        <Table.Column title= '级别' width= {150} align= 'center' dataIndex= 'level'render={this.levelRender}/>
+                        <Table.Column title= '密码' width= {150} align= 'center' dataIndex= 'password' style={styles.titleStyles}/>
+                        <Table.Column title= '账号状态' width= {100} align= 'center' dataIndex= 'status' render={text => util.textAndOptionsTag(text,form.list.adminStatus,'geekblue')}/>
+                        <Table.Column title= '级别' width= {150} align= 'center' dataIndex= 'level' render={text => util.textAndOptionsTag(text,form.list.adminLevel)}/>
                         <Table.Column title= '操作' width= {200} align= 'center' dataIndex= '' render={this.operatorRender}/>
                     </Table>
                     <AdminDrawer
