@@ -2,7 +2,7 @@
  * 管理员信息模块
  */
 import React from 'react'
-import {deleteAdmin, getListAdmins,getCodeByType} from "../../api";
+import {deleteAdmin, getListAdmins, getCodeByType, addAdmin, updateAdmin} from "../../api";
 import {
     Button,
     Card,
@@ -19,9 +19,10 @@ import {
     message,
     Select
 } from "antd";
-import AdminRightShow from './adminRightShow'
+import AdminDrawer from './adminDrawer'
+import util from "../../util/util";
 
-
+const FormItem = Form.Item
 
 class AdminList extends React.Component {
     formRef = React.createRef();
@@ -33,8 +34,8 @@ class AdminList extends React.Component {
             pageSize: 5,
             visible: false,/* 新建右测栏 */
             isLoading: false,
-            type: 'add',
-            forms: {
+            type: 'create',
+            form: {
                 formValues: {},
                 list: {
                     adminLevel: [],/*管理员级别*/
@@ -56,14 +57,14 @@ class AdminList extends React.Component {
         })
     }
     componentDidMount(){
-        const {list} = this.state.forms
+        const {list} = this.state.form
         this.initValues();
         getCodeByType({codeType:"ADMIN_LEVEL"},result => {
             list.adminLevel = result
             getCodeByType({codeType:"ADMIN_STATUS"},result => {
                 list.adminStatus = result
                 this.setState({
-                    forms: {
+                    form: {
                         list
                     }
                 })
@@ -81,13 +82,13 @@ class AdminList extends React.Component {
             })
         })
     };
+
     showDrawer = (values,type) => {
-        const {forms} = this.state
-        forms.formValues = values
+        const {form} = this.state
+        form.formValues = values
         this.setState({
             visible: true,
-            type: type,
-            forms
+            type, form
         });
     };
 
@@ -97,14 +98,47 @@ class AdminList extends React.Component {
         });
     };
 
-    onChange = (values) => {
-        const {forms} = this.state
-        forms.formValues = values
+    onFormChange = (values) => {
+        const {form} = this.state
+        form.formValues = values
         this.setState({
-            forms
+            form
+        })
+    };
+
+    updateAdmin = (values) => {
+        updateAdmin(values,(result)=>{
+            if (result === true){
+                message.success('管理员信息修改成功');
+                this.initValues();
+            }
         })
     }
 
+    addAdmin = (values) => {
+        addAdmin(values,(result)=>{
+            if (result === true){
+                message.success('管理员新建成功');
+                this.initValues();
+            }
+        })
+    }
+
+    // 表单提交
+    submitHandle = () => {
+        const {type,form} = this.state
+        switch (type) {
+            case 'create': {
+                this.addAdmin(form.formValues)
+            }
+                break;
+            case 'edit': {
+                this.updateAdmin(form.formValues)
+            }
+                break;
+        }
+        this.onClose();
+    }
     /* 删除管理员*/
     deleteAdmin = (record) => {
         Modal.confirm({
@@ -127,7 +161,7 @@ class AdminList extends React.Component {
     operatorRender = (value, record,index) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'search')} style={styles.removeBtn}>查看</a>
+                <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
                 <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
                 <a onClick={() => this.deleteAdmin(record)} style={styles.removeBtn}>删除</a>
             </div>
@@ -154,7 +188,8 @@ class AdminList extends React.Component {
     }
 
     render(){
-        const forms = this.state.forms
+        const {form,isLoading,dataList,type,visible} = this.state;
+        const title = [util.titlePrefix[type],'管理员信息'].join('');
         return(
             <div style={{background:'#f0f2f5',height:'100%'}}>
                 <Card size="small" style={{height:'20%'}}>
@@ -168,31 +203,31 @@ class AdminList extends React.Component {
                         >
                             <Row gutter={24}>
                                 <Col span={6}>
-                                    <Form.Item name="name" label="账号">
+                                    <FormItem name="name" label="账号">
                                         <Input placeholder="账号" />
-                                    </Form.Item>
+                                    </FormItem>
                                 </Col>
                                 <Col span={6}>
-                                    <Form.Item name="status" label="状态">
+                                    <FormItem name="status" label="状态">
                                         <Select placeholder="请选择账号状态">
                                             {
-                                                forms.list.adminStatus.map(item => {
+                                                form.list.adminStatus.map(item => {
                                                     return <option value={item.codeName}>{item.codeName} - {item.description}</option>
                                                 })
                                             }
                                         </Select>
-                                    </Form.Item>
+                                    </FormItem>
                                 </Col>
                                 <Col span={6}>
-                                    <Form.Item name="level" label="级别">
+                                    <FormItem name="level" label="级别">
                                         <Select placeholder="请选择管理员级别">
                                             {
-                                                forms.list.adminLevel.map(item => {
+                                                form.list.adminLevel.map(item => {
                                                     return <option value={item.codeName}>{item.codeName} - {item.description}</option>
                                                 })
                                             }
                                         </Select>
-                                    </Form.Item>
+                                    </FormItem>
                                 </Col>
                                 <Col span={6}>
                                     <div style={{float:'right'}}>
@@ -206,9 +241,9 @@ class AdminList extends React.Component {
                         </Form>
                     </div>
                 </Card>
-                <Card title="管理员列表" extra={<Button type="primary" onClick={() => this.showDrawer({},'add')}>新建</Button>}size="small" style={{marginTop:'15px',height:'76%'}}>
-                    <Table rowKey="adminId" loading={this.state.isLoading}
-                           dataSource={this.state.dataList} scroll={{ y: 230 }} size="middle" pagination={false}>
+                <Card title="管理员列表" extra={<Button type="primary" onClick={() => this.showDrawer({},'create')}>新建</Button>}size="small" style={{marginTop:'15px',height:'76%'}}>
+                    <Table rowKey="adminId" loading={isLoading}
+                           dataSource={dataList} scroll={{ y: 230 }} size="middle" pagination={false}>
                         <Table.Column title= '序号' width= {50} align= 'center'fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '账号' width= {100} align= 'center' dataIndex= 'name' ellipsis={true}/>
                         <Table.Column title= '密码' width= {150} align= 'center' dataIndex= 'password' style={styles.titleStyles} render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}/>
@@ -216,13 +251,14 @@ class AdminList extends React.Component {
                         <Table.Column title= '级别' width= {150} align= 'center' dataIndex= 'level'render={this.levelRender}/>
                         <Table.Column title= '操作' width= {200} align= 'center' dataIndex= '' render={this.operatorRender}/>
                     </Table>
-                    <AdminRightShow
+                    <AdminDrawer
                         onClose={this.onClose}
-                        visible={this.state.visible}
-                        type={this.state.type}
-                        onChange={this.onChange}
-                        initValues={this.initValues}
-                        forms={forms}
+                        visible={visible}
+                        type={type}
+                        title={title}
+                        onFormChange={this.onFormChange}
+                        submitHandle={this.submitHandle}
+                        form={form}
                     />
                     <div style={{position:"absolute",right:"10px",bottom:'20px'}}>
                         <Pagination
