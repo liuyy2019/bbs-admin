@@ -4,12 +4,13 @@
 import React from 'react'
 import {deleteComment, getCodeByType, getListComments, updateComment} from "../../api";
 import {Link} from "react-router-dom";
-import {Button, Card, Col, Pagination,Input, Row, Tooltip, Breadcrumb, Form, Table, Tag, Modal, message, Select} from "antd";
-import CheckCommentRightShow from './checkCommentRightShow'
+import {Button, Card, Col, Pagination,Input, Row, Breadcrumb, Form, Table, Modal, message, Select} from "antd";
+import CheckCommentDrawer from './checkCommentDrawer'
 import {ExclamationCircleOutlined} from "@ant-design/icons";
 import util from "../../util/util";
+import moment from "moment";
 
-
+const FormItem = Form.Item
 const {Option} = Select;
 class CheckCommentList extends React.Component {
     formRef = React.createRef();
@@ -68,7 +69,10 @@ class CheckCommentList extends React.Component {
     /* 右侧显示详情页（查看/修改）*/
     showDrawer = (values,type) => {
         const {form} = this.state
-        form.formValue = values
+        form.formValue = {
+            ...values,
+            createtime: moment(values.createtime,util.dateFormat)
+        }
         this.setState({
             visible: true,
             type: type,
@@ -104,7 +108,11 @@ class CheckCommentList extends React.Component {
     /* 更新信息*/
     updateComment = () => {
         const {formValue} = this.state.form
-        updateComment(formValue,(result)=>{
+        const params = {
+            ...formValue,
+            createtime: formValue.createtime.format(util.dateFormat)
+        }
+        updateComment(params,(result)=>{
             if (result === true){
                 message.success('修改成功');
                 this.init();
@@ -133,17 +141,6 @@ class CheckCommentList extends React.Component {
         );
     };
 
-    /* 状态返回值对应 */
-    statusRender = (text) => {
-        if (text==="0") {
-            return <Tag color="geekblue" key={text}>0 - 审核中</Tag>;
-        } else if (text==="1") {
-            return <Tag color="geekblue" key={text}>1 - 正常</Tag>;
-        } else if (text ==="2") {
-            return <Tag color="geekblue" key={text}>2 - 屏蔽</Tag>;
-        }
-    };
-
     render(){
         const {form,dataList,type,visible,isLoading} = this.state
         let title = [util.titlePrefix[type], '评论举报审核信息'].join('')
@@ -161,17 +158,17 @@ class CheckCommentList extends React.Component {
                         >
                             <Row gutter={24}>
                                 <Col span={6}>
-                                    <Form.Item name="name" label="评论人">
+                                    <FormItem name="name" label="评论人">
                                         <Input placeholder="评论人" />
-                                    </Form.Item>
+                                    </FormItem>
                                 </Col>
                                 <Col span={6}>
-                                    <Form.Item name="invitationTitle" label="帖子标题">
+                                    <FormItem name="invitationTitle" label="帖子标题">
                                         <Input placeholder="帖子标题" />
-                                    </Form.Item>
+                                    </FormItem>
                                 </Col>
                                 <Col span={6}>
-                                    <Form.Item name="status" label="状态" required>
+                                    <FormItem name="status" label="状态" required>
                                         <Select placeholder="请选择状态" allowClear>
                                             {
                                                 form.selectLists.STATUS.map((item,index) => {
@@ -179,7 +176,7 @@ class CheckCommentList extends React.Component {
                                                 })
                                             }
                                         </Select>
-                                    </Form.Item>
+                                    </FormItem>
                                 </Col>
                                 <Col span={6}>
                                     <div style={{float:'right'}}>
@@ -199,20 +196,20 @@ class CheckCommentList extends React.Component {
                         <Table.Column title= '序号' width= {50} align= 'center' fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '评论人' width= {100} align= 'center' dataIndex= 'name' render={
                             (text,record)=>{
-                                return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.userId}}}><Tag color="geekblue" key={text}>{text}</Tag></Link>
+                                return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.userId}}}>{util.textTag(text,'geekblue')}</Link>
                             }
                         }/>
-                        <Table.Column title= '评论内容' width= {200} align= 'center' dataIndex= 'content' ellipsis={true} render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}/>
-                        <Table.Column title= '状态' width= {80} align= 'center' dataIndex= 'status' render={this.statusRender}/>
+                        <Table.Column title= '评论内容' width= {200} align= 'center' dataIndex= 'content' ellipsis={true}/>
+                        <Table.Column title= '状态' width= {80} align= 'center' dataIndex= 'status' render={text => util.textAndOptionsTag(text,form.selectLists.STATUS,'geekblue')}/>
                         <Table.Column title= '被举报次数' width= {100} align= 'center' dataIndex= 'reports' render={
                             (text,record) => {
-                                return <Link to={{ pathname : '/admin/reportComment',state:{commentId:record.id}}}><Tag color="geekblue" key={text}>{text}</Tag></Link>
+                                return <Link to={{ pathname : '/admin/reportComment',state:{commentId:record.id}}}>{util.textTag(text,'geekblue')}</Link>
                             }
                         }/>
                         <Table.Column title= '评论时间' width= {150} align= 'center' dataIndex= 'createtime' />
                         <Table.Column title= '操作' fixed= 'right' width= {130} align= 'center' dataIndex= '' render={this.operatorRender}/>
                     </Table>
-                    <CheckCommentRightShow
+                    <CheckCommentDrawer
                         onClose={this.onClose}
                         visible={visible}
                         disabledFlag={disabledFlag}
@@ -254,4 +251,5 @@ const styles = {
 /**
  * 总结：
  *      1、类组件修改为函数组件
+ *      2、table中多余指定的width，使用ellipsis={true}会...显示
  */
