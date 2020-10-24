@@ -2,7 +2,7 @@
  * 1、审核帖子模块
  */
 import React from 'react';
-import {Table, Card, Breadcrumb, Form, Tag, Row, Col, Input, Button, Select, Modal, message} from 'antd';
+import {Table, Card, Breadcrumb, Form, Row, Col, Input, Button, Select, Modal, message} from 'antd';
 import {
     deleteInvitationById,
     getUserById,
@@ -11,12 +11,11 @@ import {
     getListInvitations,
     getParamByCodeId, updateInvitation
 } from '../../api/index'
-import {Link} from "react-router-dom";
 import CheckInvitationRightShow from "./checkInvitationRightShow";
 import {ExclamationCircleOutlined} from "@ant-design/icons";
 import util from "../../util/util";
 import {emailSend} from "../../api/untils";
-
+import Data from './data'
 
 const {Option} = Select
 
@@ -63,14 +62,18 @@ class CheckInvitationList extends React.Component{
 
         getCodeByType({codeType:"STATUS"},result => {
             value.selectLists.checkStatus = result
+            this.setState({
+                value
+            })
         })
         getAllTypes(result => {
             value.selectLists.InvitationType = result
+            this.setState({
+                value
+            })
         })
 
-        this.setState({
-            value
-        })
+
     }
 
     /* 显示右侧浮层 */
@@ -171,58 +174,7 @@ class CheckInvitationList extends React.Component{
         const {dataList,isLoading,value,type,visible} = this.state
         let title = [util.titlePrefix[type], '帖子举报审核信息'].join('')
         /* 表格的列 */
-        const columns = [
-            {   title: '序号', width: 50, align: 'center',
-                render:(text,record,index)=>`${index+1}`,
-            },
-            { title: '发布人', width: 80, dataIndex: 'name', key: 'name',align: "center",
-                render: (text,record,index)=>{
-                    return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.issuerId}}}><Tag color="geekblue" key={text}>{text}</Tag></Link>
-                }
-            },
-            { title: '标题', width: 150, dataIndex: 'title', key: 'title',align:'center',
-                render: (text,record) => {
-                    return <Link to={{ pathname : '/admin/invitation',state:{id:record.id}}}>{util.longContentHandle(text,15)}</Link>;
-                }
-            },
-            { title: '类别', width: 80, dataIndex: 'type', key: 'type',align:'center',
-                render: (text) => {
-                    return (
-                        <Tag color="green" key={text}>{text}</Tag>
-                    )
-                }
-            },
-            { title: '状态', width: 80, dataIndex: 'status', key: 'status',align:'center',
-                render: (text) => {
-                    if (text==="0") {
-                        return <Tag color="geekblue" key={text}>0 - 审核中</Tag>;
-                    } else if (text==="1") {
-                        return <Tag color="geekblue" key={text}>1 - 正常</Tag>;
-                    } else if (text ==="2") {
-                        return <Tag color="geekblue" key={text}>2 - 屏蔽</Tag>;
-                    }
-                }
-            },
-            { title: '被举报次数', width: 90, dataIndex: 'reports', key: 'reports',align:'center',
-                render: (text) => {
-                    return (
-                        <Tag color="geekblue" key={text}>{text}</Tag>
-                    )
-                }
-            },
-            { title: '发布时间',width: 150,  dataIndex: 'date', key: 'date' ,align:'center'},
-            { title: '操作', width: 150, dataIndex: '', key: 'x',align:'center',
-                render: (value, record) => {
-                    return (
-                        <div>
-                            <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
-                            <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                            <a onClick={() => this.deleteInvitation(record)} style={styles.removeBtn}>删除</a>
-                        </div>
-                    );
-                },
-            },
-        ];
+        const columns = Data.getCheckInvitationColumns.call(this)
         return(
             <div style={{background:'#f0f2f5',height:'100%'}}>
                 <Card size="small" style={{height:'20%'}}>
@@ -258,10 +210,8 @@ class CheckInvitationList extends React.Component{
                                 </Col>
                                 <Col span={6}>
                                     <div style={{float:'right'}}>
-                                        <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">Search</Button>
-                                        <Button type={"primary"} onClick={() => {this.formRef.current.resetFields();}}>
-                                            Clear
-                                        </Button>
+                                        <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">查询</Button>
+                                        <Button type={"primary"} onClick={() => {this.formRef.current.resetFields();}}>清除</Button>
                                     </div>
                                 </Col>
                             </Row>
@@ -298,11 +248,6 @@ class CheckInvitationList extends React.Component{
 
 export default CheckInvitationList
 
-const styles = {
-    removeBtn: {
-        marginLeft: 8,
-    },
-}
 
 /**
  *  1、待完善时间组件
