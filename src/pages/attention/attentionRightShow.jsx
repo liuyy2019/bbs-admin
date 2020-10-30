@@ -6,6 +6,9 @@ import {Drawer, Form, Button, Col, Row, Input, Select,DatePicker} from 'antd';
 import moment from 'moment'
 import 'moment/locale/zh-cn';
 import locale from 'antd/es/locale/zh_CN';
+import GeneratorForm from "../../components/myConponents/GeneratorForm";
+import util from "../../util/util";
+import data from "./data";
 
 const { Option } = Select;
 const dateFormat = 'YYYY-MM-DD HH:mm:ss'
@@ -35,6 +38,8 @@ class AttentionRightShow extends React.Component {
 
     render() {
         const {onClose,visible,type,forms} = this.props
+        const disabledFlag = type === 'detail'
+        const form = data.getAttentionForms.call(this,disabledFlag)
         return (
             <div>
                 <Drawer
@@ -56,84 +61,11 @@ class AttentionRightShow extends React.Component {
                         </div>
                     }
                 >
-                    <Form layout="vertical" hideRequiredMark ref={this.formRef}
-                          onValuesChange={this.onValuesChange} initialValues={forms.formValue}
-                    >
-                        <Row gutter={16}>
-                            <Col span={12}>
-                                <Form.Item name="username" label="用户名"
-                                           rules={[{ required: true, message: '请输入用户名' }]}
-                                >
-                                    <Input placeholder="请输入用户名" disabled={type==="search"?true:false}/>
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item name="usersex" label="性别"
-                                           rules={[{ required: true, message: '请输入用户性别' }]}
-                                >
-                                    <Input placeholder="请输入用户性别" disabled={true}/>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Row gutter={16}>
-                            <Col span={12}>
-                                <Form.Item name="userphone" label="用户手机号"
-                                           rules={[{ required: true, message: '请输入用户手机号' }]}
-                                >
-                                    <Input placeholder="请输入用户手机号" disabled={true}/>
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item name="noticer" label="关注用户"
-                                           rules={[{ required: true, message: '请输入关注用户' }]}
-                                >
-                                    <Input placeholder="请输入关注用户" disabled={type==="search"?true:false}/>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Row gutter={16}>
-                            <Col span={12}>
-                                <Form.Item name="sex" label="被关注用户性别"
-                                           rules={[{ required: true, message: '被关注用户性别' }]}
-                                >
-                                    <Input placeholder="被关注用户性别" disabled={true}/>
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item name="phone" label="关注用户手机号"
-                                           rules={[{ required: true, message: '请输入关注用户手机号' }]}
-                                >
-                                    <Input placeholder="请输入关注用户手机号" disabled={true}/>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Row gutter={16}>
-                            <Col span={12}>
-                                <Form.Item
-                                    name="createtime"
-                                    label="关注时间"
-                                    rules={[{ required: true, message: '请输入关注时间' }]}
-                                >
-                                    {/*<Input placeholder="请输入关注时间" disabled={type==="search"?true:false}/>*/}
-                                    {/*<DatePicker locale={locale} showTime format={dateFormat} defaultValue={value.createtime ? moment(value.createtime,dateFormat) : undefined} placeholder="请输入关注时间" style={{width:"100%"}} disabled={type==="search"?true:false}/>*/}
-                                    <DatePicker locale={locale} format={dateFormat} placeholder="请输入关注时间" style={{width:"100%"}} disabled={type==="search"?true:false}/>
-                                </Form.Item>
-                            </Col>
-                            <Col span={12}>
-                                <Form.Item name="status" label="关注状态"
-                                           rules={[{ required: true, message: '请选择关注状态' }]}
-                                >
-                                    <Select placeholder="请选择关注状态" disabled={type==="search"?true:false}>
-                                        {
-                                            forms.list.attentionStatus.map((item,index) => {
-                                                return <Option key={index} value={item.codeName}>{item.codeName} - {item.description}</Option>
-                                            })
-                                        }
-                                    </Select>
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                    </Form>
+                    <GeneratorForm
+                        forms={form}
+                        values={forms.formValue}
+                        onFormChange={this.props.onFormChange}
+                    />
                 </Drawer>
             </div>
         );

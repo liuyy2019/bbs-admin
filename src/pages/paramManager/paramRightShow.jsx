@@ -14,19 +14,16 @@ class ParamRightShow extends React.Component {
     onSubmit = (e)=>{
         e.preventDefault();
         const {type} = this.props
-        // 1、通过该方式与表单进行交互，获取表单值
-        const data =this.formRef.current.getFieldsValue();
+        // this.formRef.current可以获取所指对象的实例
 
         // 根据type的值进行不同的操作
         if (type === 'create') {
             this.props.addParam()
         } else if (type === 'edit') {
             this.props.updateParam()
+        } else {
+            this.props.onClose();
         }
-        // 3、调用父组件的onClose方法
-        this.props.onClose();
-        // 4、清空表单值
-        // this.formRef.current.resetFields();
     }
 
     onValuesChange = (changedValues, allValues) => {

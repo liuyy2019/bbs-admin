@@ -11,7 +11,7 @@ class EnumTypeList extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            data:[],
+            dataList:[],
             pageNum: 1,
             pageSize: 5,
             visible: false,/* 新建右测栏 */
@@ -24,9 +24,8 @@ class EnumTypeList extends React.Component {
     initValues = () => {
         this.setState({isLoading:true});
         getListEnumCode({enumCode:{},page: 1,size: 100},result => {
-            console.log(result);
             this.setState({
-                data: result,
+                dataList: result,
                 isLoading:false,
             })
         })
@@ -38,11 +37,9 @@ class EnumTypeList extends React.Component {
     /* 搜索框表单提交 */
     onFinish = values => {
         this.setState({values});
-        console.log(values);
         getListEnumCode({enumCode:values,page:1,size:100},result => {
-            console.log(result)
             this.setState({
-                data: result
+                dataList: result
             })
         })
     };
@@ -61,7 +58,6 @@ class EnumTypeList extends React.Component {
             type: '',
             values: {}
         });
-        this.initValues();
     };
     deleteEnumType = (record)=> {
         let _this = this
@@ -88,7 +84,7 @@ class EnumTypeList extends React.Component {
     operatorRender = (value, record) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'search')} style={styles.removeBtn}>查看</a>
+                <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
                 <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
                 <a onClick={() => this.deleteEnumType(record)} style={styles.removeBtn}>删除</a>
             </div>
@@ -103,6 +99,7 @@ class EnumTypeList extends React.Component {
     }
 
     render(){
+        const {dataList,type,visible} = this.state
         return(
             <div style={{background:'#f0f2f5',height:'100%'}}>
                 <Card size="small" style={{height:'20%'}}>
@@ -136,18 +133,16 @@ class EnumTypeList extends React.Component {
                                 <Col span={6}>
                                     <div style={{float:'right'}}>
                                         <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">Search</Button>
-                                        <Button type={"primary"} onClick={() => {this.formRef.current.resetFields();}}>
-                                            Clear
-                                        </Button>
+                                        <Button type={"primary"} onClick={() => {this.formRef.current.resetFields();}}>清除</Button>
                                     </div>
                                 </Col>
                             </Row>
                         </Form>
                     </div>
                 </Card>
-                <Card title="帖子种类列表" extra={<Button type="primary" onClick={()=>this.showDrawer({},'add')}>新建</Button>} size="small" style={{marginTop:'15px',height:'76%'}}>
+                <Card title="帖子种类列表" extra={<Button type="primary" onClick={()=>this.showDrawer({},'create')}>新建</Button>} size="small" style={{marginTop:'15px',height:'76%'}}>
                     <Table rowKey="id" loading={this.state.isLoading}
-                           dataSource={this.state.data} scroll={{ y: 230 }} size="middle" >
+                           dataSource={dataList} scroll={{ y: 230 }} size="middle" >
                         <Table.Column title= '序号' width= {50} align= 'center' fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '枚举类型' width= {150} align= 'center' dataIndex= 'codeType' ellipsis={true}/>
                         <Table.Column title= '枚举码' width= {80} align= 'center' dataIndex= 'codeName' ellipsis={true}/>
@@ -159,8 +154,8 @@ class EnumTypeList extends React.Component {
                     </Table>
                     <EnumTypeRightShow
                         onClose={this.onClose}
-                        visible={this.state.visible}
-                        type={this.state.type}
+                        visible={visible}
+                        type={type}
                         values={this.state.values}
                         initValues={this.initValues}
                     />

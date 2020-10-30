@@ -31,6 +31,7 @@ import AttentionTimeline from "./attentionTimeline";
 import moment from 'moment'
 import 'moment/locale/zh-cn';
 import util from "../../util/util";
+import data from "./data";
 
 const dateFormat = 'YYYY-MM-DD HH:mm:ss'
 
@@ -55,61 +56,6 @@ class AttentionList extends React.Component{
             },
             visibleTimeline: false,
         }
-        this.columns = [
-            {   title: '序号',
-                width: 50,
-                align: 'center',
-                render:(text,record,index)=>`${index+1}`,
-            },
-            { title: '用户名',width:80, dataIndex: 'username', key: 'username',align: "center",
-                render:(text,record,index)=>{
-                    return (
-                        <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.userId}}}>
-                            <Tag color="geekblue" key={text}>{text}</Tag>
-                        </Link>
-                    )
-                }
-            },
-            { title: '关注用户', width:80, dataIndex: 'noticer', key: 'noticer',align:'center',
-                render:(text,record)=>{
-                    return (
-                        <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.noticerId}}}>
-                            <Tag color="geekblue" key={text}>{text}</Tag>
-                        </Link>
-                    )
-                }
-            },
-            { title: '关注用户性别', width: 120,dataIndex: 'sex', key: 'usersex' ,align:'center',
-                onCell: (text) => {util.longContentHandle(text)}
-            },
-            { title: '关注用户手机号', width:150, dataIndex: 'phone', key: 'phone',align:'center' },
-            { title: '关注时间',width:130,  dataIndex: 'createtime', key: 'createtime',align:'center',
-                render: (text,record) => {
-                    return (<span onClick={() => this.showTimeline(record)}>{text}</span>)
-                }
-            },
-            { title: '状态', width:100, dataIndex: 'status', key: 'status',align:'center',
-                render: (text) => {
-                    if (text === "1"){
-                        return <Tag color="geekblue" key={text}>1 - 正常关注</Tag>
-                    } else if (text === "0") {
-                        return <Tag color="geekblue" key={text}>0 - 取消关注</Tag>
-                    }
-                }
-            },
-            {
-                title: '操作', width:150, dataIndex: '', key: 'x',align:'center',
-                render: (value, record) => {
-                    return (
-                        <div>
-                            <a onClick={() => this.showDrawer(record,'search')} style={styles.removeBtn}>查看</a>
-                            <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                            <a onClick={() => this.deleteAttention(record)} style={styles.removeBtn}>删除</a>
-                        </div>
-                    );
-                },
-            },
-        ];
     }
 
     // 调用接口，设置初始化值
@@ -229,6 +175,7 @@ class AttentionList extends React.Component{
 
         const {forms,dataList,isLoading,type,visible} = this.state
 
+        const columns = data.getAttentionColumns.call(this)
         return(
             <div style={{background:'#f0f2f5',height:'100%'}}>
                 <Card size="small" style={{height:'20%'}}>
@@ -276,7 +223,7 @@ class AttentionList extends React.Component{
                 </Card>
                 <Card size="small" style={{marginTop:'15px',height:'76%'}}>
                     <Table
-                        columns={this.columns}
+                        columns={columns}
                         dataSource={dataList}
                         loading={isLoading}
                         pagination={false}
