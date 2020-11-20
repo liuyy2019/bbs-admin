@@ -18,7 +18,7 @@ class GeneratorDrawer extends React.Component{
         const editButton = (
             <div style={{textAlign: 'right',}}>
                 <Button onClick={this.props.onClose} style={{ marginRight: 8 }}>取消</Button>
-                <Button onClick={this.props.onSubmit} type="primary">确定</Button>
+                <Button onClick={this.props.onSubmit} type="primary" className="tour-step-5">确定</Button>
             </div>
         );
         return type === 'detail'? detailButton : editButton

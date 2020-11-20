@@ -131,6 +131,7 @@ class ParamList extends React.Component {
         addParam(formValue,(result)=>{
             if (result === true){
                 message.success('参数码新建成功');
+                this.onClose();
                 this.initValues();
             }
         })
@@ -142,6 +143,7 @@ class ParamList extends React.Component {
         updateParam(formValue,(result)=>{
             if (result === true){
                 message.success('参数码更新成功');
+                this.onClose();
                 this.initValues();
             }
         })

@@ -1,0 +1,6 @@
+.trip-border {
+    position: relative;
+    border: 2px dashed #999;
+    top: 0;
+    bottom: -18px;
+}
