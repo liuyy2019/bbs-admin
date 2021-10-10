@@ -1,12 +1,23 @@
 /* 公告的新增、修改、查看组件 */
 import React from 'react'
-import { Drawer, Form, Button, Col, Row, Card,Input, Select,message, } from 'antd';
+import {Drawer, Form, Button, Col, Row, Card, Input, Select, message, Space,} from 'antd';
 import {addEnumType, updateEnumType, getCodeByType} from '../../api/index'
-import {getToken} from "../../util/util";
+import {getToken} from "../../util/userLoginUtil";
 import EnumTableList from "./enumTableList";
 import { FileDoneOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
+
+
+/*const initValues = {
+    enumParamList: [{
+        first: "12",
+        last: "1"
+    },{
+        first: "12",
+        last: "1"
+    }]
+}*/
 
 class EnumRightShow extends React.Component {
     formRef = React.createRef();
@@ -29,13 +40,8 @@ class EnumRightShow extends React.Component {
             })
         });
     }*/
-    componentWillReceiveProps(props,nextProps){
-        this.setState({
-            value: props.values,
-            id:props.values.id
-        });
 
-    }
+
 
 
     onSubmit = ()=>{
@@ -44,7 +50,7 @@ class EnumRightShow extends React.Component {
         data.createBy = getToken().name;
         data.id = this.state.id;
         // 根据type的值进行不同的操作
-        if (this.props.type === 'add') {
+        if (this.props.type === 'create') {
             // 1、将表单值插入到数据库中
             addEnumType(data,(result)=>{
                 if (result === true){
@@ -56,6 +62,7 @@ class EnumRightShow extends React.Component {
             updateEnumType(data,(result)=>{
                 if (result === true){
                     message.success('枚举参数类型更新成功');
+                    this.props.initValues();
                 }
             })
         }
@@ -67,9 +74,15 @@ class EnumRightShow extends React.Component {
         this.formRef.current.resetFields();
     };
 
+    changeHandle = (changedValues, allValues) => {
+        console.log('formChange',changedValues, allValues)
+    }
+
     render() {
-        const {onClose,visible,type,enumParamList} = this.props;
-        let disabledFlag = type === 'detail' ? true : false
+        const {onClose,visible,type,form} = this.props;
+        let  enumParamList = form.lists.enumParamList;
+        let disabledFlag = type === 'detail'
+
         return (
             <div>
                 <Drawer
@@ -90,22 +103,28 @@ class EnumRightShow extends React.Component {
                         </div>
                     }
                 >
-                    <Form hideRequiredMark ref={this.formRef} onFinish={this.onFinish} initialValues={this.state.value}>
+                    <Form hideRequiredMark ref={this.formRef}
+                          // onValuesChange={(changedValues, allValues)=>this.changeHandle(changedValues, allValues)}
+                          initialValues={form.formValue}
+                    >
                         <Row gutter={16}>
                             <Col span={12}>
                                 <Form.Item name="codeName" label="枚举类型"
                                            rules={[{ required: true, message: '请输入枚举类型' }]}
                                 >
-                                    <Input placeholder="请输入枚举类型"  disabled={type==="search"?true:false}/>
+                                    <Input placeholder="请输入枚举类型"  disabled={disabledFlag}/>
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
                                 <Form.Item name="status" label="状态"
                                            rules={[{ required: true, message: '请选择类别状态' }]}
                                 >
-                                    <Select placeholder="请选择类别状态" disabled={type==="search"?true:false}>
-                                        <Option value="0">0 - 失效</Option>
-                                        <Option value="1">1 - 有效</Option>
+                                    <Select placeholder="请选择类别状态" disabled={disabledFlag}>
+                                        {
+                                            form.lists.enumTypeStatus.map(item => {
+                                                return <Option key={item.codeName} value={item.codeName}>{item.codeName}- {item.description}</Option>
+                                            })
+                                        }
                                     </Select>
                                 </Form.Item>
                             </Col>
@@ -120,24 +139,22 @@ class EnumRightShow extends React.Component {
                                                },
                                            ]}
                                 >
-                                    <Input.TextArea rows={3} placeholder="请输入公告内容" disabled={type==="search"?true:false}/>
+                                    <Input.TextArea rows={3} placeholder="请输入公告内容" disabled={disabledFlag}/>
                                 </Form.Item>
                             </Col>
                         </Row>
+                        {
+                            type === "create"? null :
+                                <Card size="small" title={<span><FileDoneOutlined />枚举码信息</span>} bordered={false}>
+                                    <EnumTableList
+                                        parmSysCodeResList={enumParamList}
+                                        disabledFlag={disabledFlag}
+                                        // removeItem={this.props.removeItem}
+                                        // onChangeData={this.onChangeData}
+                                    />
+                                </Card>
+                        }
                     </Form>
-                    {
-                        type === "add"? null :
-                            <Card size="small" title={<span><FileDoneOutlined />枚举码信息</span>} bordered={false}>
-                                <EnumTableList
-                                    parmSysCodeResList={enumParamList}
-                                    disabledFlag={disabledFlag}
-                                    // removeItem={this.props.removeItem}
-                                    // onChangeData={this.onChangeData}
-                                />
-                            </Card>
-                    }
-
-
                 </Drawer>
             </div>
         );

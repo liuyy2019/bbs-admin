@@ -54,11 +54,14 @@ class InvitationTypeList extends React.Component {
     /* 组件将挂载是完成数据的初始化 */
     componentWillMount(){
         this.initValues();
-        const form = this.state.form
+        const form = this.state.form;
         getCodeByType({codeType:"INVITATION_TYPE_STATUS"},result => {
-            form.selectLists.invitationTypeStatus = result
-            getAllTypes(result => {
-                form.selectLists.typeList = result
+            form.selectLists.invitationTypeStatus = result || [
+                {"id":20,"codeType":"INVITATION_TYPE_STATUS","codeName":"1","description":"正常","status":"1","createTime":"2020-05-26 13:41:10","createBy":"admin"},
+                {"id":21,"codeType":"INVITATION_TYPE_STATUS","codeName":"0","description":"屏蔽","status":"1","createTime":"2020-05-26 13:41:40","createBy":"admin"}
+            ];
+            getAllTypes(res => {
+                form.selectLists.typeList = res;
                 this.setState({
                     form
                 })

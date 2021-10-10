@@ -36,10 +36,14 @@ class MyComment extends React.Component {
     }
 
     componentDidMount(){
-        const {form} = this.state
+        const {form} = this.state;
         this.init();
         getCodeByType({codeType:"STATUS"},result => {
-            form.lists.STATUS = result
+            form.lists.STATUS = result || [
+                {"id":15,"codeType":"STATUS","codeName":"0","description":"审核中","status":"1","createTime":"2020-05-26 10:19:08","createBy":"admin"},
+                {"id":16,"codeType":"STATUS","codeName":"1","description":"正常","status":"1","createTime":"2020-05-26 10:19:23","createBy":"admin"},
+                {"id":17,"codeType":"STATUS","codeName":"2","description":"屏蔽","status":"1","createTime":"2020-05-26 10:19:52","createBy":"admin"}
+            ];
             this.setState({
                 form
             })
@@ -58,16 +62,16 @@ class MyComment extends React.Component {
     };
 
     onFormChange = (values) => {
-        const {form} = this.state
-        form.formValue = values
+        const {form} = this.state;
+        form.formValue = values;
         this.setState({
             form
         })
-    }
+    };
     /* 搜索框表单提交 */
     onFinish = values => {
         this.setState({searchValues: values});
-        const {pageNum,pageSize} = this.state
+        const {pageNum,pageSize} = this.state;
         getListComments({comment:values,page:pageNum,size:pageSize},result => {
             this.setState({
                 dataList: result
@@ -77,12 +81,12 @@ class MyComment extends React.Component {
 
     /* 右侧显示详情页（查看/修改）*/
     showDrawer = (values,type) => {
-        const {form} = this.state
+        const {form} = this.state;
         // 1、将接口中的日期字符串转化成moment对象
         form.formValue = {
             ...values,
             createtime: moment(values.createtime,dateFormat)
-        }
+        };
         this.setState({
             visible: true,
             type: type,
@@ -100,11 +104,11 @@ class MyComment extends React.Component {
 
     /* 更新评论信息 */
     updateComment(){
-        const {formValue} = this.state.form
+        const {formValue} = this.state.form;
         const data = {
             ...formValue,
             createtime: formValue.createtime.format(dateFormat)
-        }
+        };
         updateComment(data,(result)=>{
             if (result === true){
                 message.success('评论信息修改成功');

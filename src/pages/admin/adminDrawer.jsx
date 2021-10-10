@@ -23,7 +23,7 @@ class adminRightShow extends React.Component {
     render() {
         const {onClose,visible,form,type,title} = this.props;
         const disabledFlag = type === 'detail';
-        const myForms = Forms.getAdminForms.call(this,disabledFlag)
+        const myForms = Forms.getAdminForms.call(this,disabledFlag);
         return (
             <div>
                 <GeneratorDrawer

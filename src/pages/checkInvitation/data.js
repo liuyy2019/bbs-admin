@@ -72,7 +72,7 @@ export default {
         return  [
             {   title: '序号', width: 50, align: 'center', render:(text,record,index)=>`${index+1}`},
             { title: '发布人', width: 80, dataIndex: 'name', key: 'name',align: "center",
-                render: (text,record,index)=>{
+                render: (text,record)=>{
                     return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.issuerId}}}>{util.textTag(text,"green")}</Link>
                 }
             },
@@ -99,9 +99,9 @@ export default {
                 render: (value, record) => {
                     return (
                         <div>
-                            <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
-                            <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                            <a onClick={() => this.deleteInvitation(record)} style={styles.removeBtn}>删除</a>
+                            <a href="/#" onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
+                            <a href="/#" onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
+                            <a href="/#" onClick={() => this.deleteInvitation(record)} style={styles.removeBtn}>删除</a>
                         </div>
                     );
                 },
@@ -114,4 +114,4 @@ const styles = {
     removeBtn: {
         marginLeft: 8,
     },
-}
+};

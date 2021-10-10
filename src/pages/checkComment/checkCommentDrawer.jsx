@@ -11,6 +11,7 @@ const { Option } = Select;
 const CheckCommentRightShow = (props) => {
 
     const [form] = Form.useForm();
+    // form 等价于 通过 formRef = React.createRef();创建的formRef.current
 
     // 表单提交方法，以及表单验证方式一:
     // https://ant-design.gitee.io/components/form-cn/#validateFields-%E8%BF%94%E5%9B%9E%E7%A4%BA%E4%BE%8B

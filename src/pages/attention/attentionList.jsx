@@ -74,9 +74,12 @@ class AttentionList extends React.Component{
     componentDidMount(){
         this.initValues();
         // 获取枚举代码类型
-        const forms = this.state.forms
+        const forms = this.state.forms;
         getCodeByType({codeType:"ATTENTION_STATUS"},result => {
-            forms.list.attentionStatus = result
+            forms.list.attentionStatus = result || [
+                {"id":11,"codeType":"ATTENTION_STATUS","codeName":"0","description":"取消关注","status":"1","createTime":"2020-05-25 10:12:24","createBy":"admin"},
+                {"id":12,"codeType":"ATTENTION_STATUS","codeName":"1","description":"正常关注","status":"1","createTime":"2020-05-25 10:12:39","createBy":"admin"}
+            ];
             this.setState({
                 forms
             })
@@ -85,12 +88,12 @@ class AttentionList extends React.Component{
 
     // 展示抽屉弹层，参数为：列表记录和操作类型
     showDrawer = (values,type) => {
-        const {forms} = this.state
+        const {forms} = this.state;
         forms.formValue = {
             ...values,
             createtime: moment(values.createtime,dateFormat)
-        }
-        console.log(forms.formValue)
+        };
+        console.log(forms.formValue);
         this.setState({
             visible: true,
             type: type,
@@ -101,16 +104,16 @@ class AttentionList extends React.Component{
 
 
     showTimeline = (values) => {
-        const {forms} = this.state
-        forms.formValue = values
+        const {forms} = this.state;
+        forms.formValue = values;
         getListAttentionsByName({username:values.username},result => {
-            forms["timeLineData"] = result
+            forms["timeLineData"] = result;
             this.setState({
                 forms,
                 visibleTimeline: true
             })
         })
-    }
+    };
 
     // 更新关注信息
     updateAttention = () => {

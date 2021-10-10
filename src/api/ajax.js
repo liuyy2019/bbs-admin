@@ -5,19 +5,47 @@
 import axios from 'axios'
 
 export default function ajax(url,data={}, type='GET'){
-    if (type === 'GET'){ // 请求方式get
-        // 返回的是promise对象
-        return axios.get(url,{
-            /*params: { // 请求参数
-                id: 1
-            }*/
-            params: data
-        })
-    } else if(type === 'POST') {
-        return axios.post(url,data);
-    } else if (type === 'delete'){
-        return axios.delete(url);
-    }else if(type === 'PUT') {
-        return axios.put(url, data);
+    console.log("====start: url: ", url);
+    const tempType = type.toUpperCase();
+    // 以mock开头的接口，数据进行处理
+    if (url.indexOf('/mock') === 0) {
+        if (tempType === 'GET'){
+            return axios.get(url,{ params: data}).then(res => {
+                if (res.data.code === '100000') {
+                    return res.data.data;
+                } else {
+                    return Promise.reject('请求失败！')
+                }
+            }, rej => Promise.reject(rej));
+        } else if(tempType === 'POST') {
+            return axios.post(url,data).then(res => {
+                if (res.data.code === '100000') {
+                    return res.data.data;
+                } else {
+                    return Promise.reject('请求失败！')
+                }
+            }, rej => Promise.reject(rej));
+        } else if (tempType === 'DELETE'){
+            return axios.delete(url);
+        } else if(tempType === 'PUT') {
+            return axios.put(url, data);
+        }
+    } else {
+        if (tempType === 'GET'){ // 请求方式get
+            // 返回的是promise对象
+            return axios.get(url,{
+                /*params: { // 请求参数
+                    id: 1
+                }*/
+                params: data
+            })
+        } else if(tempType === 'POST') {
+            return axios.post(url,data);
+        } else if (tempType === 'delete'){
+            return axios.delete(url);
+        }else if(tempType === 'PUT') {
+            return axios.put(url, data);
+        }
     }
+
 }

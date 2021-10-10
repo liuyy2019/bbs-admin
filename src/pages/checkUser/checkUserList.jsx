@@ -12,7 +12,7 @@ import {emailSend} from "../../api/untils";
 import moment from 'moment'
 
 
-const {Option} = Select
+const {Option} = Select;
 class CheckUserList extends React.Component {
     formRef = React.createRef();
     constructor(props){
@@ -52,7 +52,7 @@ class CheckUserList extends React.Component {
     };
 
     componentWillMount(){
-        const {form} = this.state
+        const {form} = this.state;
         form.selectLists.checkStatus = [{
             codeName: 0,
             description:"注销",
@@ -62,55 +62,63 @@ class CheckUserList extends React.Component {
         },{
             codeName: 2,
             description: "停用",
-        }]
+        }];
         getCodeByType({codeType:"STATUS"},result => {
-            form.selectLists.reportStatus = result
-        })
+            form.selectLists.reportStatus = result || [
+                {"id":15,"codeType":"STATUS","codeName":"0","description":"审核中","status":"1","createTime":"2020-05-26 10:19:08","createBy":"admin"},
+                {"id":16,"codeType":"STATUS","codeName":"1","description":"正常","status":"1","createTime":"2020-05-26 10:19:23","createBy":"admin"},
+                {"id":17,"codeType":"STATUS","codeName":"2","description":"屏蔽","status":"1","createTime":"2020-05-26 10:19:52","createBy":"admin"}
+            ]
+        });
         getCodeByType({codeType:"SEX"},result => {
-            form.selectLists.sexList = result
-        })
+            form.selectLists.sexList = result || [
+                {"id":1,"codeType":"SEX","codeName":"M","description":"男","status":"1","createTime":"2020-05-22 15:40:24","createBy":"admin"},
+                {"id":2,"codeType":"SEX","codeName":"F","description":"女","status":"1","createTime":"2020-05-22 15:42:36","createBy":"admin"},
+                {"id":3,"codeType":"SEX","codeName":"N","description":"未知","status":"1","createTime":"2020-05-22 15:44:59","createBy":"admin"}
+            ]
+        });
         getParamByCodeId("REPORT_USER_NUMBER",result => {
-            this.initValues(parseInt(result.codeName));
+            const num = result && parseInt(result.codeName);
+            this.initValues(num || 15);
             this.setState({
-                reportNumber: parseInt(result.codeName),
+                reportNumber: num || 15,
             })
-        })
+        });
         getParamByCodeId("USER_CHECK_MESSAGE",result => {
             this.setState({
-                email:  result,
+                email:  result || {"id":6,"codeId":"USER_CHECK_MESSAGE","codeName":"用户审核通知","description":"尊敬的用户您好！经审核，该账号存在违规操作，已被查封。如有疑问请联系管理人员！","status":"1","createTime":"2020-05-26","updateTime":"2020-05-27","createBy":"admin01"},
             })
-        })
+        });
         this.setState({
             form
         })
-
     }
 
 
     // 更新审核用户信息
     updateCheckUser = () => {
-        const {form,email} = this.state
+        const {form,email} = this.state;
         const formValue = {
             ...(form.formValue),
             createtime: (form.formValue.createtime).format("YYYY-MM-DD")
-        }
+        };
         updateUser(formValue,result => {
             if (formValue.status === 2) {
                 let qq = formValue.email;
                 let {codeName ,description}= email;
-                emailSend({qq:qq,subject:codeName,content:description},result => {})
+                emailSend({qq:qq,subject:codeName,content:description},res => {})
             }
             if (result.status === 200){
                 message.success('用户审核信息修改成功！');
-                this.initValues(15)
+                this.initValues(15);
                 this.onClose()
             }
         })
     };
 
     onFormChange = values => {
-        const {form} = this.state
-        form.formValue = values
+        const {form} = this.state;
+        form.formValue = values;
         this.setState({
             form
         })
@@ -128,11 +136,11 @@ class CheckUserList extends React.Component {
 
     /* 显示右侧浮层 */
     showDrawer = (values,type) => {
-        const {form} = this.state
+        const {form} = this.state;
         form.formValue = {
             ...values,
             createtime: moment(values.createtime)
-        }
+        };
         this.setState({
             visible: true,
             type,
@@ -163,12 +171,12 @@ class CheckUserList extends React.Component {
         });
     };
 
-    operatorRender = (value, record,index) => {
+    operatorRender = (value, record) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
-                <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                <a onClick={() => this.deleteCheckUser(record)} style={styles.removeBtn}>删除</a>
+                <Link onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</Link>
+                <Link onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</Link>
+                <Link onClick={() => this.deleteCheckUser(record)} style={styles.removeBtn}>删除</Link>
             </div>
         );
     };
@@ -282,4 +290,4 @@ const styles = {
     removeBtn: {
         marginLeft: 8,
     }
-}
+};

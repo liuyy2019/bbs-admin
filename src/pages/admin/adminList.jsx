@@ -20,8 +20,8 @@ import {
 import AdminDrawer from './adminDrawer'
 import util from "../../util/util";
 
-const FormItem = Form.Item
-const {Option} = Select
+const FormItem = Form.Item;
+const {Option} = Select;
 class AdminList extends React.Component {
     formRef = React.createRef();
     constructor(props){
@@ -53,14 +53,21 @@ class AdminList extends React.Component {
                 isLoading: false,
             })
         })
-    }
+    };
     componentDidMount(){
-        const {list} = this.state.form
+        const {list} = this.state.form;
         this.initValues();
         getCodeByType({codeType:"ADMIN_LEVEL"},result => {
-            list.adminLevel = result
-            getCodeByType({codeType:"ADMIN_STATUS"},result => {
-                list.adminStatus = result
+            list.adminLevel = result || [
+                {"id":6,"codeType":"ADMIN_LEVEL","codeName":"0","description":"管理员","status":"1","createTime":"2020-05-25 07:53:39","createBy":"admin"},
+                {"id":7,"codeType":"ADMIN_LEVEL","codeName":"1","description":"超级管理员","status":"1","createTime":"2020-05-25 07:53:55","createBy":"admin"},
+                {"id":8,"codeType":"ADMIN_LEVEL","codeName":"2","description":"临时超管","status":"1","createTime":"2020-05-25 08:14:53","createBy":"admin"}
+            ];
+            getCodeByType({codeType:"ADMIN_STATUS"},res => {
+                list.adminStatus = res || [
+                    {"id":9,"codeType":"ADMIN_STATUS","codeName":"1","description":"正常","status":"0","createTime":"2020-05-24 00:25:24","createBy":"admin"},
+                    {"id":10,"codeType":"ADMIN_STATUS","codeName":"2","description":"停用","status":"1","createTime":"2020-05-25 08:32:48","createBy":"admin"}
+                ];
                 this.setState({
                     form: {
                         list
@@ -73,7 +80,7 @@ class AdminList extends React.Component {
     /* 搜索框表单提交 */
     onFinish = values => {
         this.setState({values});
-        const {pageNum,pageSize} = this.state
+        const {pageNum,pageSize} = this.state;
         getListAdmins({admin:values,page:pageNum,size:pageSize},result => {
             this.setState({
                 dataList: result
@@ -82,8 +89,8 @@ class AdminList extends React.Component {
     };
 
     showDrawer = (values,type) => {
-        const {form} = this.state
-        form.formValues = values
+        const {form} = this.state;
+        form.formValues = values;
         this.setState({
             visible: true,
             type, form
@@ -97,8 +104,8 @@ class AdminList extends React.Component {
     };
 
     onFormChange = (values) => {
-        const {form} = this.state
-        form.formValues = values
+        const {form} = this.state;
+        form.formValues = values;
         this.setState({
             form
         })
@@ -111,7 +118,7 @@ class AdminList extends React.Component {
                 this.initValues();
             }
         })
-    }
+    };
 
     addAdmin = (values) => {
         addAdmin(values,(result)=>{
@@ -120,11 +127,11 @@ class AdminList extends React.Component {
                 this.initValues();
             }
         })
-    }
+    };
 
     // 表单提交
     submitHandle = () => {
-        const {type,form} = this.state
+        const {type,form} = this.state;
         switch (type) {
             case 'create': {
                 this.addAdmin(form.formValues);
@@ -139,7 +146,7 @@ class AdminList extends React.Component {
             }
         }
         this.onClose();
-    }
+    };
     /* 删除管理员*/
     deleteAdmin = (record) => {
         Modal.confirm({
@@ -148,23 +155,23 @@ class AdminList extends React.Component {
                 deleteAdmin(record.adminId,result => {
                     if (result === true) {
                         message.success('删除成功');
-                        getListAdmins({admin:{},page:1,size:100},result => {
+                        getListAdmins({admin:{},page:1,size:100},res => {
                             this.setState({
-                                dataList: result
+                                dataList: res
                             })
                         })
                     }
                 });
             }
         });
-    }
+    };
 
-    operatorRender = (value, record,index) => {
+    operatorRender = (value, record) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
-                <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                <a onClick={() => this.deleteAdmin(record)} style={styles.removeBtn}>删除</a>
+                <Button type="link" onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</Button>
+                <Button type="link" onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</Button>
+                <Button type="link" onClick={() => this.deleteAdmin(record)} style={styles.removeBtn}>删除</Button>
             </div>
         );
     };
@@ -195,7 +202,7 @@ class AdminList extends React.Component {
                                         <Select placeholder="请选择账号状态">
                                             {
                                                 form.list.adminStatus.map(item => {
-                                                    return <option value={item.codeName}>{item.codeName} - {item.description}</option>
+                                                    return <Option value={item.codeName} key={item.codeName}>{item.codeName} - {item.description}</Option>
                                                 })
                                             }
                                         </Select>
@@ -222,10 +229,10 @@ class AdminList extends React.Component {
                         </Form>
                     </div>
                 </Card>
-                <Card title="管理员列表" extra={<Button type="primary" onClick={() => this.showDrawer({},'create')}>新建</Button>}size="small" style={{marginTop:'15px',height:'76%'}}>
+                <Card title="管理员列表" extra={<Button type="primary" onClick={() => this.showDrawer({},'create')}>新建</Button>} size="small" style={{marginTop:'15px',height:'76%'}}>
                     <Table rowKey="adminId" loading={isLoading} size="middle" pagination={false}
                            dataSource={dataList} scroll={{ y: 230 }} >
-                        <Table.Column title= '序号' width= {50} align= 'center'fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
+                        <Table.Column title= '序号' width= {50} align= 'center' fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '账号' width= {100} align= 'center' dataIndex= 'name' ellipsis={true}/>
                         <Table.Column title= '密码' width= {150} align= 'center' dataIndex= 'password' style={styles.titleStyles}/>
                         <Table.Column title= '账号状态' width= {100} align= 'center' dataIndex= 'status' render={text => util.textAndOptionsTag(text,form.list.adminStatus,'geekblue')}/>
@@ -260,4 +267,4 @@ const styles = {
     removeBtn: {
         marginLeft: 8,
     },
-}
+};

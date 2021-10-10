@@ -5,19 +5,18 @@ import {privateRoutes} from "./routes/routeConfig"
 
 function App() {
   return (
-      <Switch>
-          <MyLayout>
+      <MyLayout>
+          <Switch>
               {/*2、配置私有路由组件 */}
               {
                   privateRoutes.map((item,index)=>{
                       return (
-                          <Route key={index} path={item.pathname} component={item.component}></Route>
+                          <Route key={index} path={item.pathname} component={item.component}/>
                       )
                   })
               }
-          </MyLayout>
-      </Switch>
-
+          </Switch>
+      </MyLayout>
   );
 }
 

@@ -65,7 +65,10 @@ class AnnouncementList extends React.Component {
         const {form} = this.state
         this.initValues();
         getCodeByType({codeType:"ANNOUNCEMENT_STATUS"},result => {
-            form.selectLists.announcementStatus = result
+            form.selectLists.announcementStatus = result || [
+                {"id":13,"codeType":"ANNOUNCEMENT_STATUS","codeName":"0","description":"失效","status":"1","createTime":"2020-05-26 10:04:40","createBy":"admin"},
+                {"id":14,"codeType":"ANNOUNCEMENT_STATUS","codeName":"1","description":"有效","status":"1","createTime":"2020-05-26 10:04:59","createBy":"admin"}
+            ];
             this.setState({
                 form
             })

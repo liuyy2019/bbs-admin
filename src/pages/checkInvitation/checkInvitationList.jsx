@@ -17,7 +17,7 @@ import util from "../../util/util";
 import {emailSend} from "../../api/untils";
 import Data from './data'
 
-const {Option} = Select
+const {Option} = Select;
 
 /* 帖子列表组件 */
 class CheckInvitationList extends React.Component{
@@ -47,7 +47,7 @@ class CheckInvitationList extends React.Component{
     /* 数据初始化 */
     initValues = () => {
         this.setState({isLoading:true});
-        const {pageNum,pageSize} = this.state
+        const {pageNum,pageSize} = this.state;
         getListInvitations({invitation:{reports:15},page:pageNum,size:pageSize},result => {
             this.setState({
                 dataList: result,
@@ -57,29 +57,32 @@ class CheckInvitationList extends React.Component{
     };
 
     componentWillMount(){
-        const {value} = this.state
+        const {value} = this.state;
         this.initValues();
 
         getCodeByType({codeType:"STATUS"},result => {
-            value.selectLists.checkStatus = result
+            const list = [
+                {"id":15,"codeType":"STATUS","codeName":"0","description":"审核中","status":"1","createTime":"2020-05-26 10:19:08","createBy":"admin"},
+                {"id":16,"codeType":"STATUS","codeName":"1","description":"正常","status":"1","createTime":"2020-05-26 10:19:23","createBy":"admin"},
+                {"id":17,"codeType":"STATUS","codeName":"2","description":"屏蔽","status":"1","createTime":"2020-05-26 10:19:52","createBy":"admin"}
+            ];
+            value.selectLists.checkStatus = result || list;
             this.setState({
                 value
             })
-        })
+        });
         getAllTypes(result => {
-            value.selectLists.InvitationType = result
+            value.selectLists.InvitationType = result;
             this.setState({
                 value
             })
         })
-
-
     }
 
     /* 显示右侧浮层 */
     showDrawer = (values,type) => {
-        const {value} = this.state
-        value.formValue = values
+        const {value} = this.state;
+        value.formValue = values;
         this.setState({
             visible: true,
             type: type,
@@ -89,7 +92,7 @@ class CheckInvitationList extends React.Component{
             this.setState({
                 email:  result,
             })
-        })
+        });
         getUserById(values.issuerId,result => {
             this.setState({
                 qqNumber: result.email,
@@ -106,37 +109,37 @@ class CheckInvitationList extends React.Component{
 
     /* 更新记录*/
     updateInvitation = () => {
-        const {value,qqNumber,email} = this.state
+        const {value,qqNumber,email} = this.state;
         updateInvitation(value.formValue,(result)=>{
             // 如果状态设置为屏蔽，则发送短信消息
             if (value.formValue.status === '2') {
                 let qq = qqNumber;
                 let {codeName ,description}= email;
                 description = `尊敬的用户您好！帖子：${value.formValue.title}，${description}`;
-                emailSend({qq:qq,subject:codeName,content:description},result => {})
+                emailSend({qq:qq,subject:codeName,content:description},res => {})
             }
             if (result === true){
                 message.success('帖子举报信息修改成功！');
-                this.initValues()
+                this.initValues();
                 this.onClose()
             }
         })
-    }
+    };
 
     /* 更新表单信息*/
     onFormChange = (values) => {
-        const {value} = this.state
-        value.formValue = values
+        const {value} = this.state;
+        value.formValue = values;
         this.setState({
             value
         })
-    }
+    };
 
     /* 搜索框表单提交 */
     onFinish = values => {
         values.reports = 15;
         this.setState({searchValues:values});
-        const {pageNum,pageSize} = this.state
+        const {pageNum,pageSize} = this.state;
         getListInvitations({invitation:values,page:pageNum,size:pageSize},result => {
             this.setState({
                 dataList: result
@@ -146,7 +149,7 @@ class CheckInvitationList extends React.Component{
 
     /* 删除帖子信息 */
     deleteInvitation = (record) => {
-        let _this = this
+        let _this = this;
         Modal.confirm({
             icon: <ExclamationCircleOutlined />,
             content: '确定删除当前审核帖子',
@@ -166,15 +169,15 @@ class CheckInvitationList extends React.Component{
             },
         });
 
-    }
+    };
 
 
 
     render(){
-        const {dataList,isLoading,value,type,visible} = this.state
-        let title = [util.titlePrefix[type], '帖子举报审核信息'].join('')
+        const {dataList,isLoading,value,type,visible} = this.state;
+        let title = [util.titlePrefix[type], '帖子举报审核信息'].join('');
         /* 表格的列 */
-        const columns = Data.getCheckInvitationColumns.call(this)
+        const columns = Data.getCheckInvitationColumns.call(this);
         return(
             <div style={{background:'#f0f2f5',height:'100%'}}>
                 <Card size="small" style={{height:'20%'}}>

@@ -4,6 +4,8 @@
  */
 import ajax from './ajax'
 
+const env = process.env.NODE_ENV;
+const url_prefix = env === 'development' ? '/mock': '';
 
 // 登录
 export function reqLogin(username, password) {
@@ -12,7 +14,7 @@ export function reqLogin(username, password) {
 // 等价于
 export const reqLogin2 = (username, password ) => ajax('/v1/user/user',{username, password}, 'GET')
 // 管理员登录
-export const adminLogin = (username, password ) => ajax('/v1/admin/login',{username, password}, 'GET')
+export const adminLogin = (username, password ) => ajax(url_prefix+'/v1/admin/login',{username, password}, 'GET')
 
 // 获取所有的用户列表
 export const getAllUsers = (callback)=>ajax('/v1/user/userList',{},"GET").then(result => {
@@ -22,7 +24,7 @@ export const getAllUsers = (callback)=>ajax('/v1/user/userList',{},"GET").then(r
 });
 
 // 动态获取用户列表
-export const getListUsers = (data,callback)=>ajax('/v1/user/user/test',data,"POST").then(result => {
+export const getListUsers = (data,callback)=>ajax(url_prefix+'/v1/user/user/test',data,"POST").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
@@ -67,14 +69,14 @@ export const updateUser = (data,callback)=>ajax('/v1/user/update',data,"PUT").th
 });
 
 // 获取所有的用户关注列表
-export const getAllAttentions = (callback)=>ajax('/v1/attention/allAttentions',{},"GET").then(result => {
+export const getAllAttentions = (callback)=>ajax(url_prefix+'/v1/attention/allAttentions',{},"GET").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
 });
 
 // 动态获取用户关注列表
-export const getListAttentions = (data,callback)=>ajax('/v1/attention/attention/page',data,"POST").then(result => {
+export const getListAttentions = (data,callback)=>ajax(url_prefix+'/v1/attention/attention/page',data,"POST").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
@@ -104,7 +106,7 @@ export const updateAttention = (data,callback)=>ajax('/v1/attention/update',data
 });
 
 // 获取所有的帖子
-export const getAllInvitations = (callback) => ajax('/v1/invitation/invitationList',{}, 'GET').then(result => {
+export const getAllInvitations = (callback) => ajax(url_prefix+'/v1/invitation/invitationList',{}, 'GET').then(result => {
     console.log(result.data)
     callback && callback(result.data);
 }).catch(err => {
@@ -112,14 +114,14 @@ export const getAllInvitations = (callback) => ajax('/v1/invitation/invitationLi
 });
 
 // 动态获取帖子列表
-export const getListInvitations = (data,callback)=>ajax('/v1/invitation/invitation/page',data,"POST").then(result => {
+export const getListInvitations = (data,callback)=>ajax(url_prefix+'/v1/invitation/invitation/page',data,"POST").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
 });
 
 // 获取帖子访问量高的数据列表
-export const getListInvitationsByVisitors = (callback)=>ajax('/v1/invitations/byVisitors',{},"GET").then(result => {
+export const getListInvitationsByVisitors = (callback)=>ajax(url_prefix+'/v1/invitations/byVisitors',{},"GET").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
@@ -180,7 +182,7 @@ export const getListAnswers = (data,callback)=>ajax('/v1/answer/answer/page',dat
 });
 
 // 获取所有的帖子收藏
-export const getAllCollections = (callback)=>ajax('/v1/collection/allCollections',{},"GET").then(result => {
+export const getAllCollections = (callback)=>ajax(url_prefix+'/v1/collection/allCollections',{},"GET").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
@@ -209,7 +211,7 @@ export const updateCollection = (data,callback)=> ajax('/v1/collection/update', 
 
 
 // 动态获取评论列表
-export const getListComments = (data,callback)=>ajax('/v1/comment/comment/page',data,"POST").then(result => {
+export const getListComments = (data,callback)=>ajax(url_prefix+'/v1/comment/comment/page',data,"POST").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
@@ -230,14 +232,14 @@ export const deleteComment = (id,callback)=>ajax(`/v1/comment/id/${id}`,{},"dele
 });
 
 // 动态获取公告列表
-export const getListAnnouncements = (data,callback)=>ajax('/v1/announcement/announcement/page',data,"POST").then(result => {
+export const getListAnnouncements = (data,callback)=>ajax(url_prefix+'/v1/announcement/announcement/page',data,"POST").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
 });
 
 // 获取所有公告列表
-export const getAllAnnouncements = (callback)=>ajax('/v1/announcement/announcementList',{},"GET").then(result => {
+export const getAllAnnouncements = (callback)=>ajax(url_prefix+'/v1/announcement/announcementList',{},"GET").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
@@ -265,11 +267,15 @@ export const updateAnnouncement = (data,callback)=>ajax('/v1/announcement/update
 });
 
 // 动态获取管理员列表
-export const getListAdmins = (data,callback)=>ajax('/v1/admin/admin/page',data,"POST").then(result => {
-    callback && callback(result.data);
-}).catch(err => {
-    console.log('error', err)
-});
+export const getListAdmins = (data,callback)=> {
+    let res = ajax(url_prefix + '/v1/admin/admin/page',data,"POST");
+    console.log('getListAdmins',res);
+    res.then(result => {
+        callback && callback(result.data);
+    }).catch(err => {
+        console.log('error', err)
+    });
+};
 
 // 添加管理员
 export const addAdmin = (data,callback)=>ajax('/v1/admin/add',data,"POST").then(result => {
@@ -293,14 +299,14 @@ export const deleteAdmin = (id,callback)=>ajax(`/v1/admin/admin/${id}`,{},"delet
 });
 
 // 动态获取帖子种类列表
-export const getListTypes = (data,callback)=>ajax('/v1/admin/type/page',data,"POST").then(result => {
+export const getListTypes = (data,callback)=>ajax(url_prefix+'/v1/admin/type/page',data,"POST").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
 });
 
 // 获取所有帖子种类列表
-export const getAllTypes = (callback)=>ajax('/v1/admin/typeAll',{},"GET").then(result => {
+export const getAllTypes = (callback)=>ajax(url_prefix+'/v1/admin/typeAll',{},"GET").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
@@ -328,14 +334,14 @@ export const addInvitationType = (data,callback)=>ajax('/v1/type/add',data,"POST
 })
 
 // 动态获取举报用户列表
-export const getListReportUsers = (data,callback)=>ajax('/v1/reportUser/reportUser/page',data,"POST").then(result => {
+export const getListReportUsers = (data,callback)=>ajax(url_prefix+'/v1/reportUser/reportUser/page',data,"POST").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
 });
 
 // 获取举报用户列表
-export const getListReportUsersById = (data,callback)=>ajax('/v1/reportUser/sort',data,"POST").then(result => {
+export const getListReportUsersById = (data,callback)=>ajax(url_prefix+'/v1/reportUser/sort',data,"POST").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
@@ -350,7 +356,7 @@ export const updateReportUser = (data,callback)=>ajax('/v1/reportUser/update',da
 
 
 // 动态获取举报帖子信息列表
-export const getListReportInvitations = (data,callback)=>ajax('/v1/reportInvitation/reportInvitation/page',data,"POST").then(result => {
+export const getListReportInvitations = (data,callback)=>ajax(url_prefix+'/v1/reportInvitation/reportInvitation/page',data,"POST").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
@@ -371,14 +377,14 @@ export const updateReportInvitation = (data,callback)=>ajax('/v1/reportInvitatio
 });
 
 // 动态获取所有评论举报列表
-export const getListReportComments = (data,callback)=>ajax('/v1/reportComment/reportComment/page',data,"POST").then(result => {
+export const getListReportComments = (data,callback)=>ajax(url_prefix+'/v1/reportComment/reportComment/page',data,"POST").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
 });
 
 // 获取所有评论举报列表
-export const getListReportCommentsById = (data,callback)=>ajax('/v1/reportComment/sort',data,"POST").then(result => {
+export const getListReportCommentsById = (data,callback)=>ajax(url_prefix+'/v1/reportComment/sort',data,"POST").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
@@ -399,7 +405,7 @@ export const getReportCommentById = (id,callback)=>ajax(`/v1/reportCommentList/b
 });
 
 // 动态获取所有参数信息列表
-export const getListParams = (data,callback)=>ajax('/v1/param/param/page',data,"POST").then(result => {
+export const getListParams = (data,callback)=>ajax(url_prefix+'/v1/param/param/page',data,"POST").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
@@ -409,6 +415,7 @@ export const getListParams = (data,callback)=>ajax('/v1/param/param/page',data,"
 export const getParamByCodeId= (data,callback)=>ajax('/v1/param/codeId',{codeId:data},"GET").then(result => {
     callback && callback(result.data);
 }).catch(err => {
+    callback();
     console.log('error', err)
 });
 
@@ -434,7 +441,7 @@ export const deleteParam = (id,callback)=>ajax(`/v1/param/param/${id}`,{},"delet
 });
 
 // 动态获取枚举类型信息列表
-export const getListEnumType = (data,callback)=>ajax('/v1/enum/enumType/page',data,"POST").then(result => {
+export const getListEnumType = (data,callback)=>ajax(url_prefix+'/v1/enum/enumType/page',data,"POST").then(result => {
     callback && callback(result.data);
 }).catch(err => {
     console.log('error', err)
@@ -469,9 +476,10 @@ export const deleteEnumType = (id,callback)=>ajax(`/v1/enum/enumType/${id}`,{},"
 });
 
 // 动态分页获取枚举码信息列表
-export const getListEnumCode = (data,callback)=>ajax('/v1/enum/enumCode/page',data,"POST").then(result => {
+export const getListEnumCode = (data,callback)=>ajax(url_prefix+'/v1/enum/enumCode/page',data,"POST").then(result => {
     callback && callback(result.data);
 }).catch(err => {
+    callback();
     console.log('error', err)
 });
 
@@ -479,6 +487,7 @@ export const getListEnumCode = (data,callback)=>ajax('/v1/enum/enumCode/page',da
 export const getCodeByType = (data,callback)=>ajax('/v1/enumCode/codeList',data,"POST").then(result => {
     callback && callback(result.data);
 }).catch(err => {
+    callback();
     console.log('error', err)
 });
 
@@ -486,6 +495,7 @@ export const getCodeByType = (data,callback)=>ajax('/v1/enumCode/codeList',data,
 export const updateEnumCode = (data,callback)=>ajax('/v1/enumCode/update',data,"PUT").then(result => {
     callback && callback(result.data);
 }).catch(err => {
+    callback();
     console.log('error', err)
 });
 

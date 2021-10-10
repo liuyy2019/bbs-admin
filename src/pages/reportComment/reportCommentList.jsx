@@ -54,7 +54,10 @@ class ReportCommentList extends React.Component {
         const {form} = this.state
         this.initValues();
         getCodeByType({codeType:"REPORT_STATUS"},result => {
-            form.selectLists.STATUS = result
+            form.selectLists.STATUS = result || [
+                {"id":18,"codeType":"REPORT_STATUS","codeName":"1","description":"正常","status":"1","createTime":"2020-05-26 11:05:41","createBy":"admin"},
+                {"id":19,"codeType":"REPORT_STATUS","codeName":"0","description":"撤销","status":"1","createTime":"2020-05-26 11:06:56","createBy":"admin"}
+            ];
             this.setState({
                 form
             })
@@ -64,7 +67,7 @@ class ReportCommentList extends React.Component {
     /* 搜索框表单提交 */
     onFinish = values => {
         this.setState({searchValue:values});
-        const {pageNum,pageSize} = this.state
+        const {pageNum,pageSize} = this.state;
         getListReportComments({reportComment:values,page:pageNum,size:pageSize},result => {
             this.setState({
                 dataList: result
@@ -74,11 +77,11 @@ class ReportCommentList extends React.Component {
 
     /* 显示右侧浮层 */
     showDrawer = (values,type) => {
-        const {form} = this.state
+        const {form} = this.state;
         form.formValue = {
             ...values,
             createTime: moment(values.createTime,dateFormat)
-        }
+        };
         this.setState({
             visible: true,
             type: type,
@@ -88,9 +91,9 @@ class ReportCommentList extends React.Component {
 
     // 展示时间轴信息
     showTimeline =(record)=>{
-        const {form} = this.state
+        const {form} = this.state;
         getListReportCommentsById({commentId: record.commentId},result => {
-            form.timelineValues = result
+            form.timelineValues = result;
             this.setState({
                 visibleTimeline: true,
                 form

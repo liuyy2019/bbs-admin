@@ -34,10 +34,14 @@ class CheckCommentList extends React.Component {
     }
 
     componentWillMount(){
-        const {form} = this.state
+        const {form} = this.state;
         this.init();
         getCodeByType({codeType:"STATUS"},result => {
-            form.selectLists.STATUS = result
+            form.selectLists.STATUS = result || [
+                {"id":15,"codeType":"STATUS","codeName":"0","description":"审核中","status":"1","createTime":"2020-05-26 10:19:08","createBy":"admin"},
+                {"id":16,"codeType":"STATUS","codeName":"1","description":"正常","status":"1","createTime":"2020-05-26 10:19:23","createBy":"admin"},
+                {"id":17,"codeType":"STATUS","codeName":"2","description":"屏蔽","status":"1","createTime":"2020-05-26 10:19:52","createBy":"admin"}
+            ];
             this.setState({
                 form
             })
@@ -58,7 +62,7 @@ class CheckCommentList extends React.Component {
     /* 搜索框表单提交 */
     onFinish = values => {
         this.setState({values});
-        const {pageNum,pageSize} = this.state
+        const {pageNum,pageSize} = this.state;
         getListComments({comment:values,page:pageNum,size:pageSize},result => {
             this.setState({
                 dataList: result
@@ -68,11 +72,11 @@ class CheckCommentList extends React.Component {
 
     /* 右侧显示详情页（查看/修改）*/
     showDrawer = (values,type) => {
-        const {form} = this.state
+        const {form} = this.state;
         form.formValue = {
             ...values,
             createtime: moment(values.createtime,util.dateFormat)
-        }
+        };
         this.setState({
             visible: true,
             type: type,

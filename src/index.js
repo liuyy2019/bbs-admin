@@ -7,6 +7,7 @@ import zhCN from 'antd/es/locale/zh_CN'
 import {BrowserRouter as Router,Route,Switch ,Redirect ,Link} from 'react-router-dom'
 import {commonRoutes} from './routes/routeConfig'
 import {isLogin} from "./util/userLoginUtil";
+import NotFound from "./pages/notFound/NotFound";
 
 ReactDOM.render(
     <ConfigProvider locale={zhCN}>
@@ -25,14 +26,15 @@ ReactDOM.render(
                 {
                     commonRoutes.map((item,index)=>{
                         return (
-                            <Route key={index} path={item.pathname} component={item.component}></Route>
+                            <Route key={index} path={item.pathname} component={item.component}/>
                         )
                     })
                 }
                 {/* 3、配置notFound 和默认路由*/}
-                {/* exact:当path在全部匹配是进行路由跳转 */}
+                {/* exact:当path在全部匹配是进行路由跳转,否则/XXX等都会匹配到/ */}
                 <Redirect from="/" to="/login" exact/>
-                <Redirect to="/404"/>
+                {/*<Redirect to="/404"/>*/}
+                <Route component={NotFound}/>
             </Switch>
         </Router>
     </ConfigProvider>,
