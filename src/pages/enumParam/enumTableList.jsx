@@ -1,7 +1,7 @@
 import React,{Component} from 'react'
 import PropTypes from 'prop-types'
 import { Button, Input,Table } from 'antd';
-import { DeleteOutlined,RestOutlined,FileOutlined } from '@ant-design/icons';
+import { DeleteOutlined, FileOutlined } from '@ant-design/icons';
 const Column = Table.Column
 /*export default class EnumTableList extends Component {
     formRef = React.createRef();

@@ -4,10 +4,11 @@ import App from './App';
 import 'antd/dist/antd.css'
 import { ConfigProvider } from 'antd'
 import zhCN from 'antd/es/locale/zh_CN'
-import {BrowserRouter as Router,Route,Switch ,Redirect ,Link} from 'react-router-dom'
+import { BrowserRouter as Router,Route,Switch ,Redirect } from 'react-router-dom'
 import {commonRoutes} from './routes/routeConfig'
 import {isLogin} from "./util/userLoginUtil";
 import NotFound from "./pages/notFound/NotFound";
+import './index.less'
 
 ReactDOM.render(
     <ConfigProvider locale={zhCN}>

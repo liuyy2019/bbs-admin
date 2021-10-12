@@ -1,6 +1,5 @@
 import React from 'react'
-import { Form, Input, Button, Checkbox,message } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { Form, Button,message } from 'antd';
 import './index.css'
 import {adminLogin} from '../../api/index'
 import {setToken} from "../../util/userLoginUtil";
@@ -36,7 +35,7 @@ class Login extends React.Component {
                     </div>
                     <Form onFinish={this.onFinish} >
                         <div className="login-center">
-                            <div className="login-center-img"><img src={nameJpg}/></div>
+                            <div className="login-center-img"><img alt={""} src={nameJpg}/></div>
                             <div className="login-center-input">
                                 <Form.Item name="username"
                                            rules={[
@@ -53,7 +52,7 @@ class Login extends React.Component {
                             </div>
                         </div>
                         <div className="login-center clearfix">
-                            <div className="login-center-img"><img src={passJpg}/></div>
+                            <div className="login-center-img"><img alt={""} src={passJpg}/></div>
                             <div className="login-center-input">
                                 <Form.Item name="password"
                                            rules={[
@@ -125,33 +124,33 @@ export default Login
 * 2、收集表单数据，后台表单验证
 * */
 
-{/*<div id="components-form-demo-normal-login">
-                <Form onFinish={this.onFinish} >
-                    <Form.Item name="username"
-                        rules={[
-                            { required: true, message: 'Please input your Username!',},
-                        ]}
-                    >
-                        <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Username" />
-                    </Form.Item>
-                    <Form.Item name="password"
-                        rules={[
-                            {required: true, message: 'Please input your Password!',},
-                        ]}
-                    >
-                        <Input
-                            prefix={<LockOutlined className="site-form-item-icon" />}
-                            type="password"
-                            placeholder="Password"
-                        />
-                    </Form.Item>
+/*<div id="components-form-demo-normal-login">
+    <Form onFinish={this.onFinish} >
+        <Form.Item name="username"
+            rules={[
+                { required: true, message: 'Please input your Username!',},
+            ]}
+        >
+            <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Username" />
+        </Form.Item>
+        <Form.Item name="password"
+            rules={[
+                {required: true, message: 'Please input your Password!',},
+            ]}
+        >
+            <Input
+                prefix={<LockOutlined className="site-form-item-icon" />}
+                type="password"
+                placeholder="Password"
+            />
+        </Form.Item>
 
 
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit" className="login-form-button">
-                            登录
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </div>*/}
+        <Form.Item>
+            <Button type="primary" htmlType="submit" className="login-form-button">
+                登录
+            </Button>
+        </Form.Item>
+    </Form>
+</div>*/
 

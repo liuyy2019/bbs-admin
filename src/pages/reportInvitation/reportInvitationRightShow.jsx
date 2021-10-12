@@ -33,7 +33,7 @@ class ReportInvitationRightShow extends React.Component {
     }
 
     render() {
-        const {onClose,visible,type,form,title} = this.props
+        const {onClose,visible,form,title} = this.props
         const myForm = Forms.getForms.apply(this)
         return (
             <div>

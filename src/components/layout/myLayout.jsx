@@ -43,8 +43,8 @@ class MyLayout extends React.Component {
         return (
             <Layout style={{minHeight: '100%',height: "100vh"}}>
                 <Header className="header" style={{height: '10vh',minHeight:"64px"}}>
-                    <Row>
-                        <Col span={4}>
+                    <Row style={{justifyContent: 'space-between' }}>
+                        <Col>
                             <div style={{color:'white',lineHeight:'64px',fontSize:'26px'}} >
                                 <span style={{paddingRight: "10px"}}>CMS管理系统</span>
                                 {React.createElement(this.state.collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
@@ -53,7 +53,7 @@ class MyLayout extends React.Component {
                                 })}
                             </div>
                         </Col>
-                        <Col span={4} offset={16}>
+                        <Col>
                             <Dropdown overlay={<MyMenu/>} >
                                 <div style={{color:'#fff'}} className="ant-dropdown-link" onClick={e => e.preventDefault()}>
                                     <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
@@ -64,7 +64,7 @@ class MyLayout extends React.Component {
                     </Row>
                 </Header>
                 <Layout className="site-layout" style={{height: "90vh"}}>
-                    <Sider collapsible collapsed={collapsed} onCollapse={this.onCollapse} style={{
+                    <Sider collapsible={false} collapsed={collapsed} onCollapse={this.onCollapse} style={{
                         overflow: 'auto'
                     }}>
                         <Menu theme="dark" mode="inline" style={{minHeight: '100%'}}>

@@ -2,16 +2,12 @@
  * 1、关注用户模块右侧抽屉弹层
  */
 import React from 'react'
-import {Drawer, Form, Button, Col, Row, Input, Select,DatePicker} from 'antd';
+import {Drawer, Button } from 'antd';
 import moment from 'moment'
 import 'moment/locale/zh-cn';
-import locale from 'antd/es/locale/zh_CN';
 import GeneratorForm from "../../components/myConponents/GeneratorForm";
-import util from "../../util/util";
 import data from "./data";
 
-const { Option } = Select;
-const dateFormat = 'YYYY-MM-DD HH:mm:ss'
 class AttentionRightShow extends React.Component {
     formRef = React.createRef();
 

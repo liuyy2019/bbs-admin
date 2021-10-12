@@ -1,6 +1,6 @@
 /* 帖子显示组件 */
 import React from 'react';
-import {Card} from "antd";
+import {Card,Button} from "antd";
 import {getInvitation} from "../../api";
 // 引入EditorState
 // import BraftEditor from 'braft-editor'
@@ -33,7 +33,7 @@ class Invitation extends React.Component{
             <div>
                 <Card title={title}
                       description="1321313131"
-                      extra={<a onClick={()=> window.history.back(-1)}>返回</a>}
+                      extra={<Button type={"link"} onClick={()=> window.history.back(-1)} className={"operation-sty"}>返回</Button>}
                       style={{ width: "80%",margin: "10px auto"  }}
                       headStyle={{textAlign:'center'}}
                 >

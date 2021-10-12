@@ -84,9 +84,9 @@ class EnumTypeList extends React.Component {
     operatorRender = (value, record) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
-                <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                <a onClick={() => this.deleteEnumType(record)} style={styles.removeBtn}>删除</a>
+                <Button type={"link"} onClick={() => this.showDrawer(record,'detail')} className="operation-sty">查看</Button>
+                <Button type={"link"} onClick={() => this.showDrawer(record,'edit')} className="operation-sty">编辑</Button>
+                <Button type={"link"} onClick={() => this.deleteEnumType(record)} className="operation-sty">删除</Button>
             </div>
         );
     }
@@ -146,7 +146,7 @@ class EnumTypeList extends React.Component {
                         <Table.Column title= '序号' width= {50} align= 'center' fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '枚举类型' width= {150} align= 'center' dataIndex= 'codeType' ellipsis={true}/>
                         <Table.Column title= '枚举码' width= {80} align= 'center' dataIndex= 'codeName' ellipsis={true}/>
-                        <Table.Column title= '描述' width= {150} align= 'center' dataIndex= 'description' style={styles.titleStyles} render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}/>
+                        <Table.Column title= '描述' width= {150} align= 'center' dataIndex= 'description' render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}/>
                         <Table.Column title= '参数状态' width= {100} align= 'center' dataIndex= 'status' render={this.statusRender}/>
                         <Table.Column title= '发布人' width= {80} align= 'center' dataIndex= 'createBy'/>
                         <Table.Column title= '发布时间' width= {150} align= 'center' dataIndex= 'createTime'/>
@@ -167,8 +167,3 @@ class EnumTypeList extends React.Component {
 
 export default EnumTypeList
 
-const styles = {
-    removeBtn: {
-        marginLeft: 8,
-    },
-}

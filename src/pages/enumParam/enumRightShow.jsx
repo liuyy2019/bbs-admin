@@ -1,7 +1,7 @@
 /* 公告的新增、修改、查看组件 */
 import React from 'react'
-import {Drawer, Form, Button, Col, Row, Card, Input, Select, message, Space,} from 'antd';
-import {addEnumType, updateEnumType, getCodeByType} from '../../api/index'
+import {Drawer, Form, Button, Col, Row, Card, Input, Select, message } from 'antd';
+import {addEnumType, updateEnumType } from '../../api/index'
 import {getToken} from "../../util/userLoginUtil";
 import EnumTableList from "./enumTableList";
 import { FileDoneOutlined } from '@ant-design/icons';

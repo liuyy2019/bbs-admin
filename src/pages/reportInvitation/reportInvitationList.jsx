@@ -8,7 +8,7 @@ import {
     updateReportInvitation
 } from "../../api";
 import {Link} from "react-router-dom";
-import {Button, Card, Col, Input, Row, Breadcrumb, Form, Pagination,Table, Tag, Modal, message} from "antd";
+import {Button, Card, Col, Input, Row, Breadcrumb, Form, Pagination,Table, Modal, message} from "antd";
 import ReportInvitationRightShow from "./reportInvitationRightShow";
 import ReportInvitationTimeline from "./reportInvitationTimeline";
 import {ExclamationCircleOutlined} from "@ant-design/icons";
@@ -144,9 +144,9 @@ class ReportInvitationList extends React.Component {
     operatorRender = (value, record) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
-                <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                <a onClick={() => this.deleteUser(record)} style={styles.removeBtn}>删除</a>
+                <Button type={"link"} onClick={() => this.showDrawer(record,'detail')} className="operation-sty">查看</Button>
+                <Button type={"link"} onClick={() => this.showDrawer(record,'edit')} className="operation-sty">编辑</Button>
+                <Button type={"link"} onClick={() => this.deleteUser(record)} className="operation-sty">删除</Button>
             </div>
         );
     }
@@ -194,7 +194,7 @@ class ReportInvitationList extends React.Component {
                 <Card size="small" style={{marginTop:'15px',height:'76%'}}>
                     <Table rowKey="id" loading={isLoading}  size="middle" pagination={false}
                            dataSource={dataList} scroll={{ y: 310  }}>
-                        <Table.Column title= '序号' width= {50} align= 'center'fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
+                        <Table.Column title= '序号' width= {50} align= 'center' fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '用户名' width= {100} align= 'center' dataIndex= 'reportName' ellipsis={true} render={
                             (text,record)=>{
                                 return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.reportId}}}>{util.textTag(text,"geekblue")}</Link>
@@ -210,7 +210,7 @@ class ReportInvitationList extends React.Component {
                         }/>
                         <Table.Column title= '时间轴' width= {100} align= 'center' dataIndex= 'updateTime'
                               render={
-                                  (text,record) => <a onClick={() => this.showTimeline(record)}>时间轴</a>
+                                  (text,record) => <Button type={"link"} onClick={() => this.showTimeline(record)} className={"operation-sty"}>时间轴</Button>
                               }
                         />
                         <Table.Column title= '状态' width= {100} align= 'center' dataIndex= 'status' render={text => util.textAndOptionsTag(text,form.selectLists.STATUS)}/>
@@ -245,8 +245,3 @@ class ReportInvitationList extends React.Component {
 
 export default ReportInvitationList
 
-const styles = {
-    removeBtn: {
-        marginLeft: 8,
-    },
-}

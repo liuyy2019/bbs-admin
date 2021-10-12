@@ -1,7 +1,7 @@
 import React from 'react';
 import {Link} from 'react-router-dom'
 import {Table, Card, Row, Col, Breadcrumb, Form, Input, Pagination, Modal, message, Button, Select} from 'antd';
-import {getAllUsers,deleteUserById,getListUsers} from '../../api/index'
+import {deleteUserById,getListUsers} from '../../api/index'
 
 const {Option} = Select
 class UserList extends React.Component{
@@ -43,7 +43,7 @@ class UserList extends React.Component{
                     <div>
                         <Link style={styles.removeBtn} to={{ pathname : '/admin/user',query:{type:'search',record:record}}}>查看</Link>
                         <Link style={styles.removeBtn} to={{ pathname : '/admin/user',query:{type:'edit',record:record}}}>编辑</Link>
-                        <a onClick={() => this.deleteUser(record)} style={styles.removeBtn}>删除</a>
+                        <Button type={"link"} onClick={() => this.deleteUser(record)} className={"operation-sty"}>删除</Button>
                     </div>
                 );
             },

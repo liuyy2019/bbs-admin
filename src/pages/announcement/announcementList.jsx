@@ -164,9 +164,9 @@ class AnnouncementList extends React.Component {
     operatorRender = (value, record) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
-                <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                <a onClick={() => this.deleteAnnouncement(record)} style={styles.removeBtn}>删除</a>
+                <Button type="link" onClick={() => this.showDrawer(record,'detail')} className="operation-sty">查看</Button>
+                <Button type="link" onClick={() => this.showDrawer(record,'edit')} className="operation-sty">编辑</Button>
+                <Button type="link" onClick={() => this.deleteAnnouncement(record)} className="operation-sty">删除</Button>
             </div>
         );
     }
@@ -254,16 +254,3 @@ class AnnouncementList extends React.Component {
 }
 
 export default AnnouncementList
-
-const styles = {
-    removeBtn: {
-        marginLeft: 8,
-    },
-    styleFont: {
-        maxWidth: 150,
-        overflow: 'hidden',
-        whiteSpace: 'nowrap',
-        textOverflow:'ellipsis',
-        cursor:'pointer'
-    }
-}

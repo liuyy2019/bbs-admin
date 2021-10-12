@@ -27,7 +27,7 @@ class CommentRightShow extends React.Component {
         if (type === 'edit'){
             updateComment()
         } else if (type === 'search') {
-            console.log('search')
+            console.log('search',data)
         }
         // 3、清空表单值
         this.formRef.current.resetFields();

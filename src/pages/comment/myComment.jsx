@@ -135,9 +135,9 @@ class MyComment extends React.Component {
     operatorRender = (value, record,index) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'search')} style={styles.removeBtn}>查看</a>
-                <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                <a onClick={() => this.deleteComment(record)} style={styles.removeBtn}>删除</a>
+                <Button type="link" onClick={() => this.showDrawer(record,'search')} className="operation-sty">查看</Button>
+                <Button type="link" onClick={() => this.showDrawer(record,'edit')} className="operation-sty">编辑</Button>
+                <Button type="link" onClick={() => this.deleteComment(record)} className="operation-sty">删除</Button>
             </div>
         );
     };
@@ -246,19 +246,6 @@ class MyComment extends React.Component {
 }
 
 export default MyComment
-
-const styles = {
-    removeBtn: {
-        marginLeft: 8,
-    },
-    titleStyles: {
-        maxWidth: 15,
-        overflow: 'hidden',
-        whiteSpace: 'nowrap',
-        textOverflow:'ellipsis',
-        cursor:'pointer'
-    }
-}
 /**
  * 1、DatePicker接收的moment对象，接口返回的是字符串
  *    需要在回显和接口提交时进行转换

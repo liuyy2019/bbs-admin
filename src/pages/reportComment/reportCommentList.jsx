@@ -4,7 +4,7 @@ import {
     deleteEnumType,
     getCodeByType,
     getListReportComments,
-    getListReportCommentsById, updateReportComment,
+    getListReportCommentsById,
 } from "../../api";
 import {Link} from "react-router-dom";
 import {Button, Card, Col, Input, Row, Tooltip, Breadcrumb, Form, Table, Modal,Tag, Select, message} from "antd";
@@ -138,9 +138,9 @@ class ReportCommentList extends React.Component {
     operatorRender = (value, record) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'search')} style={styles.removeBtn}>查看</a>
-                <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                <a onClick={() => this.deleteReportComment(record)} style={styles.removeBtn}>删除</a>
+                <Button type={"link"} onClick={() => this.showDrawer(record,'search')} className="operation-sty">查看</Button>
+                <Button type={"link"} onClick={() => this.showDrawer(record,'edit')} className="operation-sty">编辑</Button>
+                <Button type={"link"} onClick={() => this.deleteReportComment(record)} className="operation-sty">删除</Button>
             </div>
         );
     }
@@ -230,7 +230,7 @@ class ReportCommentList extends React.Component {
                         <Table.Column title= '状态' width= {100} align= 'center' dataIndex= 'status' render={this.statusRender}/>
                         <Table.Column title= '时间轴' width= {150} align= 'center' dataIndex= 'updateTime' style={styles.styleFont}
                               render={
-                                  (text,record) => <a onClick={() => this.showTimeline(record)}>时间轴</a>
+                                  (text,record) => <Button type={"link"} className={"operation-sty"} onClick={() => this.showTimeline(record)}>时间轴</Button>
                               }
                         />
                         <Table.Column title= '操作' width= {130} fixed= 'right' align= 'center' dataIndex= '' render={this.operatorRender}/>

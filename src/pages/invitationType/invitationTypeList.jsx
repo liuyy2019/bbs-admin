@@ -166,9 +166,9 @@ class InvitationTypeList extends React.Component {
     operatorRender = (value, record) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
-                <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                <a onClick={() => this.deleteInvitationType(record)} style={styles.removeBtn}>删除</a>
+                <Button type={"link"} onClick={() => this.showDrawer(record,'detail')} className="operation-sty">查看</Button>
+                <Button type={"link"} onClick={() => this.showDrawer(record,'edit')} className="operation-sty">编辑</Button>
+                <Button type={"link"} onClick={() => this.deleteInvitationType(record)} className="operation-sty">删除</Button>
             </div>
         );
     };
@@ -230,7 +230,7 @@ class InvitationTypeList extends React.Component {
                       extra={<Button type="primary" onClick={() => this.showDrawer({},'create')}>新建</Button>}
                 >
                     <Table rowKey="id" loading={isLoading}  size="middle" pagination={false} dataSource={dataList} scroll={{ y: 260}}>
-                        <Table.Column title= '序号' width= {50} align= 'center'fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
+                        <Table.Column title= '序号' width= {50} align= 'center' fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '类别' width= {100} align= 'center' dataIndex= 'type' render={text => util.textTag(text,"blue")}/>
                         <Table.Column title= '描述' width= {150} align= 'center' dataIndex= 'description' render={(text) => util.longContentHandle(text,10)}/>
                         <Table.Column title= '创建时间' width= {140} align= 'center' dataIndex= 'createTime' />
@@ -264,8 +264,3 @@ class InvitationTypeList extends React.Component {
 
 export default InvitationTypeList
 
-const styles = {
-    removeBtn: {
-        marginLeft: 8,
-    },
-}

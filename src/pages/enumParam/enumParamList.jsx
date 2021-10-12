@@ -111,15 +111,15 @@ class EnumParamList extends React.Component {
     operatorRender = (value, record) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
-                <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                <a onClick={() => this.deleteParamType(record)} style={styles.removeBtn}>删除</a>
+                <Button type={"link"} onClick={() => this.showDrawer(record,'detail')} className="operation-sty">查看</Button>
+                <Button type={"link"} onClick={() => this.showDrawer(record,'edit')} className="operation-sty">编辑</Button>
+                <Button type={"link"} onClick={() => this.deleteParamType(record)} className="operation-sty">删除</Button>
             </div>
         );
     };
 
     render(){
-        const {values,form,dataList,isLoading,type,visible} = this.state
+        const {form,dataList,isLoading,type,visible} = this.state
         return(
             <div style={{background:'#f0f2f5',height:'100%'}}>
                 <Card size="small" style={{height:'20%'}}>

@@ -152,9 +152,9 @@ class ParamList extends React.Component {
     operatorRender = (value, record) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
-                <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                <a onClick={() => this.deleteParam(record)} style={styles.removeBtn}>删除</a>
+                <Button type={"link"} onClick={() => this.showDrawer(record,'detail')} className="operation-sty">查看</Button>
+                <Button type={"link"} onClick={() => this.showDrawer(record,'edit')} className="operation-sty">编辑</Button>
+                <Button type={"link"} onClick={() => this.deleteParam(record)} className="operation-sty">删除</Button>
             </div>
         );
     }
@@ -185,7 +185,7 @@ class ParamList extends React.Component {
 
         return(
             <div style={{background:'#f0f2f5',height:'100%'}}>
-                <Card size="small" style={{height:'20%'}}>
+                <Card size="small" style={{height:'20%', minHeight: '110px'}}>
                     <Breadcrumb >
                         <Breadcrumb.Item>参数管理</Breadcrumb.Item>
                         <Breadcrumb.Item>参数信息列表</Breadcrumb.Item>
@@ -215,23 +215,23 @@ class ParamList extends React.Component {
                                 </Col>
                                 <Col span={6}>
                                     <div style={{float:'right'}}>
-                                        <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">Search</Button>
-                                        <Button type={"primary"} onClick={() => {this.formRef.current.resetFields();}}>
-                                            Clear
-                                        </Button>
+                                        <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">查询</Button>
+                                        <Button type={"primary"} onClick={() => {this.formRef.current.resetFields();}}>清除</Button>
                                     </div>
                                 </Col>
                             </Row>
                         </Form>
                     </div>
                 </Card>
-                <Card title="参数信息列表" extra={<Button type="primary" onClick={()=>this.showDrawer({},'create')}>新建</Button>} size="small" style={{marginTop:'15px',height:'76%'}}>
+                <Card title="参数信息列表" size="small" style={{marginTop:'15px',height:'76%'}}
+                    extra={<Button type="primary" onClick={()=>this.showDrawer({},'create')}>新建</Button>}
+                >
                     <Table rowKey="id" loading={isLoading}
                            dataSource={dataList} scroll={{ y: 260 }} size="middle" >
                         <Table.Column title= '序号' width= {50} align= 'center' fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '参数码' width= {220} align= 'center' dataIndex= 'codeId' ellipsis={true}/>
-                        <Table.Column title= '参数值' width= {100} align= 'center' dataIndex= 'codeName' style={styles.titleStyles} render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}/>
-                        <Table.Column title= '描述' width= {150} align= 'center' dataIndex= 'description' style={styles.titleStyles}
+                        <Table.Column title= '参数值' width= {100} align= 'center' dataIndex= 'codeName' render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}/>
+                        <Table.Column title= '描述' width= {150} align= 'center' dataIndex= 'description'
                                       onCell={this.contentCell}
                                       render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}
                         />
@@ -257,12 +257,6 @@ class ParamList extends React.Component {
 }
 
 export default ParamList
-
-const styles = {
-    removeBtn: {
-        marginLeft: 8,
-    },
-}
 
 /**
  * 1、Table.Column中多余字符...显示，实现方式一：render={text => util.longContentHandle}

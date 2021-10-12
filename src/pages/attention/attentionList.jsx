@@ -11,7 +11,6 @@ import {
     Col,
     Input,
     Button,
-    Tag,
     Modal,
     message,
     Select,
@@ -25,12 +24,10 @@ import {
     getListAttentionsByName,
     updateAttention
 } from "../../api";
-import {Link} from "react-router-dom";
 import AttentionRightShow from "./attentionRightShow";
 import AttentionTimeline from "./attentionTimeline";
 import moment from 'moment'
 import 'moment/locale/zh-cn';
-import util from "../../util/util";
 import data from "./data";
 
 const dateFormat = 'YYYY-MM-DD HH:mm:ss'
@@ -264,9 +261,3 @@ class AttentionList extends React.Component{
 }
 
 export default AttentionList
-
-const styles = {
-    removeBtn: {
-        marginLeft: 8,
-    },
-}

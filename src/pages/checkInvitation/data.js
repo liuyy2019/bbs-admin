@@ -4,6 +4,7 @@
 import {Link} from "react-router-dom";
 import util from "../../util/util";
 import React from "react";
+import {Button} from "antd";
 
 
 export default {
@@ -99,9 +100,9 @@ export default {
                 render: (value, record) => {
                     return (
                         <div>
-                            <a href="/#" onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
-                            <a href="/#" onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                            <a href="/#" onClick={() => this.deleteInvitation(record)} style={styles.removeBtn}>删除</a>
+                            <Button type="link" onClick={() => this.showDrawer(record,'detail')} className="operation-sty">查看</Button>
+                            <Button type="link" onClick={() => this.showDrawer(record,'edit')} className="operation-sty">编辑</Button>
+                            <Button type="link" onClick={() => this.deleteInvitation(record)} className="operation-sty">删除</Button>
                         </div>
                     );
                 },
@@ -110,8 +111,3 @@ export default {
     }
 }
 
-const styles = {
-    removeBtn: {
-        marginLeft: 8,
-    },
-};

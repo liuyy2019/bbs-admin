@@ -107,12 +107,12 @@ class ReportUserList extends React.Component {
         });
     };
 
-    operatorRender = (value, record,index) => {
+    operatorRender = (value, record) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
-                <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                <a onClick={() => this.deleteUser(record)} style={styles.removeBtn}>删除</a>
+                <Button type={"link"} onClick={() => this.showDrawer(record,'detail')} className="operation-sty">查看</Button>
+                <Button type={"link"} onClick={() => this.showDrawer(record,'edit')} className="operation-sty">编辑</Button>
+                <Button type={"link"} onClick={() => this.deleteUser(record)} className="operation-sty">删除</Button>
             </div>
         );
     };
@@ -187,13 +187,13 @@ class ReportUserList extends React.Component {
                            dataSource={dataList} scroll={{ y: 310}} >
                         <Table.Column title= '序号' width= {50} align= 'center' fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '用户名' width= {100} align= 'center' dataIndex= 'userName' render={
-                            (text,record,index)=>{
+                            (text,record)=>{
                                 return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.userId}}}>{util.textTag(text,"geekblue")}</Link>
                             }
                         }/>
                         <Table.Column title= '举报原因' width= {150} align= 'center' dataIndex= 'reportReason' onCell={() => this.styleFont()} render={(text) => util.longContentHandle(text)} />
                         <Table.Column title= '被举报用户名' width= {100} align= 'center' dataIndex= 'reportName' render={
-                            (text,record,index)=>{
+                            (text,record)=>{
                                 return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.userId}}}>{util.textTag(text,"cyan")}</Link>
                             }
                         }/>
@@ -225,8 +225,3 @@ class ReportUserList extends React.Component {
 
 export default ReportUserList
 
-const styles = {
-    removeBtn: {
-        marginLeft: 8,
-    }
-}

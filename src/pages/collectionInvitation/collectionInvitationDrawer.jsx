@@ -1,7 +1,7 @@
 /**
  * 1、帖子收藏页面抽屉弹层
  */
-import React,{useEffect} from 'react'
+import React from 'react'
 import {Drawer, Form, Button, Col, Row, Input, Select, DatePicker} from 'antd';
 import locale from 'antd/es/locale/zh_CN';
 import util from "../../util/util";

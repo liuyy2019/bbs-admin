@@ -34,8 +34,8 @@ class CheckCommentList extends React.Component {
     }
 
     componentWillMount(){
-        const {form} = this.state;
         this.init();
+        let {form} = this.state;
         getCodeByType({codeType:"STATUS"},result => {
             form.selectLists.STATUS = result || [
                 {"id":15,"codeType":"STATUS","codeName":"0","description":"审核中","status":"1","createTime":"2020-05-26 10:19:08","createBy":"admin"},
@@ -135,12 +135,12 @@ class CheckCommentList extends React.Component {
     }
 
     /* 列表操作选项 */
-    operatorRender = (value, record,index) => {
+    operatorRender = (value, record) => {
         return (
             <div>
-                <a onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</a>
-                <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                <a onClick={() => this.deleteComment(record)} style={styles.removeBtn}>删除</a>
+                <Button type="link" onClick={() => this.showDrawer(record,'detail')} className="operation-sty">查看</Button>
+                <Button type="link" onClick={() => this.showDrawer(record,'edit')} className="operation-sty">编辑</Button>
+                <Button type="link" onClick={() => this.deleteComment(record)} className="operation-sty">删除</Button>
             </div>
         );
     };
@@ -175,8 +175,8 @@ class CheckCommentList extends React.Component {
                                     <FormItem name="status" label="状态" required>
                                         <Select placeholder="请选择状态" allowClear>
                                             {
-                                                form.selectLists.STATUS.map((item,index) => {
-                                                    return <Option key={index} value={item.codeName} key={item.id}>{item.codeName} - {item.description}</Option>
+                                                form.selectLists.STATUS.map((item) => {
+                                                    return <Option value={item.codeName} key={item.id}>{item.codeName} - {item.description}</Option>
                                                 })
                                             }
                                         </Select>
@@ -237,19 +237,6 @@ class CheckCommentList extends React.Component {
 }
 
 export default CheckCommentList
-
-const styles = {
-    removeBtn: {
-        marginLeft: 8,
-    },
-    titleStyles: {
-        maxWidth: 15,
-        overflow: 'hidden',
-        whiteSpace: 'nowrap',
-        textOverflow:'ellipsis',
-        cursor:'pointer'
-    }
-}
 
 
 /**

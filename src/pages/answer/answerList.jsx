@@ -85,7 +85,7 @@ class AnswerList extends React.Component{
             <div>
                 <Link style={styles.removeBtn} to={{ pathname : '/admin/user',query:{type:'查看',record:record}}}>查看</Link>
                 <Link style={styles.removeBtn} to={{ pathname : '/admin/user',query:{type:'编辑',record:record}}}>编辑</Link>
-                <a onClick={() => this.deleteUser(record)} style={styles.removeBtn}>删除</a>
+                <Button type={"link"} onClick={() => this.deleteUser(record)} style={styles.removeBtn}>删除</Button>
             </div>
         );
     }

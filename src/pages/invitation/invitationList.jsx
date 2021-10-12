@@ -112,7 +112,7 @@ class InvitationList extends React.Component{
                 render:(text,record,index)=>`${index+1}`,
             },
             { title: '发布人', width: 80, dataIndex: 'name', key: 'name',align: "center",
-                render: (text,record,index)=>{
+                render: (text,record)=>{
                     return <Link to={{ pathname : '/admin/user',query:{type:'查看',userId:record.issuerId}}}><Tag color="geekblue" key={text}>{text}</Tag></Link>
                 }
             },
@@ -166,9 +166,9 @@ class InvitationList extends React.Component{
                 render: (value, record) => {
                     return (
                         <div>
-                            <a onClick={() => this.showDrawer(record,'search')} style={styles.removeBtn}>查看</a>
-                            <a onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</a>
-                            <a onClick={() => this.deleteInvitation(record)} style={styles.removeBtn}>删除</a>
+                            <Button type={"link"} onClick={() => this.showDrawer(record,'search')} className="operation-sty">查看</Button>
+                            <Button type={"link"} onClick={() => this.showDrawer(record,'edit')} className="operation-sty">编辑</Button>
+                            <Button type={"link"} onClick={() => this.deleteInvitation(record)} className="operation-sty">删除</Button>
                         </div>
                     );
                 },
@@ -246,8 +246,3 @@ class InvitationList extends React.Component{
 
 export default InvitationList
 
-const styles = {
-    removeBtn: {
-        marginLeft: 8,
-    },
-}

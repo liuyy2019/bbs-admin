@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {Form,Input,Select,Button,Card,message,Modal,DatePicker} from 'antd'
+import {Form,Input,Select,Button,Card,message,Modal} from 'antd'
 import {addUser, getListUsers,updateUser} from "../../api";
 
 const Item = Form.Item;

@@ -2,9 +2,8 @@
  * 1、公告管理模块 - 右侧弹层页面
  */
 import React from 'react'
-import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker} from 'antd';
+import { Drawer, Button } from 'antd';
 import  GeneratorForm from '../../components/myConponents/GeneratorForm'
-const { Option } = Select;
 
 class RightShow extends React.Component {
 

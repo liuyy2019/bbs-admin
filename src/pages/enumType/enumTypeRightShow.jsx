@@ -1,6 +1,6 @@
 /* 公告的新增、修改、查看组件 */
 import React from 'react'
-import { Drawer, Form, Button, Col, Row, Input, Select,message, DatePicker} from 'antd';
+import { Drawer, Form, Button, Col, Row, Input, Select,message} from 'antd';
 import {addEnumCode, getAllEnumType, updateEnumCode} from '../../api/index'
 import {getToken} from "../../util/userLoginUtil";
 

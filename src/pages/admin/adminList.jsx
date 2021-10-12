@@ -169,9 +169,9 @@ class AdminList extends React.Component {
     operatorRender = (value, record) => {
         return (
             <div>
-                <Button type="link" onClick={() => this.showDrawer(record,'detail')} style={styles.removeBtn}>查看</Button>
-                <Button type="link" onClick={() => this.showDrawer(record,'edit')} style={styles.removeBtn}>编辑</Button>
-                <Button type="link" onClick={() => this.deleteAdmin(record)} style={styles.removeBtn}>删除</Button>
+                <Button type="link" onClick={() => this.showDrawer(record,'detail')} className={'operation-sty'}>查看</Button>
+                <Button type="link" onClick={() => this.showDrawer(record,'edit')} className="operation-sty">编辑</Button>
+                <Button type="link" onClick={() => this.deleteAdmin(record)} className="operation-sty">删除</Button>
             </div>
         );
     };
@@ -234,10 +234,10 @@ class AdminList extends React.Component {
                            dataSource={dataList} scroll={{ y: 230 }} >
                         <Table.Column title= '序号' width= {50} align= 'center' fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
                         <Table.Column title= '账号' width= {100} align= 'center' dataIndex= 'name' ellipsis={true}/>
-                        <Table.Column title= '密码' width= {150} align= 'center' dataIndex= 'password' style={styles.titleStyles}/>
+                        <Table.Column title= '密码' width= {150} align= 'center' dataIndex= 'password'/>
                         <Table.Column title= '账号状态' width= {100} align= 'center' dataIndex= 'status' render={text => util.textAndOptionsTag(text,form.list.adminStatus,'geekblue')}/>
                         <Table.Column title= '级别' width= {150} align= 'center' dataIndex= 'level' render={text => util.textAndOptionsTag(text,form.list.adminLevel)}/>
-                        <Table.Column title= '操作' width= {200} align= 'center' dataIndex= '' render={this.operatorRender}/>
+                        <Table.Column title= '操作' width= {150} align= 'center' dataIndex= '' render={this.operatorRender}/>
                     </Table>
                     <AdminDrawer
                         onClose={this.onClose}
@@ -262,9 +262,3 @@ class AdminList extends React.Component {
 }
 
 export default AdminList
-
-const styles = {
-    removeBtn: {
-        marginLeft: 8,
-    },
-};
