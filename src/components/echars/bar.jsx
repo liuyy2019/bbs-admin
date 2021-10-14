@@ -1,9 +1,15 @@
 import React from 'react'
 import ReactEcharts from 'echarts-for-react';
+import { Tabs, Carousel } from 'antd';
 
-class Bar extends React.Component{
+const { TabPane } = Tabs;
+class Bar extends React.PureComponent{
 
-    GetDateStr= (AddDayCount) =>{
+    state = {
+        activeKey: '0'
+    }
+
+    GetDateStr = (AddDayCount) =>{
         let dd = new Date();
         dd.setDate(dd.getDate()-AddDayCount);//获取AddDayCount天后的日期
         // var y = dd.getFullYear();
@@ -12,28 +18,25 @@ class Bar extends React.Component{
         return m+"-"+d;
     };
 
+    callback = (key) => {
+        this.slider.goTo(key)
+        this.setState({
+            activeKey: key
+        })
+    }
 
 
     getDate = () => {
         let dateArray = [];
         for (let i = 0; i < 7; i++) {
             dateArray.unshift(this.GetDateStr(i));
-        };
+        }
         return dateArray;
     }
 
 
-
-
     getOption = () => {
         return {
-            title: {
-                text: '用户数量',// 主标题文本，支持使用 \n 换行。
-                textStyle: {
-                    color: 'red', // 主标题文字的颜色。
-                },
-                left: 'left',
-            },
             tooltip: {
                 trigger: 'axis', // 触发类型：坐标轴触发，
             },
@@ -101,9 +104,27 @@ class Bar extends React.Component{
             ]
         };
     }
+
+    onChange = (a) => {
+        this.setState({
+            activeKey: a+''
+        })
+    }
+
     render(){
         return(
-            <ReactEcharts option={this.getOption()} />
+            <>
+                <Tabs onChange={this.callback} activeKey={this.state.activeKey}>
+                    <TabPane tab="用户数量" key="0" />
+                    <TabPane tab="访问数量" key="1" />
+                    <TabPane tab="内容数量" key="2" />
+                </Tabs>
+                <Carousel autoplay beforeChange={(from, to) => this.onChange(to)} dots={false} ref={el => (this.slider = el)}>
+                    <ReactEcharts option={this.getOption()} />
+                    <ReactEcharts option={this.getOption()} />
+                    <ReactEcharts option={this.getOption()} />
+                </Carousel>
+            </>
         )
     }
 }

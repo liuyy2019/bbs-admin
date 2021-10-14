@@ -203,7 +203,7 @@ class ReportCommentList extends React.Component {
                                 </Col>
                                 <Col span={6}>
                                     <div style={{float:'right'}}>
-                                        <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">Search</Button>
+                                        <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">查询</Button>
                                         <Button type={"primary"} onClick={() => {this.formRef.current.resetFields();}}>清除</Button>
                                     </div>
                                 </Col>

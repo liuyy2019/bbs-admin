@@ -9,27 +9,35 @@ import Pie4 from "../../components/echars/pie4";
 import {getListInvitationsByVisitors} from "../../api/index";
 
 const grid = 8;
-// 水平样式
-const getItemStyle = (isDragging, draggableStyle) => ({
-    // some basic styles to make the items look a bit nicer
-    userSelect: 'none',
-    padding: grid,
-    margin: `0 ${grid}px 0 0`,
+/**
+ * 水平样式, 设置每个item的基础样式
+ *      isDragging： 是否拖动
+ *      draggableStyle：拖动item的样式
+ */
+const getItemStyle = (isDragging, draggableStyle) => {
+    // console.log(isDragging, draggableStyle)
+    return {
+        // 元素及其子元素的文本不可选中
+        userSelect: 'none',
 
-    // change background colour if dragging
-    background: isDragging ? 'lightgreen' : '#ffffff',
+        padding: grid,
+        margin: `0 ${grid}px 0 0`,
+        background: isDragging ? 'lightgreen' : '#ffffff',
 
+        display: 'flex',
+        alignItems: 'stretch',
 
-    // styles we need to apply on draggables
-    ...draggableStyle,
-});
+        // styles we need to apply on draggables
+        ...draggableStyle,
+    }
+};
 const getListStyle = isDraggingOver => ({
     background: isDraggingOver ? 'lightblue' : '#ffffff',
     display: 'flex',
     padding: grid,
     margin: `0 ${grid}px`,
     overflow: 'auto',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
 });
 
 class Dashboard extends React.Component{
@@ -40,11 +48,11 @@ class Dashboard extends React.Component{
             date: new Date().toLocaleString(),
             data: [], /* 帖子数据 */
             statisticList: [
-                { id: '1', span: 4, title: '用户总数：75', value: '5', valueStyle: { color: '#3f8600' },prefix: <ArrowUpOutlined />},
-                { id: '2', span: 4, title: '登陆用户：10', value: '1', valueStyle: { color: '#cf1322' },prefix: <ArrowDownOutlined />},
-                { id: '3', span: 8, title: '当前时间', value: '5', valueStyle: { color: '#3f8600' }},
-                { id: '4', span: 4, title: '帖子总数：105', value: '5', valueStyle: { color: '#cf1322' },prefix: <ArrowUpOutlined />},
-                { id: '5', span: 4, title: '发帖数量：10', value: '11.28', valueStyle: { color: '#3f8600' },prefix: <ArrowUpOutlined />},
+                { id: '1', span: 4, title: '用户总数：75', value: '5', valueStyle: { color: '#3f8600', padding: '0px 20px' },prefix: <ArrowUpOutlined />},
+                { id: '2', span: 4, title: '登陆用户：10', value: '1', valueStyle: { color: '#cf1322', padding: '0px 20px' },prefix: <ArrowDownOutlined />},
+                { id: '3', span: 8, title: '当前时间', value: '5', valueStyle: { color: '#3f8600', padding: '0px 20px' }},
+                { id: '4', span: 4, title: '帖子总数：105', value: '5', valueStyle: { color: '#cf1322', padding: '0px 20px' },prefix: <ArrowUpOutlined />},
+                { id: '5', span: 4, title: '发帖数量：10', value: '11.28', valueStyle: { color: '#3f8600', padding: '0px 20px' },prefix: <ArrowUpOutlined />},
             ],
         }
     }
@@ -71,6 +79,7 @@ class Dashboard extends React.Component{
         })
     };
 
+    // 根据拖动结果重新排序列表
     reOrder = (list, startIndex, endIndex) => {
         const result = Array.from(list);
         const [removed] = result.splice(startIndex, 1);
@@ -96,7 +105,7 @@ class Dashboard extends React.Component{
     };
 
     render(){
-        const { statisticList } = this.state;
+        const { statisticList, date } = this.state;
         return(
             <div className="site-card-wrapper">
                 <DragDropContext onDragEnd={this.onDragEnd}>
@@ -133,7 +142,7 @@ class Dashboard extends React.Component{
                                                                 ) : (
                                                                     <Card>
                                                                         <h2 style={{textAlign: 'center',margin:'auto'}}>当前时间</h2>
-                                                                        <p style={{textAlign: 'center',fontSize:'18px'}}>{this.state.date}</p>
+                                                                        <p style={{textAlign: 'center',fontSize:'18px'}}>{date}</p>
                                                                     </Card>
                                                                 )
                                                             }
@@ -148,28 +157,27 @@ class Dashboard extends React.Component{
                             }
                         </Droppable>
                 </DragDropContext>
-                <Row gutter={[16,16]} style={{margin:'10px'}}>
+                <Row gutter={[16,16]} style={{margin:'10px', alignContent: 'stretch'}}>
                     <Col span={12}>
-                        <Card style={{background:"#00000000"}} >
+                        <Card style={{background:"#00000000", height: '100%', width: '100%'}} >
                             <Bar />
                         </Card>
                     </Col>
                     <Col span={12}>
-                        <Card style={{background:"#00000000"}}>
+                        <Card style={{background:"#00000000", height: '100%'}}>
                             <Pie/>
                         </Card>
                     </Col>
                 </Row>
-                <Row gutter={[16,16]} style={{margin:'10px'}}>
+                <Row gutter={[16,16]} style={{margin:'10px', display: 'flex', alignItems: 'stretch'}}>
                     <Col span={12}>
-                        <Card >
+                        <Card style={{height: '100%'}}>
                             <Pie4/>
                         </Card>
                     </Col>
                     <Col span={12}>
-                        <List
+                        <List bordered style={{height: '100%'}}
                             header={<div>今日热帖</div>}
-                            bordered
                             dataSource={this.state.data}
                             renderItem={item => (
                                 <List.Item>
