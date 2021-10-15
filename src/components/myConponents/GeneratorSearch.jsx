@@ -4,49 +4,70 @@
 import React from "react";
 import {Button, Col, Form,Input, Row,Select} from "antd";
 
+const { Option } = Select;
+const  GeneratorSearch = ({ searchItemList, onReset, onFinish}) => {
+    const formRef = React.useRef();
 
-class GeneratorSearch extends React.Component{
-    formRef = React.useRef();
 
-    onFinish = (values) => {
-        console.log({values})
-    };
-    render() {
-        return (
-            <div style={{marginTop:'10px'}}>
-                <Form ref={this.formRef} name="advanced_search"
-                      className="ant-advanced-search-form" onFinish={this.onFinish}
-                >
-                    <Row gutter={24}>
-                        <Col span={6}>
-                            <Form.Item name="createBy" label="发布人">
-                                <Input placeholder="发布人" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={6}>
-                            <Form.Item name="codeType" label="枚举类型">
-                                <Input placeholder="枚举类型" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={6}>
-                            <Form.Item name="status" label="状态">
-                                <Select placeholder="请选择账号状态">
-                                    <Select.Option value="0">0 - 失效</Select.Option>
-                                    <Select.Option value="1">1 - 有效</Select.Option>
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                        <Col span={6}>
-                            <div style={{textAlign:'right'}}>
-                                <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">查询</Button>
-                                <Button type="primary" onClick={() => {this.formRef.current.resetFields();}}>重置</Button>
-                            </div>
-                        </Col>
-                    </Row>
-                </Form>
-            </div>
-        )
+    // 搜索表单重置
+    const onResetHandle = () => {
+        formRef.current.resetFields();
+        onReset && onReset()
     }
+
+    // 生成搜索表单项
+    const generalFormItem = (formItem) => {
+        const { type, selectList, name, label, placeholder, options } = formItem;
+
+        switch (type) {
+            case 'input':
+                return (
+                    <Form.Item name={name} label={label}>
+                        <Input placeholder={placeholder} {...options}/>
+                    </Form.Item>
+                )
+            case 'select':
+                return (
+                    <Form.Item name={name} label={label}>
+                        <Select placeholder={placeholder}>
+                            {
+                                selectList.map(item => (
+                                    <Option value={item.codeId} key={item.codeId}>{`${item.codeId} - ${item.codeName}`}</Option>
+                                ))
+                            }
+                        </Select>
+                    </Form.Item>
+                )
+            default:
+                return
+        }
+    }
+
+    return (
+        <div style={{marginTop:'10px'}}>
+            <Form ref={formRef} name="advanced_search"
+                  className="ant-advanced-search-form" onFinish={onFinish}
+            >
+                <Row gutter={24}>
+                    {
+                        searchItemList.map((item,index) => (
+                            <Col span={6} key={index}>
+                                {
+                                    generalFormItem(item)
+                                }
+                            </Col>
+                        ))
+                    }
+                    <Col span={6}>
+                        <div style={{textAlign:'right'}}>
+                            <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">查询</Button>
+                            <Button type="primary" onClick={onResetHandle}>重置</Button>
+                        </div>
+                    </Col>
+                </Row>
+            </Form>
+        </div>
+    )
 
 }
 export default GeneratorSearch

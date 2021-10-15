@@ -2,6 +2,7 @@ import React from 'react';
 import { Switch,Route } from 'react-router-dom'
 import MyLayout from "./components/layout/myLayout";
 import {privateRoutes} from "./routes/routeConfig"
+import NotFound from "./pages/notFound/NotFound";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
                       )
                   })
               }
+              <Route component={NotFound}/>
           </Switch>
       </MyLayout>
   );

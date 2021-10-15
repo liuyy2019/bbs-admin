@@ -1,10 +1,11 @@
 import React from 'react';
+import { Empty } from 'antd';
 
 class NotFound extends React.Component{
     render() {
         return (
-            <div>
-                404
+            <div className={"display-flex-center"}>
+                <Empty/>
             </div>
         )
     }

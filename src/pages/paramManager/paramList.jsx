@@ -3,16 +3,21 @@
  */
 import React from 'react'
 import {addParam, deleteParam, getListParams, updateParam} from "../../api";
-import {Button, Card, Col, Input, Row, message, Tooltip, Breadcrumb, Form, Table, Modal, Tag, Select} from "antd";
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import {Button, Card, message, Tooltip, Modal, Tag } from "antd";
+import { ExclamationCircleOutlined, ProjectOutlined } from '@ant-design/icons';
 import ParamRightShow from './paramRightShow'
 import moment from 'moment'
 import util from "../../util/util";
 import {getToken} from "../../util/userLoginUtil";
+import CommonContentHead from "../../components/myConponents/CommonContentHead";
+import GeneratorTable from "../../components/myConponents/GeneratorTable";
 
 
-const {Option} = Select
 const { confirm } = Modal;
+const statusList = [
+    {codeId: '0', codeName: '无效'},
+    {codeId: '1', codeName: '有效'},
+]
 
 class ParamList extends React.Component {
     formRef = React.createRef();
@@ -50,6 +55,7 @@ class ParamList extends React.Component {
 
     /* 搜索框表单提交 */
     onFinish = values => {
+        console.log(values)
         this.setState({searchValue:values});
         getListParams({param:values,page:1,size:100},result => {
             this.setState({
@@ -104,7 +110,7 @@ class ParamList extends React.Component {
 
     // 删除参数列表
     deleteParam= (record)=> {
-        let _this = this
+        const _this = this;
         confirm({
             icon: <ExclamationCircleOutlined />,
             content: '确定删除当前参数信息',
@@ -181,76 +187,95 @@ class ParamList extends React.Component {
     render(){
         const {dataList,isLoading,visible,type,form,disabledFlag} = this.state
 
-        let title = [util.titlePrefix[type], '参数信息'].join('')
+        let title = [util.titlePrefix[type], '参数信息'].join('');
+        const breadcrumb = [
+            { content: '参数管理', href: '', icon: <ProjectOutlined />},
+            { content: '参数信息列表', href: '', icon: ''},
+            { content: '测试', href: '', icon: ''},
+        ]
 
+        const searchItemList = [
+            { label:'发布人', name: 'createBy', type: 'input', placeholder: '发布人' },
+            { label:'参数码', name: 'codeId', type: 'input', placeholder: '参数码' },
+            { label:'状态', name: 'status', type: 'select', selectList: statusList, placeholder: '请选择状态' },
+            // { label:'状态', name: 'status1', type: 'select', selectList: statusList, placeholder: '请选择状态' },
+        ]
+
+        const tableItemList = [
+            {
+                title: '序号',
+                width: 50,
+                align: 'center',
+                dataIndex: 'index',
+                fixed: 'left',
+                render: (text,record,index)=>`${index+1}`
+            },
+            {
+                title: '参数码',
+                width: 220,
+                align: 'center',
+                dataIndex: 'codeId',
+                ellipsis: true
+            },
+            {
+                title: '参数值',
+                width: 100,
+                align: 'center',
+                dataIndex: 'codeName',
+                render: (text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>
+            },
+            {
+                title: '描述',
+                width: 150,
+                align: 'center',
+                dataIndex: 'description',
+                onCell: this.contentCell,
+                render: (text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>
+            },
+            {
+                title: '参数状态',
+                width: 100,
+                align: 'center',
+                dataIndex: 'status',
+                render: this.statusRender
+            },
+            {
+                title: '发布人',
+                width: 100,
+                align: 'center',
+                dataIndex: 'createBy'
+            },
+            {
+                title: '操作',
+                width: 130,
+                align: 'center',
+                dataIndex: '',
+                render: this.operatorRender
+            },
+        ]
         return(
-            <div style={{background:'#f0f2f5',height:'100%'}}>
-                <Card size="small" style={{height:'20%', minHeight: '110px'}}>
-                    <Breadcrumb >
-                        <Breadcrumb.Item>参数管理</Breadcrumb.Item>
-                        <Breadcrumb.Item>参数信息列表</Breadcrumb.Item>
-                    </Breadcrumb>
-                    <div style={{marginTop:'10px'}}>
-                        <Form ref={this.formRef} name="advanced_search"
-                              className="ant-advanced-search-form" onFinish={this.onFinish}
-                        >
-                            <Row gutter={24}>
-                                <Col span={6}>
-                                    <Form.Item name="createBy" label="发布人">
-                                        <Input placeholder="发布人" />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={6}>
-                                    <Form.Item name="codeId" label="参数码">
-                                        <Input placeholder="参数码" />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={6}>
-                                    <Form.Item name="status" label="状态">
-                                        <Select placeholder="请选择状态">
-                                            <Option value="0" >0 - 无效</Option>
-                                            <Option value="1" >1 - 有效</Option>
-                                        </Select>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={6}>
-                                    <div style={{float:'right'}}>
-                                        <Button type="primary" style={{ marginRight: '8px' }} htmlType="submit">查询</Button>
-                                        <Button type={"primary"} onClick={() => {this.formRef.current.resetFields();}}>清除</Button>
-                                    </div>
-                                </Col>
-                            </Row>
-                        </Form>
-                    </div>
-                </Card>
-                <Card title="参数信息列表" size="small" style={{marginTop:'15px',height:'76%'}}
+            <div style={{background:'#f0f2f5', margin: '0', padding: '0',height: 'calc( 100% -24px)'}}>
+                <CommonContentHead
+                    breadcrumb={breadcrumb}
+                    onFinish={this.onFinish}
+                    searchItemList={searchItemList}
+                />
+                <Card title="参数信息列表" size="small" style={{marginTop:'15px',height:'76%'}} bordered={false}
                     extra={<Button type="primary" onClick={()=>this.showDrawer({},'create')}>新建</Button>}
                 >
-                    <Table rowKey="id" loading={isLoading}
-                           dataSource={dataList} scroll={{ y: 260 }} size="middle" >
-                        <Table.Column title= '序号' width= {50} align= 'center' fixed= 'left' render={(text,record,index)=>`${index+1}`}/>
-                        <Table.Column title= '参数码' width= {220} align= 'center' dataIndex= 'codeId' ellipsis={true}/>
-                        <Table.Column title= '参数值' width= {100} align= 'center' dataIndex= 'codeName' render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}/>
-                        <Table.Column title= '描述' width= {150} align= 'center' dataIndex= 'description'
-                                      onCell={this.contentCell}
-                                      render={(text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>}
-                        />
-                        <Table.Column title= '参数状态' width= {100} align= 'center' dataIndex= 'status' render={this.statusRender}/>
-                        <Table.Column title= '发布人' width= {100} align= 'center' dataIndex= 'createBy'/>
-                        <Table.Column title= '操作' width= {130} align= 'center' dataIndex= '' render={this.operatorRender}/>
-                    </Table>
-                    <ParamRightShow
-                        disabledFlag={disabledFlag}
-                        visible={visible}
-                        type={type}
-                        title={title}
-                        form={form}
-                        onFormChange={this.onFormChange}
-                        addParam={this.addParam}
-                        updateParam={this.updateParam}
-                        onClose={this.onClose}
-                    />
+                    <GeneratorTable isLoading={isLoading} tableItemList={tableItemList} dataSourceList={dataList}/>
                 </Card>
+                <ParamRightShow
+                    disabledFlag={disabledFlag}
+                    visible={visible}
+                    type={type}
+                    title={title}
+                    form={form}
+                    onFormChange={this.onFormChange}
+                    addParam={this.addParam}
+                    updateParam={this.updateParam}
+                    onClose={this.onClose}
+                />
             </div>
         );
     }

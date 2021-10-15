@@ -2,7 +2,8 @@
  * 工具方法集合
  */
 import React from 'react';
-import {Tooltip,Tag} from 'antd'
+import { Tooltip,Tag } from 'antd';
+
 export default {
 
     /**
@@ -53,7 +54,7 @@ export default {
      */
     dateRender(current){
         const style = {};
-        // 渲染条件
+        // 渲染条件，每月第一天添加圆边框
         if (current.date() === 1) {
             style.border = '1px solid #1890ff';
             style.borderRadius = '50%';
@@ -107,7 +108,6 @@ export default {
         }
         return <Tag color={color} key={text}>{text}</Tag>
     },
-
 
 
 }

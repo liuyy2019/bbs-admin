@@ -19,11 +19,11 @@ const FormItem = Form.Item
 const tourSteps = [{
     position: 's',
     selector: '.tour-step-1',
-    content: '<div style="width: 260px;">卡产品配置信息</div>'
+    content: '<div style="width: 260px;">参数配置信息</div>'
 },{
     position: 'n',
     selector: '.tour-step-2',
-    content: '<div style="width: 260px">公司卡信息</div>'
+    content: '<div style="width: 260px">参数码</div>'
 },{
     position: 'n',
     selector: '.tour-step-3',
@@ -40,17 +40,20 @@ class ParamRightShow extends React.Component {
 
     onSubmit = (e)=>{
         e.preventDefault();
-        const {type} = this.props
+        const { type } = this.props
         // this.formRef.current可以获取所指对象的实例
-
-        // 根据type的值进行不同的操作
-        if (type === 'create') {
-            this.props.addParam()
-        } else if (type === 'edit') {
-            this.props.updateParam()
-        } else {
-            this.props.onClose();
-        }
+        this.formRef.current.validateFields().then(values => {
+            // 根据type的值进行不同的操作
+            if (type === 'create') {
+                this.props.addParam()
+            } else if (type === 'edit') {
+                this.props.updateParam()
+            } else {
+                this.props.onClose();
+            }
+        }, error => {
+            console.log(error)
+        })
     }
 
     onValuesChange = (changedValues, allValues) => {

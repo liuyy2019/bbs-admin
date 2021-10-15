@@ -47,10 +47,7 @@ class MyLayout extends React.Component {
                         <Col>
                             <div style={{color:'white',lineHeight:'64px',fontSize:'26px'}} >
                                 <span style={{paddingRight: "10px"}}>CMS管理系统</span>
-                                {React.createElement(this.state.collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-                                    className: 'trigger',
-                                    onClick: this.toggle,
-                                })}
+                                <span onClick={this.toggle}> {collapsed ? <MenuUnfoldOutlined/> : <MenuFoldOutlined/> }</span>
                             </div>
                         </Col>
                         <Col>
@@ -104,7 +101,7 @@ class MyLayout extends React.Component {
                         </Menu>
                     </Sider>
                     <Content
-                        className="site-layout-background"
+                        className="site-layout-background border-common"
                         style={{
                             padding:0,
                             margin: 12,
