@@ -5,7 +5,7 @@ import React, {Fragment} from 'react'
 import { Table, Pagination } from "antd";
 
 const { Column } = Table
-const GeneratorTable = ({isLoading, dataSourceList, tableItemList, onPageChange}) => {
+const GeneratorTable = ({isLoading, dataSourceList, tableItemList, onPageChange, page = {} }) => {
 
     const onChange = (...rest) => {
         onPageChange && onPageChange(...rest)
@@ -13,10 +13,13 @@ const GeneratorTable = ({isLoading, dataSourceList, tableItemList, onPageChange}
     const onShowSizeChange = (...rest) => {
         onPageChange && onPageChange(...rest)
     }
+
+    const { pageNum, pageSize, total } = page;
     return (
         <Fragment>
             <Table rowKey="id" loading={isLoading} pagination={false}
-                   dataSource={dataSourceList} scroll={{ y: 260 }} size="middle" >
+                   dataSource={dataSourceList} scroll={{ y: 360 }} size="middle" >
+                <Column dataIndex={'index'} title="序号" align="center" width={50} fixed="left" render={(text,record,index)=>`${index+1}`}/>
                 {
                     tableItemList.map((item,index) => {
                         const { title, dataIndex, align='center', ...rest} = item;
@@ -28,10 +31,11 @@ const GeneratorTable = ({isLoading, dataSourceList, tableItemList, onPageChange}
             </Table>
             <div className={"flex-reverse"} style={{marginTop: '15px'}}>
                 <Pagination
-                    defaultCurrent={2}
-                    total={500}
-                    current={3}
+                    total={total}
+                    current={pageNum}
+                    pageSize={pageSize}
                     showSizeChanger
+                    pageSizeOptions={['10', '20', '50']}
                     onChange={onChange}
                     onShowSizeChange={onShowSizeChange}
                     showTotal={total => `共 ${total} 条`}

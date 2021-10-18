@@ -3,7 +3,7 @@
  */
 import React from 'react'
 import {addParam, deleteParam, getListParams, updateParam} from "../../api";
-import {Button, Card, message, Tooltip, Modal, Tag } from "antd";
+import {Button, Card, message, Tooltip, Modal } from "antd";
 import { ExclamationCircleOutlined, ProjectOutlined } from '@ant-design/icons';
 import ParamRightShow from './paramRightShow'
 import moment from 'moment'
@@ -25,8 +25,11 @@ class ParamList extends React.Component {
         super(props);
         this.state = {
             dataList:[],
-            pageNum: 1,
-            pageSize: 5,
+            page: {
+                pageNum: 1,
+                pageSize: 10,
+                total: 0
+            },
             visible: false,/* 新建右测栏 */
             isLoading:false,
             type: 'create',
@@ -40,28 +43,30 @@ class ParamList extends React.Component {
         this.addParam = this.addParam.bind(this)
     }
 
-    initValues = () => {
+    initValues = (param, current = 1, size = 10) => {
         this.setState({isLoading:true});
-        getListParams({param:{},page: 1,size: 100},result => {
+        getListParams({param, page: current,size: size},result => {
+            const { data, pageNo: pageNum ,pageSize, total } = result || {};
             this.setState({
-                dataList: result,
+                dataList: data,
+                page: {
+                    pageNum, pageSize, total
+                },
                 isLoading:false,
             })
         })
     }
     componentDidMount(){
-        this.initValues();
+        this.initValues({}, 1, 10);
     }
+
+
 
     /* 搜索框表单提交 */
     onFinish = values => {
         console.log(values)
-        this.setState({searchValue:values});
-        getListParams({param:values,page:1,size:100},result => {
-            this.setState({
-                dataList: result
-            })
-        })
+        this.setState({ searchValue: values });
+        this.initValues(values, 1, 10);
     };
 
     // 抽屉弹层显示控制
@@ -164,13 +169,6 @@ class ParamList extends React.Component {
             </div>
         );
     }
-    statusRender = (text) => {
-        if (text === "0"){
-            return <Tag color="geekblue" key={text}>0 - 失效</Tag>
-        } else if (text === "1") {
-            return <Tag color="geekblue" key={text}>1 - 有效</Tag>
-        }
-    };
 
     contentCell = () => {
         return {
@@ -184,8 +182,15 @@ class ParamList extends React.Component {
         }
     }
 
+    // 分页数据发生改变是触发函数
+    onPageChange = (pageNum, pageSize) => {
+        console.log(pageNum, pageSize)
+        const { searchValue } = this.state;
+        this.initValues(searchValue, pageNum, pageSize);
+    }
+
     render(){
-        const {dataList,isLoading,visible,type,form,disabledFlag} = this.state
+        const { dataList,isLoading,visible,type,form, page, disabledFlag } = this.state;
 
         let title = [util.titlePrefix[type], '参数信息'].join('');
         const breadcrumb = [
@@ -198,18 +203,9 @@ class ParamList extends React.Component {
             { label:'发布人', name: 'createBy', type: 'input', placeholder: '发布人' },
             { label:'参数码', name: 'codeId', type: 'input', placeholder: '参数码' },
             { label:'状态', name: 'status', type: 'select', selectList: statusList, placeholder: '请选择状态' },
-            // { label:'状态', name: 'status1', type: 'select', selectList: statusList, placeholder: '请选择状态' },
         ]
 
         const tableItemList = [
-            {
-                title: '序号',
-                width: 50,
-                align: 'center',
-                dataIndex: 'index',
-                fixed: 'left',
-                render: (text,record,index)=>`${index+1}`
-            },
             {
                 title: '参数码',
                 width: 220,
@@ -237,7 +233,7 @@ class ParamList extends React.Component {
                 width: 100,
                 align: 'center',
                 dataIndex: 'status',
-                render: this.statusRender
+                render: (text) => util.textAndOptionsTag(text,statusList,'geekblue','codeId', 'codeName')
             },
             {
                 title: '发布人',
@@ -253,6 +249,12 @@ class ParamList extends React.Component {
                 render: this.operatorRender
             },
         ]
+        const extra = (
+            <>
+                <Button type="primary" onClick={()=>this.showDrawer({},'create')} className={'margin-l-r-10'}>导出</Button>
+                <Button type="primary" onClick={()=>this.showDrawer({},'create')}>新建</Button>
+            </>
+        )
         return(
             <div style={{background:'#f0f2f5', margin: '0', padding: '0',height: 'calc( 100% -24px)'}}>
                 <CommonContentHead
@@ -260,10 +262,14 @@ class ParamList extends React.Component {
                     onFinish={this.onFinish}
                     searchItemList={searchItemList}
                 />
-                <Card title="参数信息列表" size="small" style={{marginTop:'15px',height:'76%'}} bordered={false}
-                    extra={<Button type="primary" onClick={()=>this.showDrawer({},'create')}>新建</Button>}
-                >
-                    <GeneratorTable isLoading={isLoading} tableItemList={tableItemList} dataSourceList={dataList}/>
+                <Card title="参数信息列表" size="small" style={{marginTop:'15px',height:'76%'}} bordered={false} extra={extra}>
+                    <GeneratorTable
+                        isLoading={isLoading}
+                        tableItemList={tableItemList}
+                        dataSourceList={dataList}
+                        page={page}
+                        onPageChange={this.onPageChange}
+                    />
                 </Card>
                 <ParamRightShow
                     disabledFlag={disabledFlag}

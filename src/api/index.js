@@ -406,7 +406,7 @@ export const getReportCommentById = (id,callback)=>ajax(`/v1/reportCommentList/b
 
 // 动态获取所有参数信息列表
 export const getListParams = (data,callback)=>ajax(url_prefix+'/v1/param/param/page',data,"POST").then(result => {
-    callback && callback(result.data);
+    callback && callback(result);
 }).catch(err => {
     console.log('error', err)
 });
