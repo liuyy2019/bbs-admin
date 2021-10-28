@@ -2,6 +2,7 @@
  * 1、参数-参数列表模块
  */
 import React from 'react'
+import XLXS from 'xlsx'
 import {addParam, deleteParam, getListParams, updateParam} from "../../api";
 import {Button, Card, message, Tooltip, Modal } from "antd";
 import { ExclamationCircleOutlined, ProjectOutlined } from '@ant-design/icons';
@@ -189,6 +190,20 @@ class ParamList extends React.Component {
         this.initValues(searchValue, pageNum, pageSize);
     }
 
+    // 将json数组导出为excel
+    // 十分钟上手 xlsx：https://juejin.cn/post/6998000575203770376
+    // js同过url下载文件，调用另存为弹框：https://www.cnblogs.com/lubolin/p/10767051.html
+    exportExcelFile = (array, sheetName = '表1', fileName = 'example.xlsx') => {
+        const jsonWorkSheet = XLXS.utils.json_to_sheet(array);
+        const workBook = {
+            SheetNames: [sheetName],
+            Sheets: {
+                [sheetName]: jsonWorkSheet,
+            }
+        };
+        return XLXS.writeFile(workBook, fileName);
+    }
+
     render(){
         const { dataList,isLoading,visible,type,form, page, disabledFlag } = this.state;
 
@@ -251,7 +266,7 @@ class ParamList extends React.Component {
         ]
         const extra = (
             <>
-                <Button type="primary" onClick={()=>this.showDrawer({},'create')} className={'margin-l-r-10'}>导出</Button>
+                <Button type="primary" onClick={()=>this.exportExcelFile(dataList)} className={'margin-l-r-10'}>导出</Button>
                 <Button type="primary" onClick={()=>this.showDrawer({},'create')}>新建</Button>
             </>
         )

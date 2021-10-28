@@ -25,7 +25,8 @@
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
-    "trip.js": "^3.3.3"
+    "trip.js": "^3.3.3",
+    "xlsx": "^0.17.3"
   },
   "scripts": {
     "start": "set PORT=3002&& react-app-rewired start",
