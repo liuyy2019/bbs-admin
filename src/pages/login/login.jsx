@@ -82,37 +82,6 @@ class Login extends React.Component {
         )
 
     }
-    /*render(){
-        return (
-            <div id="particles-js">
-                <div className="login">
-                    <div className="login-top">
-                        登录
-                    </div>
-                    <div className="login-center clearfix">
-                        <div className="login-center-img"><img src="images/name.jpg"/></div>
-                        <div className="login-center-input">
-                            <input type="text" name="" value="" placeholder="请输入您的用户名" onFocus="this.placeholder=''"
-                                   onBlur="this.placeholder='请输入您的用户名'"/>
-                            <div className="login-center-input-text">用户名</div>
-                        </div>
-                    </div>
-                    <div className="login-center clearfix">
-                        <div className="login-center-img"><img src="images/password.png"/></div>
-                        <div className="login-center-input">
-                            <input type="password" name="" value="" placeholder="请输入您的密码" onFocus="this.placeholder=''"
-                                   onBlur="this.placeholder='请输入您的密码'"/>
-                            <div className="login-center-input-text">密码</div>
-                        </div>
-                    </div>
-                    <div className="login-button">
-                        登录
-                    </div>
-                </div>
-                <div className="sk-rotating-plane"></div>
-            </div>
-        );
-    }*/
 }
 
 export default Login

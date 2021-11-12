@@ -43,28 +43,85 @@ You can learn more in the [Create React App documentation](https://facebook.gith
 
 To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
+## 使用react-app-rewired修改create-react-app 中的 webpack配置
+* [`react-app-rewired`](https://github.com/timarney/react-app-rewired) 的作用是在不`eject`的情况下修改`webpack`配置。
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+### 1、基本使用（使用customize-cra协助配置）
+##### 1）安转依赖
+* 纯`react-app-rewired`的方式配置：https://github.com/timarney/react-app-rewired#extended-configuration-options
 
-### Analyzing the Bundle Size
+```
+npm install react-app-rewired --save-dev
+```
+* 使用` customize-cra` 协助自定义：https://github.com/arackaf/customize-cra#using-the-plugins
+```
+npm install customize-cra react-app-rewired --dev
+```
+* 查看`create-react-app`的版本
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+```shell
+create-react-app -V
+create-react-app --version
+```
+##### 2）在根目录下新建文件config-overrides.js文件
+* 通过config-overrides.js文件来对webpack配置进行扩展
+```js
+const { override } = require('customize-cra');
+module.exports = {};
+```
+##### 3）修改package.json文件
+```js
+{
+  // ...
+  "scripts": {
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-scripts eject"
+  },
+  // ...
+}
+```
+### 2、配置项
+##### 1）按需加载antd的组件
+* 引入 antd 样式文件，需要下载` babel-plugin-import`。
+  `npm install babel-plugin-import --dev`
+```js
+const { override, fixBabelImports } = require('customize-cra');
 
-### Making a Progressive Web App
+module.exports = override(    
+    fixBabelImports('import', {        
+        libraryName: 'antd',        
+        libraryDirectory: 'es',       
+        style: 'css'
+    })
+);
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+##### 2）配置路径
+```js
+const { override, addWebpackAlias } = require('customize-cra');
+const path = require('path');
 
-### Advanced Configuration
+module.exports = override(    
+    addWebpackAlias({        
+        "@": path.resolve(__dirname, "src"),        
+        "@components": path.resolve(__dirname, "src/components")   
+    })
+)
+```
+##### 3）配置less
+* `npm install less less-loader --dev`
+```js
+const { override, addLessLoader } = require('customize-cra');
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
-=======
-# bbs-admin
+module.exports = override(
+    addLessLoader({
+        javascriptEnabled: true,
+        modifyVars: {
+            '@primary-color': '#1DA57A'
+        }
+    })
+);
+```
+## 配置代理

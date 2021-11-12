@@ -2,23 +2,18 @@ import React from 'react';
 import {Layout, Menu,Dropdown,Row,Col,Avatar} from 'antd';
 import { Link } from 'react-router-dom'
 import {
-    UserOutlined,
-    LaptopOutlined,
     DownOutlined,
-    NotificationOutlined,
     MenuUnfoldOutlined,
     MenuFoldOutlined,
 } from '@ant-design/icons';
+import IconFont from "../IconFont/IconFont";
+// import IconFont from "@/components/IconFont/IconFont";
 import './index.css';
-import {privateRoutes} from "../../routes/routeConfig";
+import { privateRoutes } from "../../routes/routeConfig";
 import MyMenu from '../../components/myMenu/myMenu'
 import {getToken} from "../../util/userLoginUtil";
 
 
-// 过滤出顶级导航
-const topMenus = privateRoutes.filter(item => {
-    return item.isTop === true;
-})
 const {SubMenu} = Menu;
 const {Header, Content, Sider} = Layout;
 
@@ -35,6 +30,13 @@ class MyLayout extends React.Component {
         this.setState({
             collapsed: !this.state.collapsed
         })
+    }
+
+    getIcon = (icon) => {
+        if (icon && typeof icon === 'object') {
+            return icon
+        }
+        return (<IconFont type={icon}/>)
     }
 
     render() {
@@ -65,39 +67,24 @@ class MyLayout extends React.Component {
                         overflow: 'auto'
                     }}>
                         <Menu theme="dark" mode="inline" style={{minHeight: '100%'}}>
-                            <SubMenu key="sub1" title={<span><LaptopOutlined/><span>监控中心</span></span>}>
-                                <Menu.Item key="1"><Link to="/admin/dashboard">监控台</Link></Menu.Item>
-                            </SubMenu>
-                            <SubMenu key="sub2" title={<span><UserOutlined/><span>用户管理</span></span>}>
-                                <Menu.Item key="3"><Link to={{pathname:"/admin/userList",state:{reports:0}}}>用户列表</Link></Menu.Item>
-                                <Menu.Item key="4"><Link to="/admin/attention">用户关注列表</Link></Menu.Item>
-                                <Menu.Item key="8"><Link to="/admin/reportUser">用户举报记录</Link></Menu.Item>
-                                {user.level==="1"?<Menu.Item key="10"><Link to="/admin/admin">管理员列表</Link></Menu.Item>:null}
-                            </SubMenu>
-                            <SubMenu key="sub3" title={<span><NotificationOutlined/><span>帖子管理</span></span>}>
-                                <Menu.Item key="5"><Link to="/admin/invitationList">帖子列表</Link></Menu.Item>
-                                {/*<Menu.Item key="6"><Link to="/admin/answerList">问答列表</Link></Menu.Item>*/}
-                                <Menu.Item key="7"><Link to="/admin/collection">收藏管理</Link></Menu.Item>
-                                <Menu.Item key="16"><Link to="/admin/reportInvitation">帖子举报记录</Link></Menu.Item>
-                                <Menu.Item key="11"><Link to="/admin/typeList">帖子种类</Link></Menu.Item>
-                            </SubMenu>
-                            <SubMenu key="sub4" title={<span><UserOutlined/><span>审核中心</span></span>}>
-                                <Menu.Item key="15"><Link to={{pathname:"/admin/checkUserList"}}>审核举报用户</Link></Menu.Item>
-                                <Menu.Item key="9"><Link to="/admin/checkInvitationList">审核举报帖子</Link></Menu.Item>
-                                <Menu.Item key="20"><Link to="/admin/checkCommentList">审核举报评论</Link></Menu.Item>
-                            </SubMenu>
-                            <SubMenu key="sub5" title={<span><UserOutlined/><span>公告中心</span></span>}>
-                                <Menu.Item key="10"><Link to="/admin/announcement">公告列表</Link></Menu.Item>
-                            </SubMenu>
-                            <SubMenu key="sub6" title={<span><UserOutlined/><span>评论管理</span></span>}>
-                                <Menu.Item key="11"><Link to="/admin/comment">评论列表</Link></Menu.Item>
-                                <Menu.Item key="18"><Link to={{pathname:"/admin/reportComment",state:{commentId:null}}}>评论举报记录</Link></Menu.Item>
-                            </SubMenu>
-                            <SubMenu key="sub7" title={<span><UserOutlined/><span>参数管理</span></span>}>
-                                <Menu.Item key="21"><Link to="/admin/paramList">参数列表</Link></Menu.Item>
-                                <Menu.Item key="22"><Link to="/admin/enumTypeList">参数字典列表</Link></Menu.Item>
-                                <Menu.Item key="23"><Link to="/admin/enumParamList">枚举类型列表</Link></Menu.Item>
-                            </SubMenu>
+                            {
+                                privateRoutes.map((item,index) => (
+                                    <SubMenu key={index} title={<span>{this.getIcon(item.icon)}<span>{item.title}</span></span>}>
+                                        {
+                                            item.children && item.children.map(menuItem => {
+                                                if (menuItem.level) {
+                                                    return menuItem.level === user.level ? (
+                                                        <Menu.Item key={menuItem.pathname}><Link to={menuItem.pathname}>{this.getIcon(menuItem.icon)}{menuItem.title}</Link></Menu.Item>
+                                                    ): null
+                                                }
+                                                return (
+                                                    <Menu.Item key={menuItem.pathname}><Link to={menuItem.pathname}>{this.getIcon(menuItem.icon)}{menuItem.title}</Link></Menu.Item>
+                                                )
+                                            })
+                                        }
+                                    </SubMenu>
+                                ))
+                            }
                         </Menu>
                     </Sider>
                     <Content

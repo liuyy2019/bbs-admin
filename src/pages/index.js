@@ -24,6 +24,7 @@ import CheckCommentList from './checkComment/checkCommentList'
 import ParamList from './paramManager/paramList'
 import EnumParamList from './enumParam/enumParamList'
 import EnumTypeList from './enumType/enumTypeList'
+import UseLoading from './customComponent/UseLoading'
 
 export {
     UserList,
@@ -49,4 +50,5 @@ export {
     ParamList,
     EnumParamList,
     EnumTypeList,
+    UseLoading
 }

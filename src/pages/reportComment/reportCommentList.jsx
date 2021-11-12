@@ -27,7 +27,7 @@ class ReportCommentList extends React.Component {
             isLoading:false,
             type: '',
             searchValue: {},
-            commentId: this.props.location.state.commentId,
+            commentId: this.props.location.state?.commentId,
             visibleTimeline: false,/*默认不显示时间轴*/
             form: {
               selectLists: {
