@@ -19,3 +19,18 @@
 .site-layout .site-layout-background {
     background: #fff;
 }
+
+.color-span {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-top: 5px;
+    margin-left: 5px;
+}
+.custom-avatar {
+    display: inline-block;
+}
+.color {
+    font-size: 26px;
+    padding-right: 10px;
+}

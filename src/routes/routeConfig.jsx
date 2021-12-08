@@ -221,6 +221,12 @@ const privateRoutes = [
                 component: AdminList,
                 level: '1'
             },
+            {
+                pathname: '/admin/user',
+                component: User,
+                title: '用户表单',
+                isTop: false
+            },
         ]
     },
     {
@@ -245,8 +251,7 @@ const privateRoutes = [
             {
                 title: '帖子种类',
                 pathname: '/admin/typeList',
-                component: InvitationTypeList,
-                isShow: getToken().level==="1"
+                component: InvitationTypeList
             },
         ]
     },

@@ -124,4 +124,7 @@ module.exports = override(
     })
 );
 ```
+## 更换主题
+* 参考：https://github.com/mzohaibqc/antd-theme-generator
+
 ## 配置代理

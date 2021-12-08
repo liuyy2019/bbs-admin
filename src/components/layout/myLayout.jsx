@@ -1,6 +1,7 @@
 import React from 'react';
-import {Layout, Menu,Dropdown,Row,Col,Avatar} from 'antd';
+import {Layout, Menu,Dropdown,Row,Col,Avatar,Popover} from 'antd';
 import { Link } from 'react-router-dom'
+import { SkinTwoTone } from '@ant-design/icons';
 import {
     DownOutlined,
     MenuUnfoldOutlined,
@@ -38,10 +39,26 @@ class MyLayout extends React.Component {
         }
         return (<IconFont type={icon}/>)
     }
+    changeColor = (color) => {
+        console.log(color)
+        window.less.modifyVars({
+            '@primary-color': color
+        }).then((vars) => {
+            console.log(vars)
+            this.setState({ color })
+        })
+    }
 
     render() {
         const user = getToken();
-        const{collapsed} = this.state
+        const{collapsed} = this.state;
+        const content = (
+            <div>
+                <span className={'color-span'} style={{backgroundColor: '#13E8E9'}} onClick={() => this.changeColor('#13E8E9')}/>
+                <span className={'color-span'} style={{backgroundColor: '#1890ff'}} onClick={() => this.changeColor('#1890ff')}/>
+                <span className={'color-span'} style={{backgroundColor: '#ff4d4f'}} onClick={() => this.changeColor('#ff4d4f')}/>
+            </div>
+        );
         return (
             <Layout style={{minHeight: '100%',height: "100vh"}}>
                 <Header className="header" style={{height: '10vh',minHeight:"64px"}}>
@@ -52,11 +69,17 @@ class MyLayout extends React.Component {
                                 <span onClick={this.toggle}> {collapsed ? <MenuUnfoldOutlined/> : <MenuFoldOutlined/> }</span>
                             </div>
                         </Col>
-                        <Col>
-                            <Dropdown overlay={<MyMenu/>} >
-                                <div style={{color:'#fff'}} className="ant-dropdown-link" onClick={e => e.preventDefault()}>
+                        <Col style={{display: 'flex', alignItems: 'center'}}>
+                            <Popover placement="bottom" content={content} trigger="click">
+                                <SkinTwoTone twoToneColor="#AA3131FF" className={'color'}/>
+                            </Popover>
+                            <Dropdown overlay={<MyMenu/>}>
+                                <div onClick={e => e.preventDefault()} className={'custom-avatar'}>
                                     <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-                                    欢迎！{getToken("user").name}<DownOutlined />
+                                    <span style={{color: '#fff'}}>
+                                        欢迎！{getToken("user").name}
+                                        <DownOutlined />
+                                    </span>
                                 </div>
                             </Dropdown>
                         </Col>
