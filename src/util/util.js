@@ -2,7 +2,7 @@
  * 工具方法集合
  */
 import React from 'react';
-import { Tooltip,Tag } from 'antd';
+import {Tooltip, Tag} from 'antd';
 
 export default {
 
@@ -11,10 +11,10 @@ export default {
      * @param value  需要处理的文本
      * @param length  指定长度，默认10
      */
-    longContentHandle(value,length=10){
+    longContentHandle(value, length = 10) {
         const show = value && value.length > length ? `${value.substr(0, length)}...` : value;
         return (
-            <Tooltip title={value} trigger={['hover','click']}>
+            <Tooltip title={value} trigger={['hover', 'click']}>
                 {show}
             </Tooltip>
         )
@@ -41,7 +41,7 @@ export default {
      * @param {*} jsonData object
      * @returns
      */
-    deepClone(jsonData){
+    deepClone(jsonData) {
         if (!jsonData) return jsonData
 
         return JSON.parse(JSON.stringify(jsonData))
@@ -52,7 +52,7 @@ export default {
      * @param current
      * @returns {*}
      */
-    dateRender(current){
+    dateRender(current) {
         const style = {};
         // 渲染条件，每月第一天添加圆边框
         if (current.date() === 1) {
@@ -72,10 +72,10 @@ export default {
      *     https://segmentfault.com/q/1010000016180686
      * 可以给匿名函数起个名字，如下get：#3856f2
      */
-    getRandomColor(){
-        return  '#' + (function get(color){
-            return (color +=  '0123456789abcdef'[Math.floor(Math.random()*16)])
-            && (color.length === 6) ?  color : get(color);
+    getRandomColor() {
+        return '#' + (function get(color) {
+            return (color += '0123456789abcdef'[Math.floor(Math.random() * 16)])
+            && (color.length === 6) ? color : get(color);
         })('');
     },
 
@@ -85,7 +85,7 @@ export default {
      * @param myColor
      * @returns {*}
      */
-    textTag(text,myColor){
+    textTag(text, myColor) {
         const color = myColor ? myColor : this.getRandomColor()
         return <Tag color={color}>{text}</Tag>
     },
@@ -99,9 +99,9 @@ export default {
      * @param color
      * @returns {*}
      */
-    textAndOptionsTag(text,selectList,color='cyan', id='codeName', name='description'){
+    textAndOptionsTag(text, selectList, color = 'cyan', id = 'codeName', name = 'description') {
         if (selectList.length !== 0) {
-            const result = selectList.find((items) => text+'' === items[id]+'');
+            const result = selectList.find((items) => text + '' === items[id] + '');
             if (result) {
                 return <Tag color={color} key={text}>{[result[id], result[name]].join(' - ')}</Tag>
             }
@@ -109,5 +109,20 @@ export default {
         return <Tag color={color} key={text}>{text}</Tag>
     },
 
-
+    // 防抖函数
+    debounce(fn, delay = 1000) {
+        let timeid = null;
+        let firstExecute = true;
+        return function () {
+            if (timeid) clearTimeout(timeid)
+            if (firstExecute) {
+                fn();
+                firstExecute = false;
+            } else {
+                timeid = setTimeout(() => {
+                    firstExecute = true;
+                }, delay);
+            }
+        }
+    }
 }

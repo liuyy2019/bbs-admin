@@ -1,8 +1,9 @@
 /**
  * 封装搜索组件
  */
-import React from "react";
+import React, { useCallback } from "react";
 import {Button, Col, Form,Input, Row,Select} from "antd";
+import util from "../../util/util";
 
 const { Option } = Select;
 const  GeneratorSearch = ({ searchItemList, onReset, onFinish}) => {
@@ -43,10 +44,13 @@ const  GeneratorSearch = ({ searchItemList, onReset, onFinish}) => {
         }
     }
 
+    // 函数组件会多次更新渲染（使用useCallback保证返回的防抖函数是同一个）
+    const submit = useCallback(util.debounce(onFinish), [])
+
     return (
         <div style={{marginTop:'10px'}}>
             <Form ref={formRef} name="advanced_search"
-                  className="ant-advanced-search-form" onFinish={onFinish}
+                  className="ant-advanced-search-form" onFinish={submit}
             >
                 <Row gutter={24}>
                     {

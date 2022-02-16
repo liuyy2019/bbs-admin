@@ -38,7 +38,7 @@ class MyComment extends React.Component {
     componentDidMount(){
         const {form} = this.state;
         this.init();
-        getCodeByType({codeType:"STATUS"},result => {
+        getCodeByType({codeType:"STATUS"},(result) => {
             form.lists.STATUS = result || [
                 {"id":15,"codeType":"STATUS","codeName":"0","description":"审核中","status":"1","createTime":"2020-05-26 10:19:08","createBy":"admin"},
                 {"id":16,"codeType":"STATUS","codeName":"1","description":"正常","status":"1","createTime":"2020-05-26 10:19:23","createBy":"admin"},
@@ -155,6 +155,9 @@ class MyComment extends React.Component {
         }
     }
 
+    // 对搜索进行防抖处理，类组件此处只在首次渲染执行（保证返回的防抖函数是同一个）
+    submit = util.debounce(this.onFinish)
+
     render(){
         const {form,dataList,isLoading,visible,type} = this.state
         return(
@@ -166,7 +169,7 @@ class MyComment extends React.Component {
                     </Breadcrumb>
                     <div style={{marginTop:'10px'}}>
                         <Form ref={this.formRef} name="advanced_search"
-                              className="ant-advanced-search-form" onFinish={this.onFinish}
+                              className="ant-advanced-search-form" onFinish={this.submit}
                         >
                             <Row gutter={24}>
                                 <Col span={6}>
