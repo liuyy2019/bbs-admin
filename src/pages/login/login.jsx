@@ -29,7 +29,7 @@ class Login extends React.Component {
     render(){
         return (
             <div id="particles-js">
-                <div className="login">
+                <div className="login" style={{left: '70%'}}>
                     <div className="login-top" style={{textAlign:'center'}}>
                         登录
                     </div>

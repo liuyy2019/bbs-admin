@@ -74,7 +74,7 @@ class MyLayout extends React.Component {
                                 <SkinTwoTone twoToneColor="#AA3131FF" className={'color'}/>
                             </Popover>
                             <Dropdown overlay={<MyMenu/>}>
-                                <div onClick={e => e.preventDefault()} className={'custom-avatar'}>
+                                <div onClick={e => e.preventDefault()} className={'custom-avatar'} style={{display: 'flex', alignItems: 'center'}}>
                                     <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
                                     <span style={{color: '#fff'}}>
                                         欢迎！{getToken("user").name}
