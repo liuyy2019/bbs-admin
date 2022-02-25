@@ -3,6 +3,8 @@
  * 函数的返回值是promise对象
  */
 import axios from 'axios'
+axios.defaults.timeout = 2500;
+
 
 export default function ajax(url,data={}, type='GET'){
     console.log("====start: url: ", url);

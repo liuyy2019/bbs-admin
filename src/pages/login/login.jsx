@@ -14,16 +14,18 @@ class Login extends React.Component {
     onFinish = async (values) => {
         console.log(values)
         const {username, password} = values;
-        const data = await adminLogin(username,password);
-        if(data.data !== "" && data.status === 200){
-            setToken(data.data);
-            // 在可能会出现死循环的地方使用replace来跳转：　　
-            this.props.history.replace('/admin/dashboard');
-        } else {
-            message.error("请核对用户名和密码！");
+        try {
+            const data = await adminLogin(username,password);
+            if(data.data !== "" && data.status === 200){
+                setToken(data.data);
+                // 在可能会出现死循环的地方使用replace来跳转：　　
+                this.props.history.replace('/admin/dashboard');
+            } else {
+                message.error("请核对用户名和密码！");
+            }
+        } catch (e) {
+            message.error("登录失败！");
         }
-
-
     };
 
     render(){

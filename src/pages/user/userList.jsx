@@ -18,11 +18,7 @@ class UserList extends React.Component{
             reports: 0,
         }
     }
-    componentWillMount(){
-        /*this.setState({
-            reports: this.props.location.state.reports,
-        })
-        alert(this.props.location.state.reports)*/
+    componentDidMount(){
         this.getUserList();
     }
     columns = [
@@ -41,8 +37,8 @@ class UserList extends React.Component{
             render: (value, record) => {
                 return (
                     <div>
-                        <Link style={styles.removeBtn} to={{ pathname : '/admin/user',query:{type:'search',record:record}}}>查看</Link>
-                        <Link style={styles.removeBtn} to={{ pathname : '/admin/user',query:{type:'edit',record:record}}}>编辑</Link>
+                        <Link style={styles.removeBtn} to={{ pathname : '/admin/user',state:{type:'detail',record:record}}}>查看</Link>
+                        <Link style={styles.removeBtn} to={{ pathname : '/admin/user',state:{type:'edit',record:record}}}>编辑</Link>
                         <Button type={"link"} onClick={() => this.deleteUser(record)} className={"operation-sty"}>删除</Button>
                     </div>
                 );
@@ -143,7 +139,7 @@ class UserList extends React.Component{
                         </Form>
                     </div>
                 </Card>
-                <Card title="用户列表信息" size="small" extra={<Button type="primary" ><Link to={{ pathname : '/admin/user',query:{type:'add'}}}>添加用户</Link></Button>} style={{marginTop:'10px',height:'75%'}}>
+                <Card title="用户列表信息" size="small" extra={<Button type="primary" ><Link to={{ pathname : '/admin/user',state:{type:'create'}}}>添加用户</Link></Button>} style={{marginTop:'10px',height:'75%'}}>
                     <Table
                         columns={this.columns}
                         loading={this.state.isLoading}

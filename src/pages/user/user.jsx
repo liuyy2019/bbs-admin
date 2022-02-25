@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import {Form,Input,Select,Button,Card,message,Modal} from 'antd'
-import {addUser, getListUsers,updateUser} from "../../api";
+import {addUser, updateUser} from "../../api";
+import util from '../../util/util'
 
 const Item = Form.Item;
 const Option = Select.Option;
@@ -10,44 +11,38 @@ class User extends Component {
     constructor(props){
         super(props);
         this.state = {
-            type:props.location.query.type || 'add',
-            user:props.location.query.record,
-            name:props.location.query.name,
-            userId:props.location.query.userId,
             disabled:false,
-            visible: false
+            visible: false,
+            useInfo: {}
         }
     }
 
-    componentWillMount(){
-        if (this.state.userId) {
-            const user = {
-                userId:this.state.userId
-            }
-            getListUsers({user:user,page:1,size:5},result => {
-                /*initialValues设置默认值，初始有效，赋值使用下面的方式*/
-                this.formRef.current.setFieldsValue(result[0]);
-            })
-        }
+    componentDidMount(){
+        console.log(this.props)
+        // const {record} = this.props.location.state || {}
+        // if (record) {
+        //     this.formRef.current.setFieldsValue(record);
+        //     this.setState({useInfo: record})
+        // }
     }
      onFinish = values => {
-        const type = this.state.type;
-        if (type === 'add') {
+         const {type='create', record} = this.props.location.state || {}
+        if (type === 'create') {
             addUser(values,(result)=>{
                 if(result.status === 200){
                     message.success('用户添加成功');
+                    this.props.history.push('/admin/userList')
                 }
             })
         }else  if (type === 'edit'){
-            values.userId=this.state.user.userId;
+            values.userId=record.userId;
             updateUser(values,result => {
                 if(result.status === 200){
                     message.success('用户更新成功');
+                    this.props.history.push('/admin/userList')
                 }
             })
          }
-
-         this.props.history.push('/admin/userList')
      };
     onReset = () => {
         this.formRef.current.resetFields();
@@ -57,18 +52,14 @@ class User extends Component {
         this.setState({
             visible:true
         });
-        window.history.back(-1);
     };
 
     handleOk = () => {
-        setTimeout(() => {
-            this.setState({
-                visible: false,
-            });
-        }, 2000);
+        this.setState({
+            visible: false,
+        });
         this.formRef.current.resetFields();
-        this.props.history.replace({pathname:'/admin/userList'});
-        // this.props.history.push({ pathname: "/about", state: { id } });
+        this.props.history.push({pathname:'/admin/userList'});
     };
 
     handleCancel = () => {
@@ -77,6 +68,8 @@ class User extends Component {
         });
     };
     render() {
+        const {type='create',record={}} = this.props.location.state || {}
+        const disabled = type === 'detail'
         const formItemLayout = {
             labelCol: {span:4},
             wrapperCol: {span:15},
@@ -87,11 +80,11 @@ class User extends Component {
                 span: 16,
             },
         };
-        const {type,user} = this.state;
+        const title = util.titlePrefix[type] + '用户'
         return (
-            <Card title={type+"用户"} extra={<span onClick={this.onClose}>X</span>}>
+            <Card title={title} extra={<span onClick={this.onClose}>X</span>}>
                 <Form {...formItemLayout} ref={this.formRef}
-                      initialValues={user}
+                      initialValues={record}
                       onFinish={this.onFinish}
                 >
                     <Item
@@ -99,17 +92,17 @@ class User extends Component {
                         name="name"
                         rules={[{ required: true, message: 'Please input your name!' }]}
                     >
-                        <Input placeholder='请输入用户名称' disabled={type==="查看"?true:false}/>
+                        <Input placeholder='请输入用户名称' disabled={disabled}/>
                     </Item>
                     <Item
                         label='密码'
                         name="password"
                         rules={[{ required: true, message: 'Please input your password!' }]}
                     >
-                        <Input placeholder='请输入密码' disabled={type==="查看"?true:false}></Input>
+                        <Input placeholder='请输入密码' disabled={disabled}/>
                     </Item>
                     <Item label="出生日期" name="birthday">
-                        <Input placeholder='请输入密码' disabled={type==="查看"?true:false}></Input>
+                        <Input placeholder='请输入密码' disabled={disabled}/>
                         {/*<DatePicker format='YYYY-MM-DD' style={{width: "100%"}}/>*/}
                     </Item>
                     <Item
@@ -117,20 +110,20 @@ class User extends Component {
                         name="phone"
                         rules={[{ required: true, message: 'Please input your phone!' }]}
                     >
-                        <Input placeholder='请输入手机号' disabled={type==="查看"?true:false}></Input>
+                        <Input placeholder='请输入手机号' disabled={disabled}/>
                     </Item>
                     <Item
                         label='邮箱'
                         name="email"
                     >
-                        <Input placeholder='请输入邮箱' disabled={type==="查看"?true:false}></Input>
+                        <Input placeholder='请输入邮箱' disabled={disabled}/>
                     </Item>
                     <Item
                         label='性别'
                         name="sex"
                         rules={[{ required: true, message: 'Please select your sex!' }]}
                     >
-                        <Select placeholder='请选择用户性别' disabled={type==="查看"?true:false}>
+                        <Select placeholder='请选择用户性别' disabled={disabled}>
                             <Option key="1" value="男">男</Option>
                             <Option key="2" value="女">女</Option>
                         </Select>
@@ -140,7 +133,7 @@ class User extends Component {
                         name="status"
                         rules={[{ required: true, message: 'Please Select your status!' }]}
                     >
-                        <Select placeholder='请选择用户状态' disabled={type==="查看"?true:false}>
+                        <Select placeholder='请选择用户状态' disabled={disabled}>
                             <Option key="1" value={0}>0 - 待激活</Option>
                             <Option key="2" value={1}>1 - 已激活</Option>
                             <Option key="3" value={2}>2 - 已封号</Option>
@@ -157,15 +150,15 @@ class User extends Component {
                         <Button type="primary" onClick={this.onClose}>
                             关闭
                         </Button>
-                        <Modal
-                            visible={this.state.visible}
-                            onOk={this.handleOk}
-                            onCancel={this.handleCancel}
-                        >
-                            <p>确认取消</p>
-                        </Modal>
                     </Item>
                 </Form>
+                <Modal
+                    visible={this.state.visible}
+                    onOk={this.handleOk}
+                    onCancel={this.handleCancel}
+                >
+                    <p>确认取消</p>
+                </Modal>
             </Card>
 
         );

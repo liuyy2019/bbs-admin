@@ -1,6 +1,6 @@
 import React from 'react';
 import {Switch, Route} from 'react-router-dom'
-import MyLayout from "./components/layout/myLayout";
+import MyLayout from "./components/layout/MyLayout";
 import {privateRoutes} from "./routes/routeConfig"
 import NotFound from "./pages/notFound/NotFound";
 

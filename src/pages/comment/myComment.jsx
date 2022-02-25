@@ -222,8 +222,8 @@ class MyComment extends React.Component {
                             }
                         }/>
                         <Table.Column title= '状态' width= {80} align= 'center' dataIndex= 'status' render={text => util.textAndOptionsTag(text,form.lists.STATUS)}/>
-                        <Table.Column title= '被举报次数' width= {100} align= 'center' dataIndex= 'reports' render={(text) => <Tag color="red" key={text}>{text}</Tag>}/>
-                        <Table.Column title= '点赞次数' width= {100} align= 'center' dataIndex= 'amount' render={(text) => <Tag color="red" key={text}>{text}</Tag>}/>
+                        <Table.Column title= '被举报次数' width= {100} align= 'center' dataIndex= 'reports' render={(text) => <Tag color="geekblue" key={text}>{text}</Tag>}/>
+                        <Table.Column title= '点赞次数' width= {100} align= 'center' dataIndex= 'amount' render={(text) => <Tag color="geekblue" key={text}>{text}</Tag>}/>
                         <Table.Column title= '评论时间' width= {150} align= 'center' dataIndex= 'createtime' />
                         <Table.Column title= '操作' fixed= 'right' width= {130} align= 'center' dataIndex= '' render={this.operatorRender}/>
                     </Table>
