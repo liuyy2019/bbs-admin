@@ -3,7 +3,6 @@ import {Layout, Menu} from 'antd';
 import { Link } from 'react-router-dom'
 import IconFont from "../IconFont/IconFont";
 // import IconFont from "@/components/IconFont/IconFont";
-import './index.css';
 import { privateRoutes } from "../../routes/routeConfig";
 import {getToken} from "../../util/userLoginUtil";
 import MyHead from './MyHead'

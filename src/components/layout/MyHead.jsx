@@ -3,6 +3,7 @@ import {Col, Popover, Row, Layout} from "antd";
 import {MenuFoldOutlined, MenuUnfoldOutlined, SmileTwoTone, SkinTwoTone} from "@ant-design/icons";
 import MyMenu from "../myMenu/myMenu";
 import {getToken} from "../../util/userLoginUtil";
+import styles from './index.module.css';
 
 const {Header} = Layout;
 
@@ -21,11 +22,11 @@ export default ({collapsed, toggle}) => {
 
     const content = (
         <div>
-            <span className={'color-span'} style={{backgroundColor: '#13E8E9'}}
+            <span className={styles['color-span']} style={{backgroundColor: '#13E8E9'}}
                   onClick={() => changeColor('#13E8E9')}/>
-            <span className={'color-span'} style={{backgroundColor: '#1890ff'}}
+            <span className={styles['color-span']} style={{backgroundColor: '#1890ff'}}
                   onClick={() => changeColor('#1890ff')}/>
-            <span className={'color-span'} style={{backgroundColor: '#ff4d4f'}}
+            <span className={styles['color-span']} style={{backgroundColor: '#ff4d4f'}}
                   onClick={() => changeColor('#ff4d4f')}/>
         </div>
     );
@@ -42,7 +43,7 @@ export default ({collapsed, toggle}) => {
                 <Col>
                     <span style={{display: 'flex', alignItems: 'center', fontSize: '20px'}}>
                         <Popover placement="bottom" content={content} trigger="click">
-                            <SkinTwoTone className={'color'}/>
+                            <SkinTwoTone className={styles.color}/>
                         </Popover>
                         <Popover placement="bottom" content={<MyMenu/>}>
                             <SmileTwoTone/>

@@ -96,9 +96,14 @@ class UserList extends React.Component{
         })
     }
     render(){
+        const extraBtn = (
+            <Button type="primary" >
+                <Link to={{ pathname : '/admin/user',state:{type:'create'}}}>添加用户</Link>
+            </Button>
+        )
         return(
             <div style={{background:'#f0f2f5',height:'100%'}}>
-                <Card size="small"  style={{height:'20%'}}>
+                <Card size="small">
                     <Breadcrumb >
                         <Breadcrumb.Item>用户管理</Breadcrumb.Item>
                         <Breadcrumb.Item>用户信息列表</Breadcrumb.Item>
@@ -119,12 +124,11 @@ class UserList extends React.Component{
                                             <Option key="1" value="男">男</Option>
                                             <Option key="2" value="女">女</Option>
                                         </Select>
-                                        {/*<Input placeholder="placeholder" />*/}
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item name="reportNumber" label="举报次数">
-                                        <Input placeholder="大于等于该值" />
+                                        <Input placeholder="举报次数" />
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
@@ -139,7 +143,7 @@ class UserList extends React.Component{
                         </Form>
                     </div>
                 </Card>
-                <Card title="用户列表信息" size="small" extra={<Button type="primary" ><Link to={{ pathname : '/admin/user',state:{type:'create'}}}>添加用户</Link></Button>} style={{marginTop:'10px',height:'75%'}}>
+                <Card title="用户列表信息" size="small" extra={extraBtn} style={{marginTop:'10px',height:'75%'}}>
                     <Table
                         columns={this.columns}
                         loading={this.state.isLoading}
