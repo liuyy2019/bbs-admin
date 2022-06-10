@@ -1,0 +1,14 @@
+.blue-background-class {
+    background-color: #C8EBFB !important;
+    cursor: move !important;
+}
+
+.sortable-chosen {
+    background-color: #C8EBFB;
+    cursor: move !important;
+}
+.sortable-drag {
+    cursor: move !important;
+    background-color: #C8EBFB;
+}
+

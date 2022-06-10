@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState, useImperativeHandle} from 'react'
 import {Table} from "antd";
 import Sortable from 'sortablejs';
-
+import './index.css'
 
 
 const Index = ({ dataSource, columns,...otherTableProps }, ref) => {
@@ -18,7 +18,18 @@ const Index = ({ dataSource, columns,...otherTableProps }, ref) => {
         let el = componentBackingInstance.querySelector('.ant-table-tbody');
         if (!el) return
         Sortable.create(el, {
-            animation: 100, //动画参数
+            animation: 1000, //动画参数
+            // easing: "cubic-bezier(1, 0, 0, 1)",
+            // delay: 100, // 拖拽延迟
+            sort: true,  // 是否排序，false-在组内不能拖动，但能拖动到别的组内；true能拖动
+            disabled: false, // 关闭拖拽
+            ghostClass: 'blue-background-class', // drop placeholder的css类名
+            chosenClass: 'sortable-chosen',  // 被选中项的css 类名
+
+            // 正在被拖拽中的css类名，需要设置设置forceFallback: true禁用html5原生拖拽。
+            forceFallback: true,
+            dragClass: 'sortable-drag',
+
             onEnd: function (evt) {
                 const tempDataSource = [...innerDataSource]
                 // 交换元素位置
@@ -50,4 +61,5 @@ export default React.forwardRef(Index)
  * https://blog.csdn.net/baidu_41457482/article/details/117106550
  * Sortablejs：https://github.com/SortableJS/Sortable
  * Sortablejs中文网：http://www.sortablejs.com/
+ * https://www.itxst.com/sortablejs/f67ney22.html
  */
