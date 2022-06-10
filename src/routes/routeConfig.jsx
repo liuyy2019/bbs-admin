@@ -32,7 +32,8 @@ import {
     ParamList,
     EnumParamList,
     EnumTypeList,
-    UseLoading
+    UseLoading,
+    DragTableColumn,
 } from '../pages';
 import React from "react";
 import {getToken} from "../util/userLoginUtil";
@@ -339,6 +340,17 @@ const privateRoutes = [
     {
         title: '测试',
         icon: <LaptopOutlined/>,
+    },{
+        title: '表格拖拽',
+        icon: undefined,
+        children: [
+            {
+                title: '行拖拽',
+                pathname: '/admin/dragTable/column',
+                component: DragTableColumn,
+                icon: undefined
+            }
+        ]
     },
 ]
 export {
