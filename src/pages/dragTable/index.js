@@ -1,12 +1,17 @@
 import React, { useRef } from "react";
 import CustomSortable from "../../components/table/sortable-table/index";
+import CustomDndTable from "../../components/table/react-beautiful-dnd-table"
 import {Button} from "antd";
 
 export default () => {
     const tableRef = useRef(null)
+    const tableRef2 = useRef(null)
 
     const onSave = () => {
         console.log(tableRef.current)
+    }
+    const onSave2 = () => {
+        console.log(tableRef2.current)
     }
     const dataSource = [
         {
@@ -51,6 +56,8 @@ export default () => {
         <div>
             <CustomSortable ref={tableRef} dataSource={dataSource} columns={columns}/>
             <Button onClick={onSave}>保存</Button>
+            <Button onClick={onSave2}>保存</Button>
+            <CustomDndTable ref={tableRef2} dataSource={dataSource} columns={columns}/>
         </div>
     )
 }
